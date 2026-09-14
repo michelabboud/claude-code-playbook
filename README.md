@@ -18,22 +18,61 @@ stop", "bring it to me" — you install these files and you are the "I". That
 voice is the point: it makes the rulebook a working agreement between you and
 the model, not a policy document nobody reads twice.
 
+## Why this exists
+
+Working well with an AI coding agent comes down to one thing almost nobody writes
+down: **what may it do without asking, and what must it bring to you.** Leave that
+unwritten and you re-litigate it every session — the agent stops to ask about
+things you don't care about, and quietly decides things you did. Both are
+expensive, and the second one is how work gets damaged.
+
+This is one answer to that, written down and used daily on real production work.
+It exists because the costly part was never writing rules — it was finding out
+*which* rules matter, which is usually learned by getting burned. Every rule here
+earned its place that way: a near-miss, a silent data loss, an upgrade that
+bricked itself, a review that passed something it shouldn't have.
+
+It is shared so nobody else has to start from a blank file and learn the same
+lessons the same way.
+
+## Who it's for
+
+- **Anyone using Claude Code on work that matters** — where a wrong move costs
+  real time, real data, or real money.
+- **People who've noticed the failure modes.** The agent that asks permission for
+  everything and gets nothing done. The one that never asks and deletes something
+  it shouldn't have. Section 0's approval table is the answer to both.
+- **Teams who want a shared baseline** — so "how we work with agents" is a
+  document rather than an oral tradition that differs per person.
+- **People who will take one section and ignore the rest.** That's a completely
+  valid use. The review cadence, the approval table, and the close-out chain each
+  stand alone.
+
+**Who it isn't for:** anyone looking for a policy to enforce on other people. It
+is written in the first person because it only works when the person installing
+it agrees with it.
+
 ## See it before you read it
 
-**[Open the visual map →](https://claude.ai/code/artifact/50f67dbd-f586-4fdd-a304-b39296057413?via=auto_preview&sk=DclR1fTTx77r7XpZIoBUBw)**
+**[Open the visual map →](https://nice-michel.github.io/claude-code-playbook/playbook.html)**
 
 An explorable page covering all thirteen sections and forty-nine rules: click a
 section to see its trigger and its rules, plus the tables that carry the real
 structure — the approval table, the review ladder, the model roster, the close-out
 chain, and the three-way platform matrix.
 
-The same page ships in this repo as [`docs/playbook.html`](docs/playbook.html) —
-a single self-contained file. Clone the repo and open it in any browser; it needs
-no server and no network.
+It ships in this repo as [`docs/playbook.html`](docs/playbook.html) — one
+self-contained file, no server, no network, no build step. The link above is the
+same file served by GitHub Pages.
 
 ## Install
 
-Copy two things into your Claude Code configuration directory:
+**Giving this repo to an AI agent?** Point it here and say "install this". The
+full procedure — preconditions, backup-first, platform selection, verification,
+and the conditions under which it must refuse — is in
+**[`INSTALL.md`](INSTALL.md)**. It is written to be executed, not just read.
+
+To do it by hand, copy two things into your Claude Code configuration directory:
 
 ```
 CLAUDE.md   →  ~/.claude/CLAUDE.md
@@ -141,6 +180,18 @@ Three things are worth agreeing on once, before everyone starts:
 
 The rulebook stays in the first person for everyone. Each teammate is the "I" in
 their own copy; it is not a shared voice speaking for the team.
+
+## Versions
+
+Current: **v0.1.4**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+
+| Version | What changed |
+|---|---|
+| **v0.1.4** | `INSTALL.md` — a procedure an AI agent can follow from the repo URL alone, with backup-first and explicit refusal conditions. Why-this-exists and who-it's-for. The rulebook now states its own version so it can tell when it's stale. |
+| **v0.1.3** | A README illustration arguing rule 7.2 — decide by default, a stall is a defect. |
+| **v0.1.2** | The visual map: every section and rule as an explorable page, hosted and shipped in-repo. |
+| **v0.1.1** | Needs nothing but a shell and git — every helper-tool reference removed, so nobody receives a rulebook describing something they can't install. Team guidance added. |
+| **v0.1.0** | First distributable release, generalised from a private single-owner rulebook. Section 11 became the platform split; the model roster became explicit; two cross-references broken since the sections were numbered were fixed. |
 
 ## Licence
 

@@ -4,6 +4,39 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.4 — 2026-09-14
+
+### Changed
+- **Relocated to a public personal repository** — this is a personal guide, and it
+  reads better as one. Every internal reference went with it: the repo URL, the
+  "internal repository" precondition in `INSTALL.md`, and the masthead of the
+  visual map. The self-check now uses an unauthenticated `curl` against the raw
+  `VERSION` file rather than `gh`, so it works for anyone with no setup at all.
+- The visual map is served by **GitHub Pages** instead of a share link carrying an
+  access token. A public URL that can be turned off beats a token that can only be
+  revoked by unsharing.
+
+### Added
+- **`INSTALL.md`** — an install procedure written to be *executed by an AI agent*
+  handed nothing but the repo URL, not just read by a human. Preconditions checked
+  before anything changes; backup-first with the backup read back and **a failed
+  backup treated as a refusal, not a warning**; exactly one platform file copied,
+  never all three; the git-identity placeholder raised with the user rather than
+  guessed from their git config; and an explicit list of what must never be
+  touched, since `~/.claude/` also holds their settings, skills and history.
+  It also warns an agent that this repo's own `CLAUDE.md` is the payload being
+  installed, not instructions for working in this repo.
+- **`CLAUDE.md` now states its own version and how to check for a newer one**, with
+  a tested command reading the repo's `VERSION` file — the single source of truth,
+  since not every version carries a release tag. An update is treated as a rule
+  10.2 action: it stops and asks, because it would overwrite files the user was
+  explicitly invited to tailor.
+- **README: why this exists and who it's for.** The rules were expensive to learn,
+  not to write, and that is the reason to share them.
+- **README: a version history table**, starting at v0.1.0.
+
+---
+
 ## 0.1.3 — 2026-09-14
 
 ### Added

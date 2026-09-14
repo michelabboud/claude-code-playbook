@@ -10,6 +10,16 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. That is the job. Agreeing with me is not.
 
+**This rulebook is version 0.1.4** — source `github.com/nice-michel/claude-code-playbook`.
+
+*Self-update. Check when I ask, or when something here looks wrong or missing. The `VERSION` file is the single source of truth — read it, not the tag list, because not every version is tagged as a release. The repo is public, so this needs no authentication:*
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/nice-michel/claude-code-playbook/main/VERSION
+```
+
+*If that number is higher than the one above, this copy is behind. Read `CHANGELOG.md` for what moved, tell me the gap in plain words, and then **stop and ask before replacing anything.** Updating overwrites files I may have tailored — three sections are explicitly meant to be tailored — so it is a rule 10.2 action: back up first, verify the backup, and only then copy. The full procedure is `INSTALL.md` in the repo; it is written to be executed. If the fetch fails, say so rather than guessing at the version.*
+
 *The rules live in `~/.claude/rules/`, one file per section, numbered `<section>.<rule>` so a new rule never renumbers its neighbours. Section 0 is always the first thing to read after this page.*
 
 ## The rulebook — sections, what they cover, when to open them
