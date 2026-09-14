@@ -4,6 +4,35 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.1 — 2026-09-14
+
+Prepared for handing to a team. The bundle now assumes **no tooling beyond a
+shell and git**, so nobody receives a rulebook that describes something they
+cannot install.
+
+### Removed
+- `OPTIONAL-TOOLS.md`, and every reference to it. A rule file that mentions a
+  helper — even as optional — makes a reader wonder whether they are missing a
+  prerequisite. The procedures were always complete without one; now they say so
+  and nothing else.
+
+### Changed
+- `QUARANTINE.md`'s accelerator note became a **contract for automation the
+  reader might write themselves**: validation evaluated before the move and in
+  its own step, a manifest byte-compatible with a hand-written one, and final
+  deletion still refusing without approval. It advertises nothing.
+- Two lessons worth keeping independently of any tool were relocated rather than
+  deleted:
+  - **"an isolated working directory is not a sandbox"** → `SUBAGENTS.md`, where
+    dispatched work is decided. A worktree isolates files, a process sandbox
+    limits capability, a permission set limits actions; only the controls your
+    setup genuinely implements are real.
+  - **"a tool that quietly becomes load-bearing is a dependency nobody vetted"**
+    → `CODE.md` rule 1.5, which is where dependencies are already vetted.
+- `README.md` gained a short section on using the bundle across a team.
+
+---
+
 ## 0.1.0 — 2026-09-14
 
 First distributable release. Generalised from a private, single-owner rulebook

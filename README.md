@@ -98,10 +98,28 @@ Three places worth tailoring before anything else:
 - **The review cadence in `rules/REVIEWS.md`** — 3 to 10 tasks per batch. If
   your work is riskier or your batches larger, change the number and say why.
 
-## Optional tools
+## If your team shares this
 
-Some sections mention helper tools. **No rule depends on one.** See
-`OPTIONAL-TOOLS.md`.
+The bundle needs nothing but a shell and git. There is no tool to install and no
+account to be granted — every procedure in it is complete by hand, on purpose.
+
+Three things are worth agreeing on once, before everyone starts:
+
+- **Each person edits their own git identity** in `rules/WORKFLOW.md`. It is the
+  only required edit, and it must not be shared.
+- **Decide which mode each repo is in.** `rules/WORKFLOW.md` rule 6.1 has two:
+  solo developers commit straight to `main`; a repo with a second contributor
+  runs the same chain on a feature branch and lands by pull request. Read it from
+  the repo itself — contributors, branch protection, an existing PR flow — and
+  say which one you took. Never push to a shared `main` because the rule's solo
+  half allowed it.
+- **A shared repo needs `CONTRIBUTING.md`** the moment it has a second
+  contributor (rule 5.2): dev setup, the test/lint/build commands, and the commit
+  trailer. That is where your team's local conventions belong — not in these
+  rules, which every person installs identically.
+
+The rulebook stays in the first person for everyone. Each teammate is the "I" in
+their own copy; it is not a shared voice speaking for the team.
 
 ## Licence
 

@@ -31,5 +31,3 @@ Sections marked **auto** carry a `paths:` scope: they enter context on their own
 | 10 | **Destructive actions & quarantine** | Destructive acts need my OK · validate first, destroy alone · quarantine is the answer to doubt, and its procedure | Before any delete, overwrite, truncation, purge, migration or history rewrite — "cleanup" included | `rules/DESTRUCTIVE.md` · `rules/QUARANTINE.md` |
 | 11 | **Your platform** | The OS-specific commands every other section defers to: ports, host capacity, hashing, private directories, process inspection, atomic moves | A rule says "your platform file gives the command" — read the one file for the OS you are on | `rules/platform/LINUX.md` · `MACOS.md` · `WINDOWS.md` |
 | 12 | **Writing to me** | Lead with the next action and end with one · restate state every turn · explain like a human · the pre-send check | Composing any reply to me | `rules/WRITING.md` |
-
-**Optional tooling.** Some sections mention helper tools that make a procedure faster. **No rule depends on one.** The rule is the law, a tool is an accelerator, and the hand procedure is always present and always sufficient. See `OPTIONAL-TOOLS.md`.

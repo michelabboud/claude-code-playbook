@@ -90,13 +90,7 @@ inbox/2026-01-15_my-service_gate-review_01/
   approval YYYY-MM-DD>
 ```
 
-**Optional accelerator.** A helper tool can perform the file half of this
-mechanically — validate first and alone, move by rename, write the manifest in
-the format above, append the index line under a lock — so no agent has to compose
-these steps out of shell again. **No rule depends on one**, the hand procedure
-above is always sufficient, and a manifest written by hand and one written by a
-tool are interchangeable. See `OPTIONAL-TOOLS.md`. Judgment stays with you in
-either case: WHETHER to quarantine, and the honest `reason`.
+**If you ever automate this.** The five steps above are the whole procedure and need nothing but a shell — that is deliberate, so the file half never depends on something a colleague hasn't installed. If you do write a helper, it must honour three things or it is not doing this procedure: the validation runs and is evaluated **before** the move and in its own step; the manifest it writes is byte-compatible with a hand-written one, so a hand move between the state directories stays a first-class way to drive it; and final deletion still refuses without explicit approval. Judgment never moves into the tool — WHETHER to quarantine, and the honest one-line `reason`, stay yours.
 
 ## 3. Databases (never DROP under doubt — rename or copy-out)
 
