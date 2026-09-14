@@ -4,6 +4,23 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.7 — 2026-09-14
+
+### Fixed
+- **The section index pointed at files an install never copies.** Section 11 was
+  listed as `rules/platform/LINUX.md · MACOS.md · WINDOWS.md`, but `INSTALL.md`
+  correctly installs exactly one — so on any real machine the index named two
+  files that were not on disk, and a session following it would try to open them.
+  Now written as `rules/platform/<your-os>.md` in both `CLAUDE.md` and
+  `AUTHORITY.md`: correct whichever platform file is present, and needing no
+  edit at install time.
+
+  **Found by installing the bundle on a real machine and verifying the result** —
+  not by reading it. The rule about platform commands existing in one file per OS
+  was right; the index describing them was written as if all three shipped.
+
+---
+
 ## 0.1.6 — 2026-09-14
 
 ### Fixed

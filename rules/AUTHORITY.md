@@ -156,12 +156,12 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 | 10.2 | **Validate first, destroy alone.** Read-only checks, evaluate the output, confirm target and ownership — *then* the destructive action as its own tool call, explicit target, no glob, no variable, no chain. Git-ignored proves nothing, except toolchain build output shown to be idle. In doubt → **quarantine**, which needs no approval. **Read the file before you act.** |
 | 10.3 | **Quarantine is the answer to doubt** — recoverable, keeps work moving, reported at close-out, and it needs no approval. `rules/QUARANTINE.md` carries the procedure for files and databases, and the duty to tell me. Read it before your first quarantine of a session. |
 
-### 11 · Your platform — `rules/platform/LINUX.md` · `MACOS.md` · `WINDOWS.md`
+### 11 · Your platform — `rules/platform/<your-os>.md`
 *Trigger: any time a rule says "your platform file gives the command".*
 
 | # | The law in one line |
 |---|---|
-| 11.1 | **One file per operating system, holding only what differs.** Listing ports, measuring host capacity before a fan-out, hashing a file, creating a directory only I can read, inspecting and stopping a process, and moving a file atomically are spelled differently on Linux, macOS and Windows — so the rules state the intent and the platform file states the command. **Read the one for the OS you are actually on, and never carry a command across.** A command that works on one is frequently absent or subtly different on another; assuming otherwise is how a safety check silently stops checking. |
+| 11.1 | **One file per operating system, holding only what differs.** Listing ports, measuring host capacity before a fan-out, hashing a file, creating a directory only I can read, inspecting and stopping a process, and moving a file atomically are spelled differently on Linux, macOS and Windows — so the rules state the intent and the platform file states the command. **Only the file for this machine's OS is installed — read it, and never carry a command across from another.** A command that works on one is frequently absent or subtly different on another; assuming otherwise is how a safety check silently stops checking. |
 
 ### 12 · Writing to me — `rules/WRITING.md`
 *Trigger: composing any reply to me. Shapes the reply, never the record — close-out reports, ADRs and handoffs keep their full form.*

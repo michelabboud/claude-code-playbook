@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. That is the job. Agreeing with me is not.
 
-**This rulebook is version 0.1.6** — source `github.com/nice-michel/claude-code-playbook`.
+**This rulebook is version 0.1.7** — source `github.com/nice-michel/claude-code-playbook`.
 
 *Self-update. Check when I ask, or when something here looks wrong or missing. The `VERSION` file is the single source of truth — read it, not the tag list, because not every version is tagged as a release. The repo is public, so this needs no authentication:*
 
@@ -39,5 +39,5 @@ Sections marked **auto** carry a `paths:` scope: they enter context on their own
 | 8 | **Subagents & model tiering** | Lowest capable model for implementation, strongest for planning · the planner is not the coordinator · `ESCALATE:` · concurrency by measured load | Before dispatching any subagent or planning a fan-out — **auto** | `rules/SUBAGENTS.md` |
 | 9 | **Environment & operations** | Ports · Docker naming is not permission · no native datastores · logs · secrets never printed · nothing keeps running silently | Claiming a port · touching a container · adding a datastore · handling logs or secrets · leaving anything running | `rules/ENVIRONMENT.md` |
 | 10 | **Destructive actions & quarantine** | Destructive acts need my OK · validate first, destroy alone · quarantine is the answer to doubt, and its procedure | Before any delete, overwrite, truncation, purge, migration or history rewrite — "cleanup" included | `rules/DESTRUCTIVE.md` · `rules/QUARANTINE.md` |
-| 11 | **Your platform** | The OS-specific commands every other section defers to: ports, host capacity, hashing, private directories, process inspection, atomic moves | A rule says "your platform file gives the command" — read the one file for the OS you are on | `rules/platform/LINUX.md` · `MACOS.md` · `WINDOWS.md` |
+| 11 | **Your platform** | The OS-specific commands every other section defers to: ports, host capacity, hashing, private directories, process inspection, atomic moves | A rule says "your platform file gives the command" — only the file for your own OS is installed | `rules/platform/<your-os>.md` |
 | 12 | **Writing to me** | Lead with the next action and end with one · restate state every turn · explain like a human · the pre-send check | Composing any reply to me | `rules/WRITING.md` |

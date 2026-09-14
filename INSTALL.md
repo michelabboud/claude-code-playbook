@@ -86,6 +86,10 @@ host load, hashing a file, creating a private directory.
 **Copy only the one matching the operating system you identified in step 0**, to
 `~/.claude/rules/platform/`.
 
+The section index in `CLAUDE.md` refers to this generically as
+`rules/platform/<your-os>.md`, so it does not need editing and never points at a
+file you did not install.
+
 The other two are deliberately left behind. A command that works on one system is
 frequently absent or subtly different on another, and a rulebook carrying three
 contradictory answers invites exactly the mistake the split exists to prevent. If
