@@ -140,7 +140,7 @@ of things needing the user's OK.** Nothing below that table may add a gate.
 The rulebook is written in the first person, and **the user is the "I".** It is a
 working agreement between them and the model, not a policy document.
 
-The visual map at [`docs/playbook.html`](docs/playbook.html) shows every section
+The visual map at [`docs/index.html`](docs/index.html) shows every section
 and rule, and is the fastest way for them to see what they just installed.
 
 ---

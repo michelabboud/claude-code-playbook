@@ -54,14 +54,14 @@ it agrees with it.
 
 ## See it before you read it
 
-**[Open the visual map →](https://nice-michel.github.io/claude-code-playbook/playbook.html)**
+**[Open the visual map →](https://nice-michel.github.io/claude-code-playbook/)**
 
 An explorable page covering all thirteen sections and forty-nine rules: click a
 section to see its trigger and its rules, plus the tables that carry the real
 structure — the approval table, the review ladder, the model roster, the close-out
 chain, and the three-way platform matrix.
 
-It ships in this repo as [`docs/playbook.html`](docs/playbook.html) — one
+It ships in this repo as [`docs/index.html`](docs/index.html) — one
 self-contained file, no server, no network, no build step. The link above is the
 same file served by GitHub Pages.
 
@@ -183,10 +183,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.4**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.5**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.5** | The published site root served a 404 — only the deep link worked. The page is now `docs/index.html`, so the bare URL serves it. |
 | **v0.1.4** | `INSTALL.md` — a procedure an AI agent can follow from the repo URL alone, with backup-first and explicit refusal conditions. Why-this-exists and who-it's-for. The rulebook now states its own version so it can tell when it's stale. |
 | **v0.1.3** | A README illustration arguing rule 7.2 — decide by default, a stall is a defect. |
 | **v0.1.2** | The visual map: every section and rule as an explorable page, hosted and shipped in-repo. |
