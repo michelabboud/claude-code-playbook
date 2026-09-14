@@ -4,6 +4,19 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.2 — 2026-09-14
+
+### Added
+- `docs/playbook.html` — a single self-contained visual map of all thirteen
+  sections and forty-nine rules, with the approval table, the review ladder, the
+  model roster, the close-out chain and the three-way platform matrix rendered as
+  real tables. No server, no network, no build step: clone and open it.
+- `README.md` links both the hosted version and the in-repo file, above the
+  install steps — the page is the fastest way to decide whether the bundle is
+  worth adopting.
+
+---
+
 ## 0.1.1 — 2026-09-14
 
 Prepared for handing to a team. The bundle now assumes **no tooling beyond a

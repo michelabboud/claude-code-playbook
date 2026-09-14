@@ -12,6 +12,19 @@ stop", "bring it to me" — you install these files and you are the "I". That
 voice is the point: it makes the rulebook a working agreement between you and
 the model, not a policy document nobody reads twice.
 
+## See it before you read it
+
+**[Open the visual map →](https://claude.ai/code/artifact/50f67dbd-f586-4fdd-a304-b39296057413?via=auto_preview&sk=DclR1fTTx77r7XpZIoBUBw)**
+
+An explorable page covering all thirteen sections and forty-nine rules: click a
+section to see its trigger and its rules, plus the tables that carry the real
+structure — the approval table, the review ladder, the model roster, the close-out
+chain, and the three-way platform matrix.
+
+The same page ships in this repo as [`docs/playbook.html`](docs/playbook.html) —
+a single self-contained file. Clone the repo and open it in any browser; it needs
+no server and no network.
+
 ## Install
 
 Copy two things into your Claude Code configuration directory:
