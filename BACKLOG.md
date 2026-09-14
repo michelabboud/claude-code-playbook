@@ -18,6 +18,8 @@ Dated one-liners for everything deferred or spotted and not done.
 - **2026-09-14 · idea · open** — a short worked example showing one task running
   the full close-out chain end to end. The rules describe the chain; a new reader
   would benefit from seeing one.
-- **2026-09-14 · hygiene · open** — the version now has three carriers: `VERSION`,
-  the line in `CLAUDE.md`, and the README table. They can drift. Source: v0.1.4.
-  A pre-commit check comparing all three is the obvious fix; not written yet.
+- **2026-09-14 · hygiene · open** — the version now has **four** carriers:
+  `VERSION`, the line in `CLAUDE.md`, the README table, and the eyebrow in
+  `docs/index.html`. They drift — the published map shipped one version behind at
+  v0.1.7 and had to be caught by hand. A check comparing all four before a commit
+  is the fix; not written yet. Source: v0.1.4, widened v0.1.7.
