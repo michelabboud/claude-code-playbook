@@ -4,6 +4,17 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.3 — 2026-09-14
+
+### Added
+- `docs/assets/playbook-hero.png` — a README illustration, carried with a caption
+  naming what it argues: a mountain of work delivered, a bin full of questions
+  answered without asking, and exactly one thing escalated. That is rule 7.2, and
+  it is the rule the bundle is really about. Full alt text, since a picture that
+  makes an argument has to make it to everyone.
+
+---
+
 ## 0.1.2 — 2026-09-14
 
 ### Added

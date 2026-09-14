@@ -1,5 +1,11 @@
 # Claude Code rules — a rulebook you install and make your own
 
+![An oversized friendly robot stands beside a towering, perfectly squared stack of finished paperwork that runs off the top of the frame. It holds out one single small slip of paper to a woman sitting nearby with a coffee and a book, who looks relaxed rather than managerial. At the robot's feet a wastebasket overflows, crumpled paper balls spilling across the floor.](docs/assets/playbook-hero.png)
+
+*A mountain of work delivered. A bin full of questions it answered itself. Exactly one thing escalated to the human. That is rule 7.2 — **decide by default, a stall is a defect** — and it is the rule this whole bundle is really about.*
+
+---
+
 *Shared as a resource, not a mandate. Nothing here is an IT policy or a requirement — it is one working rulebook, offered to anyone who wants a starting point instead of a blank file. Take it whole, take one section, or take the idea and write your own.*
 
 A complete, opinionated operating manual for working with Claude Code: what
