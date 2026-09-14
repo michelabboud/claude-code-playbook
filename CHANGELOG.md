@@ -4,6 +4,31 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.6 — 2026-09-14
+
+### Fixed
+- **The Mantra was missing from the visual map entirely** — the five points that
+  open `CLAUDE.md` and precede every rule in the book. The page showed the
+  procedure and omitted the working relationship the procedure assumes. Added as
+  its own band ahead of precedence, closing on the line it should have led with:
+  *that is the job; agreeing with me is not.*
+- A CSS selector applied card styling to the rule numbers inside the critical-rule
+  cards as well as the cards themselves, rendering each as a box inside a box.
+
+### Changed
+- **Visual refresh.** Layered surfaces with real depth in place of hairline boxes,
+  a larger and more confident type scale, generous spacing, a pill-style section
+  nav with a solid active state, and a short rise on panel change that respects
+  `prefers-reduced-motion`. The identity is unchanged — monospace rule numbers,
+  cobalt for structure, brass for authority, and red and green reserved strictly
+  for the approval table, where ask-versus-proceed is the actual information.
+
+### Verified
+- Every rule is present: **49 defined across the rule files, 49 shown on the
+  page**, checked by extracting both sets and diffing them rather than by eye.
+
+---
+
 ## 0.1.5 — 2026-09-14
 
 ### Fixed
