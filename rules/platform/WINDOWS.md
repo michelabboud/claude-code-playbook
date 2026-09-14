@@ -19,7 +19,7 @@ No result for that port = free. In the `netstat` form, a line whose state column
 | Measurement | Command | Reading it |
 |---|---|---|
 | Logical CPU count | `$env:NUMBER_OF_PROCESSORS` (fast) or `(Get-CimInstance Win32_ComputerSystem).NumberOfLogicalProcessors` | a plain integer |
-| Current load | `(Get-Counter '\Processor(_Total)\% Processor Time').CounterSamples.CookedValue` | Windows has no direct load-average equivalent to `/proc/loadavg` — this gives instantaneous CPU utilization as a percentage; average a few samples with `-SampleInterval 2 -MaxSamples 3` for something steadier before feeding it into SUBAGENTS.md's formula. |
+| Current load | `(Get-Counter '\Processor(_Total)\% Processor Time' -SampleInterval 2 -MaxSamples 3).CounterSamples.CookedValue` | **Windows has no load average, and the difference changes the arithmetic — read this before using rule 8.1's formula.** `/proc/loadavg` reports runnable threads, so Linux divides it BY the core count to get a load factor, and it can exceed 1.0. This counter is already whole-machine utilisation from 0 to 100, so the equivalent load factor is **`CPU% / 100` — do NOT also divide by cores**, which would under-report load and over-spawn. It also cannot exceed 1.0, so rule 8.1's `>1.0` heavy band is unreachable here: **treat `>= 0.85` as heavy.** Take the three samples above and average them; one instantaneous reading is noise. |
 | Free memory | `Get-CimInstance Win32_OperatingSystem \| Select-Object FreePhysicalMemory,TotalVisibleMemorySize` | both values are in KB — divide by 1024 for MB. |
 
 ## 3. Hash a file

@@ -6,9 +6,10 @@ Dated one-liners for everything deferred or spotted and not done.
   not been executed on Linux. Source: generalisation task. Needs one pass on a
   real Linux box.
 - **2026-09-14 · verification · open** — `rules/platform/WINDOWS.md` commands
-  have not been executed on Windows, and the load measurement is CPU-percentage
-  rather than a load average, which rule 8.1's concurrency formula assumes.
-  Either verify an equivalent or restate the formula for Windows.
+  have not been executed on Windows. The load-average mismatch found during
+  review is now handled in-file (CPU% / 100, never also divided by cores, with
+  0.85 as the heavy band), but that arithmetic has not been checked against a
+  real busy Windows machine.
 - **2026-09-14 · idea · open** — an install script (Unix shell + PowerShell)
   that backs up an existing `~/.claude/CLAUDE.md` before copying. Deliberately
   not written yet: it touches a file the user created, which rule 10.2 says to
