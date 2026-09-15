@@ -4,6 +4,17 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.11 — 2026-09-15
+
+### Fixed
+- **The 0.1.9 entry was incomplete.** It described the merge but not one of its
+  user-visible consequences: the merge published four previously-local tags and
+  left two different commits both tagged as 0.1.1. Both facts are now written
+  into the 0.1.9 entry, where they happened, rather than being discoverable only
+  by noticing four unexpected tags after a fetch.
+
+---
+
 ## 0.1.10 — 2026-09-15
 
 ### Fixed
@@ -30,6 +41,19 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 - Local `main` fast-forwarded onto that merge and set to track `origin/main`; the
   redundant `shipping` branch retired. A local branch that pushed to `origin/main`
   under a different name was the direct cause of the confusion this release fixes.
+- **Four tags that had only ever existed locally are now published**, because the
+  merge made them reachable and they are annotated, so `--follow-tags` carried
+  them: `v0.1.1` (commit `51f0fc3`), `checkpoint/0.1.2` (`94baff3`) and
+  `checkpoint/0.1.3` (`768e443`) all sit on the published lineage and were simply
+  never pushed, while `checkpoint/0.1.1` (`f419afc`) sits on the merged-in
+  abandoned side and is **not** on the first-parent mainline. Anyone who fetches
+  receives all four.
+- **`v0.1.1` and `checkpoint/0.1.1` point at different commits.** Both lineages
+  independently reached a version numbered 0.1.1 and tagged it, so the number is
+  genuinely ambiguous in this repository's history. Tags never move (rule 6.4),
+  so both stand as they are; read `v0.1.1` as the published 0.1.1 and
+  `checkpoint/0.1.1` as the abandoned attempt's final state. Only `checkpoint/*`
+  and `v*` feed version allocation, and the greatest of them is unaffected.
 
 ### Added
 - `docs/reports/2026-09-14-generalisation-conventions.md`, recovered from the
