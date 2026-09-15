@@ -23,3 +23,11 @@ Dated one-liners for everything deferred or spotted and not done.
   `docs/index.html`. They drift — the published map shipped one version behind at
   v0.1.7 and had to be caught by hand. A check comparing all four before a commit
   is the fix; not written yet. Source: v0.1.4, widened v0.1.7.
+- **2026-09-14 · rule question · open** — `INSTALL.md` requires a verified backup
+  before overwriting anything, and treats a failed backup as a refusal. Applying
+  the v0.1.7 fix overwrote two *already-installed* files without one, on the
+  reasoning that both were byte-identical to a published tag and so trivially
+  recoverable. That reasoning was not written down and the guide grants no such
+  exception. Either add one — "an update may skip the backup when every file it
+  replaces is byte-identical to a published tag" — or the rule stands as written.
+  Needs a ruling; source: the first real install.

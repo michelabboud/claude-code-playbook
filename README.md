@@ -183,10 +183,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.7**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.8**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.8** | A ready-to-paste announcement for handing the bundle to a team. |
 | **v0.1.7** | Found by installing it: the section index pointed at platform files an install never copies. |
 | **v0.1.6** | The Mantra was missing from the visual map — the five points that precede every rule. Added, with a full visual refresh. |
 | **v0.1.5** | The published site root served a 404 — only the deep link worked. The page is now `docs/index.html`, so the bare URL serves it. |

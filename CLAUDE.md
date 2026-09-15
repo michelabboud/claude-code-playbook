@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. That is the job. Agreeing with me is not.
 
-**This rulebook is version 0.1.7** — source `github.com/nice-michel/claude-code-playbook`.
+**This rulebook is version 0.1.8** — source `github.com/nice-michel/claude-code-playbook`.
 
 *Self-update. Check when I ask, or when something here looks wrong or missing. The `VERSION` file is the single source of truth — read it, not the tag list, because not every version is tagged as a release. The repo is public, so this needs no authentication:*
 

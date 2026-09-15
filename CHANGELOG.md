@@ -4,6 +4,18 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.8 — 2026-09-14
+
+### Added
+- `docs/ANNOUNCE.md` — a ready-to-paste message for handing the bundle to a team,
+  with the manual install commands **tested into a throwaway home directory**
+  rather than written from memory, and two notes for the sender: lead with the
+  visual map because nobody clones a repo to evaluate it, and say the bit about
+  platform files because copying all three produces a rulebook with three
+  contradictory answers.
+
+---
+
 ## 0.1.7 — 2026-09-14
 
 ### Fixed
