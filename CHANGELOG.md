@@ -4,6 +4,21 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.12 — 2026-09-15
+
+### Added
+- `docs/reports/2026-09-15-documentation-chain-cost.md` — an analysis of what the
+  per-task documentation chain actually costs, written because the obvious fix
+  (delegate docs to a cheap model) is the wrong one. The finding: the cost is
+  dominated by rediscovery and verification rather than generation, so a cheaper
+  generator does not touch it. Recommends moving the doc chain to batch grain
+  first and scripting the version carriers second, and rejects the cheap-model
+  proposal with its steelman stated. Carries no token figures deliberately —
+  rule 2.3 forbids unmeasured claims, and it says instead what measurement would
+  settle it. Awaiting decision; becomes an ADR when decided.
+
+---
+
 ## 0.1.11 — 2026-09-15
 
 ### Fixed

@@ -41,4 +41,10 @@ Dated one-liners for everything deferred or spotted and not done.
   (stuck at "v0.1.0") in both histories before 0.1.9 touched it, which is the
   same drift already logged for the four version carriers. Whatever check gets
   written for those should cover `PROGRESS.md`'s own header line too.
+- **2026-09-15 · rule change · awaiting decision** — the per-task documentation
+  chain is expensive, and the fix is frequency plus a script, not a cheaper
+  model. Full analysis, five options, the concrete rule edits and four batched
+  questions in `docs/reports/2026-09-15-documentation-chain-cost.md`. Deferred by
+  Michel to a session with budget to do it properly. Supersedes the narrower
+  "version carriers drift" item above, which is Option 2 of this report.
 

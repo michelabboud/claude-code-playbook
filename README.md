@@ -183,10 +183,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.11**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.12**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.12** | A report on what the per-task documentation chain costs, and why a cheaper model is the wrong fix. Awaiting decision. |
 | **v0.1.11** | The 0.1.9 note omitted that the merge published four previously-local tags, and that two commits both carry version 0.1.1. |
 | **v0.1.10** | `HANDOFF.md` still pointed at v0.1.0, nine versions stale. |
 | **v0.1.9** | One branch history instead of two: the published branch was a local branch named `shipping` while `main` was an unrelated abandoned root. Joined by a merge, `main` now tracks the remote. |
