@@ -4,6 +4,36 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.9 — 2026-09-15
+
+### Changed
+- **The repository now has one branch history instead of two.** The local branch
+  named `main` was an unrelated root commit — the first attempt at this rulebook,
+  abandoned at 0.1.1 — while `origin/main` had tracked a local branch called
+  `shipping` since 0.1.1. The two shared no merge base, so `git merge-base`
+  returned nothing and `main` could not be fast-forwarded. They are now joined by
+  a true merge commit (never a squash, so every checkpoint tag stays reachable),
+  with all six shared files resolved to the published tree.
+- Local `main` fast-forwarded onto that merge and set to track `origin/main`; the
+  redundant `shipping` branch retired. A local branch that pushed to `origin/main`
+  under a different name was the direct cause of the confusion this release fixes.
+
+### Added
+- `docs/reports/2026-09-14-generalisation-conventions.md`, recovered from the
+  abandoned history where it was the only file that existed nowhere else. Its
+  content predates 0.1.2 and has not been re-checked against the current rules.
+
+### Fixed
+- `PROGRESS.md` still announced itself as "v0.1.0 — first distributable release"
+  eight versions later, identically in both histories.
+- **The published map was a version behind again** — the eyebrow on
+  `docs/index.html` read v0.1.7 at v0.1.8, the same drift v0.1.8 was released to
+  fix. All four version carriers (`VERSION`, `CLAUDE.md`, the README table, the
+  map eyebrow) are aligned in this release; the backlog item asking for an
+  automated check across them now has three recorded occurrences behind it.
+
+---
+
 ## 0.1.8 — 2026-09-14
 
 ### Added

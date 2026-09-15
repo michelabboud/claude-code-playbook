@@ -1,6 +1,6 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-14 (v0.1.0 — first distributable release)
+**Last updated:** 2026-09-15 (v0.1.9 — one branch history, not two)
 
 The bundle is complete and installable: thirteen numbered sections, three
 platform files, a README, and an optional-tools note. Every rule file has been
@@ -18,6 +18,11 @@ executed on their own operating systems. The Windows load measurement is flagged
 in-file as CPU-percentage, not a true load average — the concurrency formula in
 rule 8.1 assumes a load average, so a Windows user should read that note before
 trusting the cap.
+
+**Repository shape:** one history on `main`, tracking `origin/main`. Until 0.1.9
+the published branch was a local branch named `shipping` and the local `main` was
+an unrelated abandoned root — see the 0.1.9 changelog entry if an old clone or
+checkout looks wrong.
 
 **Next:** run each platform file's commands on its own OS and record the result
 here.

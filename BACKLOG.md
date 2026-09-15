@@ -31,3 +31,14 @@ Dated one-liners for everything deferred or spotted and not done.
   exception. Either add one — "an update may skip the backup when every file it
   replaces is byte-identical to a published tag" — or the rule stands as written.
   Needs a ruling; source: the first real install.
+- **2026-09-15 · review · open** — the recovered report
+  `docs/reports/2026-09-14-generalisation-conventions.md` came from the abandoned
+  0.1.1 history and describes generalisation conventions as they stood before
+  0.1.2. It has not been read against the current rules and may document
+  superseded decisions. Either confirm it still holds, mark it historical, or
+  supersede it. Source: the history merge in 0.1.9.
+- **2026-09-15 · hygiene · open** — `PROGRESS.md` had drifted eight versions
+  (stuck at "v0.1.0") in both histories before 0.1.9 touched it, which is the
+  same drift already logged for the four version carriers. Whatever check gets
+  written for those should cover `PROGRESS.md`'s own header line too.
+
