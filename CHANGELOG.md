@@ -4,6 +4,19 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.10 — 2026-09-15
+
+### Fixed
+- `HANDOFF.md` announced "v0.1.0 is complete" nine versions later. Rule 5.1 calls
+  a stale pointer a lie, so this is that lie removed; the file now also records
+  the single-branch shape, because an old clone showing two branches is exactly
+  the thing a returning session needs explained. Found immediately after 0.1.9
+  shipped, which makes it the fourth doc-drift instance in four releases — the
+  backlog item asking for an automated carrier check should cover every file that
+  states a version, not just the four already listed.
+
+---
+
 ## 0.1.9 — 2026-09-15
 
 ### Changed
