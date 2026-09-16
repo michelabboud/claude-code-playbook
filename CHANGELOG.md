@@ -145,7 +145,7 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 ### Fixed
 - **The published site root returned 404.** GitHub Pages serves `index.html` at a
   directory URL, and the page was named `playbook.html` — so the deep link worked
-  while `https://nice-michel.github.io/claude-code-playbook/` did not, which is
+  while `https://michelabboud.github.io/claude-code-playbook/` did not, which is
   the URL GitHub's own Pages control links to and the one anyone gets by trimming
   the path. Renamed to `docs/index.html`; the bare URL now serves the map and is
   the canonical link.
