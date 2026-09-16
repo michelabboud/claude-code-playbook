@@ -11,11 +11,11 @@ I've been keeping a written set of rules for how I work with Claude Code: what i
 may do without asking, what it must bring to me, how code and tests are held to a
 standard, when a review happens. I've cleaned it up so anyone can install it.
 
-**Look before you install:** https://nice-michel.github.io/claude-code-playbook/
+**Look before you install:** https://michelabboud.github.io/claude-code-playbook/
 Thirteen sections, forty-nine rules, click through them. Two minutes tells you
 whether you want it.
 
-**Repo:** https://github.com/nice-michel/claude-code-playbook
+**Repo:** https://github.com/michelabboud/claude-code-playbook
 
 **The easy way** — open the repo in Claude Code and say *"install this"*. It reads
 `INSTALL.md`, which is written to be executed: it backs up anything you already
@@ -24,7 +24,7 @@ have, copies only the platform file for your OS, and asks you for your git email
 **By hand**, if you prefer (swap `MACOS.md` for `LINUX.md` or `WINDOWS.md`):
 
 ```bash
-git clone https://github.com/nice-michel/claude-code-playbook.git
+git clone https://github.com/michelabboud/claude-code-playbook.git
 cd claude-code-playbook
 cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.backup-$(date +%F)   # if you already have one
 cp CLAUDE.md ~/.claude/
