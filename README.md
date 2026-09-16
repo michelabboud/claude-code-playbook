@@ -54,7 +54,7 @@ it agrees with it.
 
 ## See it before you read it
 
-**[Open the visual map →](https://nice-michel.github.io/claude-code-playbook/)**
+**[Open the visual map →](https://michelabboud.github.io/claude-code-playbook/)**
 
 An explorable page covering all thirteen sections and forty-nine rules: click a
 section to see its trigger and its rules, plus the tables that carry the real
