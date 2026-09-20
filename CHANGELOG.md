@@ -32,7 +32,19 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   included.** A batch is unruled from its first dispatch; closing pins the review target,
   freezes membership and never changes the count; only a ruling brings it down; nothing lands
   on a line outside a batch. Same exposure as before — two in review plus the one being built.
-  Rows 7 and 13–16 reworded; still sixteen.
+  Rows 7 and 13–16 reworded.
+- **The restatement was reviewed too, and failed on what it had newly created** — a fifth
+  independent review, still before publication. "Nothing lands outside a batch" made an
+  authorized hotfix with no plan unlandable and contradicted the gate-time docs row; fixes
+  attached to a closed batch owed no review of their own; and merging a line whose batch was
+  still open let a fourth unruled range in. Now: **every landing belongs to the line's open
+  batch** — the plan's, or an **ad-hoc batch** the coordinator names in the ledger, never a
+  new approval — **except the fix for a recorded finding**, which gets a focused review, at
+  the depth of the review that found the defect, before its batch is ruled. **Only closed
+  work merges between lines**; a task's own worktree is not a line. The sentence equating the
+  invariant with "two closed batches" is gone — it was not exact. And the rule now closes
+  itself: **what it does not name is resolved toward review** — the work counts as unruled,
+  belongs to a new batch, and waits at three. Twenty worked cases.
 - Public summaries said the ceiling counts "unreviewed" batches; a returned review with open
   findings is reviewed and still counts. They say *unruled*, defined in place.
 - **Rule 3.1: "never blocks the next task" read as absolute** and contradicted stop-the-line.
@@ -48,7 +60,7 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   rule 8.1 now states the Strong tier's job itself.
 
 ### Added
-- **Rule 3.5: a normative table of sixteen worked cases** — the boundary states of the ceiling,
+- **Rule 3.5: a normative table of twenty worked cases** — the boundary states of the ceiling,
   a second batch proposed while one is open, work in flight when the third closes, a merge at
   exactly three, a fix arriving at three,
   union on merge, a branch cut inside a batch, cherry-picks, a fix reachable from one line only,

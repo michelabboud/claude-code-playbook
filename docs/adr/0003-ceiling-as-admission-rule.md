@@ -27,7 +27,7 @@ sentence ADR 0002 had just rewritten.
    even when its union stays three; a later task already dispatched may finish, and its result
    is preserved, not accepted, until a ruling reopens admission. Rows 13–16 of the table.
    **Restated, still before publication, after a fourth review and at the owner's choice:** the
-   ceiling is one invariant, enforced at admission — *a line carries at most three unruled
+   ceiling is one invariant — *a line carries at most three unruled
    batches, the open one included.* A batch is unruled from its first dispatch; closing pins
    the review target, freezes membership and changes the batch's state, never the count; only
    a ruling brings the count down; nothing lands on a line outside a batch. The fourth review
@@ -37,6 +37,18 @@ sentence ADR 0002 had just rewritten.
    which admission, branching and merging act on. Counting from admission removes that seam;
    the exposure is unchanged. The file keeps its name; the admission rule is how the
    invariant is enforced.
+   **Completed after a fifth review, which failed the restatement on what it had newly
+   created:** "nothing lands outside a batch" made authorized unplanned work unlandable and
+   contradicted the gate-time docs row; attached fixes owed no review; a merge from a line
+   whose batch was still open admitted a fourth range. So: every landing belongs to the
+   line's open batch — the plan's, or an ad-hoc batch the coordinator names, never a new
+   approval — except the fix for a recorded finding, which gets a focused review before its
+   batch is ruled; only closed work merges between lines; a task's own worktree is not a
+   line; the "two closed batches" equivalence is deleted as inexact. **And a residual clause:
+   what the rule does not name is resolved toward review.** Five reviews showed that prose
+   over git branching, batch states, fixes and gates has more states than any table will
+   list; a rule that fails safe on the unlisted ones can converge, and one that must list
+   them cannot. Twenty rows.
 2. **Rule 3.5 carries a normative table of worked cases**, and the table wins over the prose.
    Prose failed at this boundary twice in one day; keyword tests passed while it was wrong.
 3. **"A pending mechanical review never delays the next reversible task; once any review
