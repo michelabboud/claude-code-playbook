@@ -14,6 +14,15 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   **admission rule — a new batch starts only while at most two closed batches are unruled**;
   when a third closes, all three reviews run and nothing new starts until one is ruled. Worst
   case three batch ranges, unchanged. A merge waits when its union would exceed three.
+- **The admission rule could be granted twice on one count** — found by a third independent
+  review, of this repair, before anything was published. "A new batch starts only while…"
+  never said what *starts* means or that one batch is open at a time, so at a count of two a
+  coordinator could admit N+2 and N+3 together. Now: **one batch is open per line at a time**;
+  a batch starts at the first dispatch of a task the plan allocates to it, and admission is
+  checked again when it closes. **At three, the line accepts only the fixes that rule a
+  batch** — a fix is never a new batch; a merge that carries no fix waits even when its union
+  stays three; a later task already dispatched may finish, and its result is preserved, not
+  accepted, until a ruling reopens admission.
 - **Rule 3.1: "never blocks the next task" read as absolute** and contradicted stop-the-line.
   Now: a *pending* mechanical review never delays the next reversible task; a *returned*
   blocking finding stops the line, whatever kind of review found it.
@@ -27,11 +36,15 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   rule 8.1 now states the Strong tier's job itself.
 
 ### Added
-- **Rule 3.5: a normative table of twelve worked cases** — the boundary states of the ceiling,
+- **Rule 3.5: a normative table of sixteen worked cases** — the boundary states of the ceiling,
+  a second batch proposed while one is open, work in flight when the third closes, a merge at
+  exactly three, a fix arriving at three,
   union on merge, a branch cut inside a batch, cherry-picks, a fix reachable from one line only,
   a dead mechanical review holding a gate, a mechanical blocker, a docs fix during a gate. Where
   the prose and a row disagree, the row wins. Prose failed at the same boundary twice in a day,
   and keyword tests passed while it was wrong.
+- The guide's blindness controls no longer ask for the unsatisfiable "nothing anywhere above" a
+  reviewer's directory; they carry rule 3.3's scoped wording.
 - ADR 0003, amending ADR 0002 — including the plain statement that 0.1.13 and 0.1.14 were
   published before an independent review, which is what this rule now forbids.
 

@@ -147,7 +147,7 @@ sits waiting for is a stall, so the rulebook pipelines them:
 | Kind | Closes | While it runs, development… |
 |---|---|---|
 | **Mechanical** | every task | never waits |
-| **Deep** | every batch of 3–10 tasks | keeps going — a new batch starts only while at most **two closed** batches are unreviewed; counted by git ancestry as a set, against a ledger the coordinator keeps; worked cases are part of the rule |
+| **Deep** | every batch of 3–10 tasks | keeps going — a new batch starts only while at most **two closed** batches are unreviewed, one batch open per line at a time, and at three the line accepts only the fixes that rule a batch; counted by git ancestry as a set, against a ledger the coordinator keeps; worked cases are part of the rule |
 | **High deep** | a milestone or a release | waits — it may revise the plan, and the wait works the queue of minor findings |
 
 What makes that safe is mechanics, not optimism: **a review's input is a commit,
@@ -219,7 +219,7 @@ Current: **v0.1.15**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
-| **v0.1.15** | A second independent review, this time of the finished Codex port, failed it — and four of its six blockers were in this rulebook's text: the ceiling was off by one at the boundary (now an admission rule, with a normative table of worked cases), "mechanical review never blocks" read as absolute, an isolation condition no filesystem can satisfy, and a roster that claimed single ownership while the rules restated it. |
+| **v0.1.15** | A second independent review, this time of the finished Codex port, failed it — and four of its six blockers were in this rulebook's text: the ceiling was off by one at the boundary (now an admission rule, with a normative table of worked cases), "mechanical review never blocks" read as absolute, an isolation condition no filesystem can satisfy, and a roster that claimed single ownership while the rules restated it. A third review, of that repair and before anything was published, found the admission could be granted twice on one count: one batch is now open per line, fixes are always admitted, and the table has sixteen cases. |
 | **v0.1.14** | The review-ahead rule's accounting corrected after an independent review: the ceiling says what it counts (two closed batches plus the one being built — three ranges worst case), a merge is a union not a sum, every lower review is settled before a gate, "commit only that path" replaces "stage only that path", and blindness controls are controls, not proof. |
 | **v0.1.13** | Reviews no longer stall development: three kinds of review (mechanical · deep · high deep), the mechanics of pipelining a review against a commit, a ceiling of two unreviewed batches counted by git ancestry, and `rules/ROSTER.md` — the one file that names a model. Rule 3.5 is new. |
 | **v0.1.12** | A report on what the per-task documentation chain costs, and why a cheaper model is the wrong fix. Awaiting decision. |

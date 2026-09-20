@@ -19,6 +19,13 @@ sentence ADR 0002 had just rewritten.
    Now: when N+2 closes there are three closed and unruled, all three reviews run, and nothing
    new starts until one is ruled. Worst case three batch ranges, unchanged. A merge waits when
    its union would exceed three.
+   **Completed before publication, after a third review (of this repair) found the admission
+   could be granted twice on one count:** one batch is open per line at a time; a batch
+   *starts* at the first dispatch of a task the plan allocates to it, and admission is checked
+   again when it closes. At three, the line accepts only the fixes that rule a batch — a fix
+   is never a new batch, or the count could never come down. A merge that carries no fix waits
+   even when its union stays three; a later task already dispatched may finish, and its result
+   is preserved, not accepted, until a ruling reopens admission. Rows 13–16 of the table.
 2. **Rule 3.5 carries a normative table of worked cases**, and the table wins over the prose.
    Prose failed at this boundary twice in one day; keyword tests passed while it was wrong.
 3. **"A pending mechanical review never delays the next reversible task; once any review
@@ -40,10 +47,16 @@ sentence ADR 0002 had just rewritten.
 - **A strict ceiling of two including the batch being built** — rejected in ADR 0001 and 0002
   for the same reason: any slow review halts the line.
 - **Another prose rewrite with no cases.** Two rewrites had already failed.
+- **Several batches open on one line, bounded by a count of open batches.** A second counter
+  to keep honest, for nothing a separate line does not already give: parallel batches run on
+  their own lines, and the merge rule bounds what comes back.
 
 ## Consequences
 
-- The Codex edition's tests assert every row of the worked-cases table, not keywords.
+- The Codex edition's tests compare the worked-cases table row for row against a canonical
+  copy — one phrase per row passed a contradictory row, which the third review showed.
+- The table did its job: the third review judged all twelve original rows correct and found
+  the defect as *missing* rows. Omitted states are now the thing to look for.
 - Three corrections to one rule in one day is the cost of publishing before an independent
   review rather than after. The rule now says a publish never runs ahead of its review; the
   Codex port obeyed that and was stopped before it shipped. This rulebook's own 0.1.13 and
