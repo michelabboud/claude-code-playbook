@@ -119,7 +119,7 @@ obligation. It must:
 
 1. **name the rule** it changes;
 2. **say what is different in whole sentences** — not a diff, not a patch;
-3. carry a **Dead words:** line quoting the playbook's exact words that no
+3. carry a `**Dead words:**` line quoting the playbook's exact words that no
    longer apply, each with the file they are in;
 4. say which playbook version it was written against.
 
@@ -148,7 +148,7 @@ and you must be told before you rely on it.
 sh scripts/check-local.sh <local-dir> <rules-dir> [claude-md-path]
 ```
 
-It reads every **Dead words:** line in your two files and searches the named
+It reads every `**Dead words:**` line in your two files and searches the named
 rule file for each quoted string, as a **fixed string** — never a regular
 expression, and with the string passed as data so one beginning with a dash is
 still a string. It writes nothing.
@@ -157,7 +157,7 @@ still a string. It writes nothing.
 |---|---|
 | **0** | every quoted string was found — or you have no local layer at all |
 | **1** | at least one stale override, each reported with `file:line`, the words, and the file it was sought in |
-| **2** | a usage error, a named file that does not exist, or a **Dead words:** line that does not parse |
+| **2** | a usage error, a named file that does not exist, a `**Dead words:**` line that does not parse, the bare marker anywhere but the start of a line, or a fenced code block left open |
 
 **Exit 2 is never a pass.** A line the check cannot read is a check that stopped
 checking, and the update stops on it exactly as it stops on a stale override.
@@ -172,21 +172,38 @@ that, so an update fails *before* it can surprise you rather than after.
   **Dead words:** `some exact words` (in `FILE.md`) · `other words` (in `A.md` and `B.md`)
 ```
 
-- Optional leading whitespace, then the literal `**Dead words:**`.
+- Optional leading whitespace, then the literal `**Dead words:**`, then a space
+  or a tab, then the first item.
 - Items separated by ` · ` — space, middle dot, space.
 - Each item: one code span of the quoted words, then ` (in `, then one or more
   code spans naming files, then `)`. Several names join with `, `, ` and `, or
-  `, and `.
-- Quoted words may not contain a backtick. A file name carries no whitespace and
-  no `/`: it names a file in the rules directory, and `CLAUDE.md` means the
-  playbook's front page, which resolves to the parent of the rules directory
-  (or to an explicit third argument). **No item may name a path outside those
-  two places** — `../CLAUDE.md` is rejected on purpose.
+  `, and `. **Every item names its file**; one that names none is an error.
+- Quoted words may not contain a backtick and may not be empty, and are taken
+  **verbatim between the backticks** — never trimmed, never re-split. A file
+  name carries no whitespace and no `/`: it names a file in the rules directory,
+  and `CLAUDE.md` means the playbook's front page, which resolves to the parent
+  of the rules directory (or to an explicit third argument). **No item may name
+  a path outside those two places** — `../CLAUDE.md` is rejected on purpose.
+- After the last item, one closing `.` is allowed, and so is trailing
+  whitespace. Any other trailing text is an error.
 - Lines inside a fenced code block are skipped, so your file can quote this
-  grammar without the example being checked.
+  grammar without the example being checked. A fence that is never closed is an
+  error: everything after it was ignored.
 - Whitespace before the line and after the last item is ignored — an invisible
   trailing space should not halt an update. Whitespace *inside* the grammar is
   not ignored: a doubled space is an error.
+
+**The line is scanned, never split.** A real entry quotes
+`` `### 11 · Your platform` ``, so the separator, `(in ` and `)` all occur
+*inside* quoted words; only a backtick ends a code span. The first implementation
+split the line on ` · ` and refused eight of the ten entries in the author's own
+local files — which is how this paragraph came to exist.
+
+**And the check fails closed.** The bare marker anywhere but the start of a line
+is an **error**, never a skipped entry: an override buried mid-line would
+otherwise be dropped in silence, and a staleness check that silently checks
+nothing is worse than none. Prose that needs to name the marker puts it inside a
+code span, as this guide does throughout.
 
 ### What the check cannot do
 

@@ -2,6 +2,22 @@
 
 Dated one-liners for everything deferred or spotted and not done.
 
+- **2026-09-21 · owner's own files · open** — with the corrected parser, the
+  author's installed `~/.claude/rules/LOCAL.md` still has two lines the check
+  refuses, and both refusals are correct. Line 9 is prose that names the bare
+  marker in the middle of a sentence; it needs the marker wrapped in a code span,
+  the way `templates/LOCAL.md` now writes it. Line 39 is an Override whose
+  Dead-words entry names no file (`` `~/.config/agent-rules/`. `` with nothing
+  after it); it needs `` (in `ENVIRONMENT.md`) ``. Nine of the ten quoted strings
+  in that layer were searched and none was stale. The two fixes are the owner's
+  file to make, not this repository's. Source: v0.1.16, lane A2.
+- **2026-09-21 · shared grammar · open** — the vectors file and ADR 0004's
+  completion paragraph name `, ` and ` and ` as the joiners between file names
+  inside one item; this edition also accepts the Oxford form `, and `, which the
+  shipped tests and both guides have specified since the first implementation. No
+  conformance vector covers `, and `, so the two editions could implement it
+  differently without any test noticing. Either add a vector for it or drop the
+  joiner from both editions. Source: v0.1.16, lane A2.
 - **2026-09-21 · rule question · open** — section numbers are now a shared
   namespace: the playbook owns `0`–`12` and promises never to use `L1`, `L2`, …,
   which the local layer owns. The platform section keeps number 11, and an

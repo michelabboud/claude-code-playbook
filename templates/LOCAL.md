@@ -28,7 +28,7 @@ has stopped doing its job.
 |---|---|---|
 | **Fill** | Supplies a value a rule leaves open, or binds one of its generic terms to the thing you actually have. | Which rule, and the value. |
 | **Add** | A rule or a note the playbook does not have. It contradicts nothing. Its own sections are numbered `L1`, `L2`, … — numbers the playbook promises never to use. | What the rule is. |
-| **Override** | Changes what a named rule says. | The rule it names, what is different **in whole sentences**, and a **Dead words:** line quoting the playbook's exact words that no longer apply. |
+| **Override** | Changes what a named rule says. | The rule it names, what is different **in whole sentences**, and a `**Dead words:**` line quoting the playbook's exact words that no longer apply. |
 
 **Why an Override quotes dead words.** It is the one kind that leaves two texts
 alive for one rule, so it has to say precisely which text lost. If the playbook
@@ -46,21 +46,34 @@ A script reads these lines, so their shape is fixed:
   **Dead words:** `some exact words` (in `FILE.md`) · `other words` (in `A.md` and `B.md`)
 ```
 
-- Optional leading whitespace, then the literal `**Dead words:**`.
+- Optional leading whitespace, then the literal `**Dead words:**`, then a space
+  or a tab, then the first item.
 - Items are separated by ` · ` — space, middle dot, space.
 - Each item is one code span of the quoted words, then ` (in `, then one or
-  more code spans naming files, then `)`.
+  more code spans naming files, then `)`. **Every item names its file** — an
+  item without one is an error, not a guess at which file you meant.
 - Several file names are joined by `, `, ` and `, or `, and `.
-- Quoted words may not contain a backtick. File names carry no spaces and no
-  `/`: they name a file in the playbook's rules directory, and `CLAUDE.md`
-  means the playbook's front page. **No item may name a path outside those two
-  places** — `../CLAUDE.md` is rejected, deliberately.
+- Quoted words may not contain a backtick and may not be empty. They are taken
+  **verbatim between the backticks** — never trimmed, never re-split — so they
+  may contain ` · `, brackets, the word "in", and anything else: the script
+  scans the line's code spans rather than splitting it on the separator.
+- File names carry no spaces and no `/`: they name a file in the playbook's
+  rules directory, and `CLAUDE.md` means the playbook's front page. **No item
+  may name a path outside those two places** — `../CLAUDE.md` is rejected,
+  deliberately.
+- After the last item, **one closing `.` is allowed** — a sentence may end
+  normally — and so is trailing whitespace. Any other trailing text is an error.
 - Lines inside a ``` fenced code block are skipped, which is why the examples
-  below are fenced: a copy of this template checks clean before you edit it.
-- Whitespace before the line and after the last item is ignored. Whitespace
-  *inside* the grammar is not — a doubled space is an error, not a guess.
+  below are fenced: a copy of this template checks clean before you edit it. A
+  fence you forget to close is an error, because everything after it is ignored.
+- Whitespace before the line is ignored. Whitespace *inside* the grammar is not
+  — a doubled space is an error, not a guess.
 
-A **Dead words:** line the script cannot parse is an error, never a pass.
+A `**Dead words:**` line the script cannot parse is an error, never a pass.
+**So is the bare marker anywhere but the start of a line**: an entry buried
+mid-line would otherwise be skipped in silence, which is the one failure a
+staleness check may never have. Prose that needs to name the marker writes it
+inside a code span, the way this paragraph does.
 
 ## Worked examples — delete these once you have your own
 

@@ -437,6 +437,18 @@ printf '# LOCAL\n\n  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.m
 run_check "$CASE/local" "$CASE/rules"
 assert_status "a trailing tab after the item: exit 0" 0 "$STATUS"
 
+# The marker is followed by a space or a tab, and then the first item. Nothing
+# abutting the marker is guessed at either.
+mkcase nospaceaftermarker
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:**`~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "no space after the marker: exit 2" 2 "$STATUS"
+assert_contains "no space after the marker: says what was expected" "$ERRO" "space or a tab"
+
 # But whitespace inside the grammar is still an error, not something to guess at.
 mkcase innerspace
 cat >"$CASE/local/LOCAL.md" <<'EOF'
@@ -448,7 +460,105 @@ run_check "$CASE/local" "$CASE/rules"
 assert_status "a doubled space inside the item: exit 2" 2 "$STATUS"
 
 # ---------------------------------------------------------------------------
-# 19. The script writes nothing.
+# 19. Three items on one line search three strings.
+#
+# POSIX sh has no `local`: every helper writes into the one set of shell
+# variables, and a parser that reused a name would lose an item somewhere in the
+# middle of the line and report a smaller, quieter, wrong answer. The count is
+# the assertion — not that the line "parses".
+# ---------------------------------------------------------------------------
+mkcase threeitems
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `alpha lives here` (in `A.md`) · `beta lives here` (in `B.md`) · `gamma lives here` (in `C.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "three items, all fresh: exit 0" 0 "$STATUS"
+assert_contains "three items: three strings checked" "$OUT" "ok — 3 dead-words string(s)"
+assert_contains "three items: the count line agrees" "$OUT" "3 search(es), 0 stale, 0 error(s)"
+
+mkcase threeitemssixfiles
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `shared phrase` (in `A.md` and `B.md`) · `shared phrase` (in `B.md`, `C.md`) · `shared phrase` (in `A.md`, `B.md`, and `C.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "three items naming seven files: exit 0" 0 "$STATUS"
+assert_contains "three items: every file was searched" "$OUT" "ok — 7 dead-words string(s)"
+
+# The middle item is the one a lost variable would drop.
+mkcase threeitemsmiddlestale
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `alpha lives here` (in `A.md`) · `never written anywhere` (in `B.md`) · `gamma lives here` (in `C.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "three items, the middle one stale: exit 1" 1 "$STATUS"
+assert_contains "three items: the middle one is named" "$OUT" "never written anywhere"
+assert_contains "three items: all three were still searched" "$OUT" "3 search(es), 1 stale"
+
+# ---------------------------------------------------------------------------
+# 20. Quoted words are scanned, not split: a quotation may contain " · ".
+# ---------------------------------------------------------------------------
+mkcase separatorinside
+cat >"$CASE/rules/PLATFORM.md" <<'EOF'
+# 11 · Your platform
+
+### 11 · Your platform is a heading a real override quotes.
+EOF
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `### 11 · Your platform` (in `PLATFORM.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a separator inside the quoted words: exit 0" 0 "$STATUS"
+assert_contains "a separator inside the quoted words: one search, not two" \
+    "$OUT" "1 search(es), 0 stale, 0 error(s)"
+
+mkcase parensinside
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `a phrase with (in brackets) inside` (in `A.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "\" (in \" inside the quoted words: parses, exit 1" 1 "$STATUS"
+assert_contains "\" (in \" inside the quoted words: searched whole" \
+    "$OUT" 'a phrase with (in brackets) inside'
+
+# ---------------------------------------------------------------------------
+# 21. Fail closed: the bare marker anywhere but the start of a line.
+# ---------------------------------------------------------------------------
+mkcase midlinemarker
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1.** **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a marker mid-line is an error, not a skipped entry: exit 2" 2 "$STATUS"
+assert_contains "a marker mid-line: names file and line" "$ERRO" "LOCAL.md:3:"
+assert_contains "a marker mid-line: says what to do instead" "$ERRO" "code span"
+
+mkcase markerinspan
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+An entry carries a `**Dead words:**` line; this sentence is prose, not an entry.
+
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "the marker inside a code span is prose: exit 0" 0 "$STATUS"
+assert_contains "the marker inside a code span: only the entry was searched" \
+    "$OUT" "1 search(es), 0 stale, 0 error(s)"
+
+# ---------------------------------------------------------------------------
+# 22. The script writes nothing.
 # ---------------------------------------------------------------------------
 mkcase readonly
 cat >"$CASE/local/LOCAL.md" <<'EOF'

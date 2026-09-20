@@ -228,7 +228,7 @@ one names for the quoted string. It writes nothing.
 |---|---|---|
 | **0** | every quoted string is still in the new text, or the user has no local layer | Go on to step U3. |
 | **1** | at least one **stale override** — the new text no longer contains the words that override was written against | **Stop.** Show the user each reported line and ask what the override should become. Do not copy anything. |
-| **2** | a usage error, a named file that does not exist, or a `**Dead words:**` line that does not parse | **Stop.** Report exactly what the script said. An unreadable check is not a passed check. |
+| **2** | a usage error, a named file that does not exist, a `**Dead words:**` line that does not parse, the bare marker anywhere but the start of a line, or a fenced code block left open | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
 
 **Step U3 — List the rules the update touched that the user overrides.** The
 check in U2 catches a *rewritten sentence*. It cannot catch a rule whose meaning
@@ -287,14 +287,22 @@ exactly one of:
 |---|---|
 | A value the rule leaves open, or a generic term bound to something real — a git identity, a registry path, a tool name | a **Fill** in the local layer |
 | A rule or note the playbook does not have | an **Add**, in a section numbered `L1`, `L2`, … |
-| A changed sentence in a named rule | an **Override**, with a **Dead words:** line quoting the published words it replaced |
+| A changed sentence in a named rule | an **Override**, with a `**Dead words:**` line quoting the published words it replaced |
 | Something that would be a better rule for everyone | a **candidate to send upstream** — show it to the user as that, and keep it as an entry until it lands |
 | Upstream text the installation simply fell behind on | nothing — the update supplies it |
 
 Write the entries into `templates/LOCAL.md` and `templates/LOCAL_dev.md` copies
 in your scratch directory, **not** into `~/.claude/` yet. Section 0 of the
 rulebook, under "The local layer", defines the three kinds; `templates/LOCAL.md`
-carries the grammar of a **Dead words:** line and a worked example of each.
+carries the grammar of a `**Dead words:**` line and a worked example of each.
+
+**Write every entry to that grammar, and it will pass the check in step M4.**
+Three points catch people out: the quoted words are the **exact bytes between
+the backticks**, so the line is scanned over its code spans and never split on
+the ` · ` separator — a quotation may itself contain one; **every item names the
+file its words are in**; and the marker is an error anywhere but the start of a
+line, so prose that names it writes it inside a code span. A closing `.` after
+the last item is fine.
 
 **Show the user the whole list and ask.** This is the step that decides what
 their rulebook says; it is not yours to settle.

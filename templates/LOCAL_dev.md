@@ -15,7 +15,7 @@ paths:
 
 *This file is mine, not the playbook's; an update never opens it. It carries my entries for sections 1, 2, 3, 6, 8 and the roster, and it has the same `paths:` scope as those files, so it arrives when they do. When you read one of them by path, read this file too.*
 
-*The three kinds of entry — **Fill**, **Add**, **Override** with its **Dead words:** line — and the force they have are defined at the top of `LOCAL.md` and in section 0 ("The local layer"). Read that file first; this one does not repeat the grammar.*
+*The three kinds of entry — **Fill**, **Add**, **Override** with its `**Dead words:**` line — and the force they have are defined at the top of `LOCAL.md` and in section 0 ("The local layer"). Read that file first; this one does not repeat the grammar. Note how the marker is written here: **inside a code span**, because the bare marker anywhere but the start of a line is an error rather than a silently skipped entry.*
 
 *Written against **playbook <VERSION>** — fill in the number on the `This rulebook is version` line of `CLAUDE.md`, so a later reader knows what this file was checked against.*
 

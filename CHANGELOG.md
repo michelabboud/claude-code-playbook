@@ -28,12 +28,26 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   Override leaves two texts alive for one rule, which is why it is the only one
   that has to quote anything.
 - **`scripts/check-local.sh`** — POSIX `sh`, no dependency. Reads every
-  **Dead words:** line and searches the named rule file for each quoted string as
-  a fixed string. Exit 0, every string still present; exit 1, at least one stale
-  override, reported with `file:line`, the words, and the file searched; exit 2,
-  a usage error, a missing named file, or a line that does not parse — **never a
-  pass**. It takes the rules directory as an argument so it can run against
-  *staged* new text before an update copies anything.
+  `**Dead words:**` line and searches the named rule file for each quoted string
+  as a fixed string. Exit 0, every string still present; exit 1, at least one
+  stale override, reported with `file:line`, the words, and the file searched;
+  exit 2, a usage error, a missing named file, or a line that does not parse —
+  **never a pass**. It takes the rules directory as an argument so it can run
+  against *staged* new text before an update copies anything.
+- **The line is scanned over its code spans, never split on the separator**, and
+  the quoted words are the exact bytes between the backticks — never trimmed,
+  never re-split. A real entry quotes `` `### 11 · Your platform` ``, so ` · `,
+  `(in ` and `)` all occur inside quoted words. One closing `.` after the last
+  item is allowed; any other trailing text is an error.
+- **The check fails closed.** The bare marker anywhere but the start of a line is
+  an **error**, never a silently skipped entry — prose that needs to name it puts
+  it inside a code span. Lines inside a fenced code block are ignored, and a
+  fence left open at end of file is an error, because everything after it was.
+- **`tests/fixtures/dead-words-vectors.tsv`** — 44 conformance vectors for that
+  grammar, shared **byte for byte** with `codex-playbook` so the two editions
+  cannot drift apart quietly. Both editions run every vector; this one also
+  asserts the file's SHA-256, so a local edit to a shared fixture cannot pass
+  unnoticed.
 - **`templates/LOCAL.md` and `templates/LOCAL_dev.md`** — the header, the three
   kinds, the grammar of a **Dead words:** line, a worked example of each kind
   (fenced, so a copied template checks clean), and the git-identity Fill left
@@ -49,16 +63,19 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   that installation records.
 - **A guide** — `docs/guides/local-layer.md` — and the decision record,
   `docs/adr/0004-the-local-layer.md`, with five alternatives rejected.
-- **Tests.** `tests/check_local_test.sh` (70 assertions) over the script, and
+- **Tests.** `tests/check_local_test.sh` (89 assertions) over the script,
+  `tests/dead_words_vectors_test.sh` (88) over every shared vector plus the cases
+  one vector line cannot express — a fenced entry, an unclosed fence, the exact
+  bytes of a quotation, and the two templates checking clean as shipped — and
   `tests/rules_text_test.sh` (94) over the rulebook's own text: the three hooks
   present exactly where they belong and absent everywhere else, the template's
   frontmatter byte-identical to the six scoped files, nothing but rule files
-  under `rules/`, and `INSTALL.md`'s counts matching reality. Each suite has a
-  mutation harness — `tests/mutation_test.sh` (16) and
+  under `rules/`, and `INSTALL.md`'s counts matching reality. Each side has a
+  mutation harness — `tests/mutation_test.sh` (31) and
   `tests/rules_text_mutation_test.sh` (17) — that breaks one behaviour at a time
-  in a scratch copy and requires the suite to notice, because a green suite
-  proves nothing on its own. 197 assertions in total; `sh tests/run.sh` runs them
-  all.
+  in a scratch copy and requires a suite to notice, naming the assertion that
+  caught it, because a green suite proves nothing on its own. 319 assertions in
+  total; `sh tests/run.sh` runs them all.
 
 ### Changed
 - **Nothing installed needs editing any more.** The git-identity placeholder
@@ -74,6 +91,14 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   files to edit.
 
 ### Fixed
+- **The first `check-local.sh` split each line on the ` · ` separator, and
+  refused eight of the ten entries in the author's own local files.** The
+  separator occurs *inside* quoted words — `` `### 11 · Your platform` `` is a
+  real entry — and a closing period after the last item, natural in prose, was a
+  parse error. The parser is now a scanner over code spans, and the same ten
+  entries produce nine searches and one refusal: an entry that names no file, a
+  refusal that is correct and stays. Found before publication by running the
+  check against real data rather than against its own fixtures.
 - **`INSTALL.md`'s verification step said `~/.claude/rules/` should contain 13
   `.md` files. It contains 14** — thirteen numbered sections, but `AUTHORITY.md`
   is section 0 *and* a file, so the count of sections and the count of files were
