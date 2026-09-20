@@ -47,4 +47,33 @@ Dated one-liners for everything deferred or spotted and not done.
   questions in `docs/reports/2026-09-15-documentation-chain-cost.md`. Deferred by
   Michel to a session with budget to do it properly. Supersedes the narrower
   "version carriers drift" item above, which is Option 2 of this report.
-
+- **2026-09-20 · measurement · open** — the ceiling of two unreviewed batches
+  (rule 3.5) and the claim that a deep review lasts "one to three tasks" rest on
+  one programme, a behaviour-preserving refactor. Needs the close-out metric
+  (how often a line reached the ceiling) from at least one feature-work programme
+  with real dependencies before the number is treated as settled. Source: v0.1.13,
+  ADR 0001.
+- **2026-09-20 · verification · open** — *why* context crossed the blind-review
+  boundary between a session and its in-process subagent is a hypothesis
+  (session-level injection: task notifications, file-change notices, memory,
+  diagnostics), untested. One test settles it: give an in-process subagent a
+  scratch directory outside the project and record which channels still fire.
+  Rule 3.3 states only the effect until then. Source: v0.1.13.
+- **2026-09-20 · rule question · open** — the roster gained a Strong tier between
+  Standard and Top. Rule 8.1 still says risk domains (security, concurrency,
+  unsafe code) *start on the Top tier* for implementation. With a Strong tier
+  available, should they start there instead, keeping the Top tier for planning
+  and review? Not decided; the wording was left as it was. Source: v0.1.13.
+- **2026-09-20 · hygiene · open** — the roster now has **three** display copies
+  besides `rules/ROSTER.md`: the README table, the published page, and ADR 0001's
+  prose. The first two are marked as copies and will drift exactly as the version
+  carriers do; the check proposed for those should cover the roster too, and the
+  rule count ("fifty") in README, `docs/ANNOUNCE.md` and the page. Source: v0.1.13.
+- **2026-09-20 · discrepancy · open, cause unconfirmed** — the 0.1.9 and 0.1.11
+  changelog entries say four tags were published to the remote. On 2026-09-20
+  `git tag -l` and `git ls-remote --tags origin` both return nothing, and there
+  are no GitHub releases. Either the tags were removed afterwards (which rule 6.4
+  forbids and the changelog does not record) or those entries are wrong. v0.1.13
+  was therefore **not tagged** — adding one is reversible, removing one is not.
+  Needs the owner's word: what happened to the tags, and should this repo carry
+  `checkpoint/` tags at all. Source: v0.1.13 close-out.

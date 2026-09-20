@@ -27,8 +27,8 @@ indefinitely and the cost of asking stays fixed.
 The bundle started as one document and outgrew it. Splitting achieves two things
 a single file cannot:
 
-1. **Conditional loading.** Five files (`CODE`, `TESTING`, `REVIEWS`, `WORKFLOW`,
-   `SUBAGENTS`) carry a `paths:` scope and enter context only when source files
+1. **Conditional loading.** Six files (`CODE`, `TESTING`, `REVIEWS`, `WORKFLOW`,
+   `SUBAGENTS`, `ROSTER`) carry a `paths:` scope and enter context only when source files
    are touched. A session that never opens code shouldn't pay for development
    detail.
 2. **Stable numbering.** Rules are numbered `<section>.<rule>`, so adding a rule

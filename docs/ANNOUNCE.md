@@ -12,7 +12,7 @@ may do without asking, what it must bring to me, how code and tests are held to 
 standard, when a review happens. I've cleaned it up so anyone can install it.
 
 **Look before you install:** https://michelabboud.github.io/claude-code-playbook/
-Thirteen sections, forty-nine rules, click through them. Two minutes tells you
+Thirteen sections, fifty rules, click through them. Two minutes tells you
 whether you want it.
 
 **Repo:** https://github.com/michelabboud/claude-code-playbook

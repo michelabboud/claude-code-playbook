@@ -1,8 +1,9 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-15 (v0.1.9 — one branch history, not two)
+**Last updated:** 2026-09-20 (v0.1.13 — reviews no longer stall development; one file names the models)
 
-The bundle is complete and installable: thirteen numbered sections, three
+The bundle is complete and installable: thirteen numbered sections, fifty rules,
+the model roster (`rules/ROSTER.md`, the only file that names a model), three
 platform files, a README, and an optional-tools note. Every rule file has been
 swept for private references and none remain.
 
@@ -12,6 +13,11 @@ tools that file claims are absent on a stock install. The `sha256sum` control
 found the tool *present* on the test machine (outside both the stock system and
 Homebrew), which is recorded in the file as a portability trap rather than
 silently ignored.
+
+**Measured once, on a friendly case:** the ceiling of two unreviewed batches
+(rule 3.5) rests on one behaviour-preserving refactor programme. Close-outs now
+record how often the ceiling was reached; revise the number on that evidence.
+See `docs/guides/non-blocking-review-pipeline.md` and ADR 0001.
 
 **Not yet verified:** the Linux and Windows platform files have not been
 executed on their own operating systems. The Windows load measurement is flagged

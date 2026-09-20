@@ -4,6 +4,74 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.13 — 2026-09-20
+
+### Added
+- **Rule 3.5 — how far development may run ahead of review.** Mechanical review
+  never holds development. Deep review is pipelined to a ceiling of **two unruled
+  batches under a line's tip**: one is the normal state, the second is announced
+  loudly because it means the review lane is in trouble, and a third never
+  starts. The count follows **git ancestry** — a branch started from unreviewed
+  work inherits its count, a merge adds the counts, and a merge that would exceed
+  the ceiling waits — so independent worktrees count separately and fan-out is
+  not a way around the limit. Three waits hold at any depth: work that is
+  expensive to undo, anything irreversible or outward-facing, and a blocker. The
+  planner now owns the stall: independent work after every batch boundary,
+  risk-class tasks early in a batch.
+- **`rules/ROSTER.md` — the one file that names a model.** Four tiers (Top ·
+  Strong · Standard · Fast), the three kinds of review and who runs each, the
+  measurement behind the mechanical-review tier, and an **optional second-family
+  column** (Astra 6, Sol) for setups that can reach such a model through another
+  coding CLI. Every other rule now names a role. A model release is an edit to
+  this file and to nothing else; a model named anywhere else in `rules/` is a
+  defect. It carries the same `paths:` scope as `REVIEWS.md` and `SUBAGENTS.md`,
+  so six files are now source-scoped, not five.
+- **A Strong tier (Claude Opus).** Deep review had been running on the Standard
+  tier — the same tier as implementation and as the mechanical review it is
+  supposed to out-think. It now has a tier of its own, which is also the new
+  escalation step between Standard and Top.
+- `docs/guides/non-blocking-review-pipeline.md` — the reasoning, the ways the
+  pipeline fails silently, the evidence and its limits.
+- `docs/adr/` with ADR 0001, recording the decision and the six alternatives
+  rejected (a ceiling of one, no ceiling, per-worktree counting, among others).
+
+### Changed
+- **Rule 3.1: two kinds of review became three.** Mechanical closes a task; deep
+  closes a batch; **high deep** closes a milestone or a release. They are defined
+  by what they close, not by the model that runs them today. High deep is a
+  **gate**, because it may revise the plan and no ceiling bounds work built
+  against a plan that is about to change; the count of unreviewed batches drains
+  to zero before one starts, and the wait works the queue of minor findings.
+- **Rule 3.3 gained its mechanics.** "Review batch N while N+1 builds" was an
+  instruction with several implementations that look right and quietly fail. Now:
+  a review's input is a commit, never a working tree; the reviewer reads git
+  objects only, and builds in its own detached worktree with its own build
+  directory; the brief defines what counts as blocking; the coordinator — never
+  the reviewer — commits the review's output, that one path only, the moment its
+  findings are complete; in-process subagents of one session do not count as
+  blind, and only a blind reviewer's cold-read note counts as independent
+  corroboration.
+- `SUBAGENTS.md`, `AUTHORITY.md` and the `CLAUDE.md` index name tiers instead of
+  models; the roster table left `SUBAGENTS.md` and `REVIEWS.md` for `ROSTER.md`.
+  The roster's top tier is renamed **Deep → Top**, because "the Deep tier" and
+  "a deep review" would otherwise name two different models.
+- The rule count is fifty (was forty-nine) in the README, the announcement and
+  the published page; the page's review ladder and roster show the new shape.
+- README: a section on reviewing without stalling development; the roster table
+  is marked as a display copy of `rules/ROSTER.md`; four places to tailor, not
+  three.
+
+### Not verified
+- The ceiling of two rests on one programme — a sixteen-task behaviour-preserving
+  refactor, the friendliest possible case. Rule 3 now asks every close-out to
+  record how often the ceiling was reached, so the number can be revised on
+  evidence rather than preference.
+- *Why* context crossed the blind-review boundary is a hypothesis (session-level
+  context injection by the harness), untested. The rule states only the observed
+  effect and does not depend on the explanation.
+
+---
+
 ## 0.1.12 — 2026-09-15
 
 ### Added

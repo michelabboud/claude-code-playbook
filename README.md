@@ -56,7 +56,7 @@ it agrees with it.
 
 **[Open the visual map →](https://michelabboud.github.io/claude-code-playbook/)**
 
-An explorable page covering all thirteen sections and forty-nine rules: click a
+An explorable page covering all thirteen sections and fifty rules: click a
 section to see its trigger and its rules, plus the tables that carry the real
 structure — the approval table, the review ladder, the model roster, the close-out
 chain, and the three-way platform matrix.
@@ -111,11 +111,22 @@ on macOS, and Windows usually does the job a different way entirely.
 
 ## The model roster
 
-| Tier | Model | Runs |
-|---|---|---|
-| **Deep** | Claude Fable | Planning, design, architecture, milestone and release review. Never down-tiered. |
-| **Standard** | Claude Sonnet | Implementation, and every mechanical review. |
-| **Fast** | Claude Haiku | Mechanical work that is not review — renames, formatting, single-file edits to spec. |
+**[`rules/ROSTER.md`](rules/ROSTER.md) is the only file that names a model.**
+Every rule names a role — a tier, or a kind of review — and the roster says which
+model fills it today. Models change several times a year; when one does, you edit
+that one file. This table is a copy of it for readers, not a second source:
+
+| Tier | Claude model | Optional second family | Trusted with |
+|---|---|---|---|
+| **Top** | Claude Fable | Astra 6 | Planning, design, architecture, and **high deep** review — milestones and releases. Never down-tiered. |
+| **Strong** | Claude Opus | Sol, highest effort | **Deep** review, per batch. The escalation step between Standard and Top. |
+| **Standard** | Claude Sonnet | — | Implementation, and every **mechanical** review. |
+| **Fast** | Claude Haiku | — | Mechanical work that is not review — renames, formatting, single-file edits to spec. |
+
+The Claude column is sufficient on its own. The second-family column is optional
+and only for setups that can genuinely reach such a model through another coding
+CLI: it exists to decorrelate a dual-blind review, because two instances of one
+model share the same blind spots.
 
 **Mechanical review is deliberately Sonnet and not Haiku, and that was
 measured.** Given an identical brief over a file with nine real defects, Haiku
@@ -126,7 +137,24 @@ thorough, and thoroughness is the whole job of a safety net. If you change this,
 re-measure rather than assume.
 
 Substitute your own models freely — the tiers are the design, the names are
-configuration.
+configuration, and the configuration lives in one file.
+
+## Review without stalling development
+
+Reviews are slow, and the deep ones are expensive too. A review that development
+sits waiting for is a stall, so the rulebook pipelines them:
+
+| Kind | Closes | While it runs, development… |
+|---|---|---|
+| **Mechanical** | every task | never waits |
+| **Deep** | every batch of 3–10 tasks | keeps going — at most **two** unreviewed batches under a line's tip, counted by git ancestry |
+| **High deep** | a milestone or a release | waits — it may revise the plan, and the wait works the queue of minor findings |
+
+What makes that safe is mechanics, not optimism: **a review's input is a commit,
+never a working tree**; the reviewer reads git objects only; the brief defines
+what counts as blocking; a blocker stops the line. The rule is 3.3 and 3.5 in
+[`rules/REVIEWS.md`](rules/REVIEWS.md); the reasoning and the evidence are in
+[`docs/guides/non-blocking-review-pipeline.md`](docs/guides/non-blocking-review-pipeline.md).
 
 ## How it is organised
 
@@ -135,7 +163,7 @@ Thirteen numbered sections. `CLAUDE.md` holds the Mantra and an index;
 and **the approval table — the complete list of what needs your OK**. The rest
 are subject files you open when their trigger fires.
 
-Five of them (`CODE`, `TESTING`, `REVIEWS`, `WORKFLOW`, `SUBAGENTS`) carry a
+Six of them (`CODE`, `TESTING`, `REVIEWS`, `WORKFLOW`, `SUBAGENTS`, `ROSTER`) carry a
 `paths:` scope so they load only when source is touched — a session that never
 opens a source file shouldn't pay for development detail.
 
@@ -146,7 +174,7 @@ bureaucracy.
 
 ## Make it yours
 
-Three places worth tailoring before anything else:
+Four places worth tailoring before anything else:
 
 - **`rules/WRITING.md` (section 12)** — how the assistant writes to you. It is
   the most personal section in the bundle: it leads with the next action, bans
@@ -155,8 +183,12 @@ Three places worth tailoring before anything else:
 - **The approval table in `rules/AUTHORITY.md`** — it encodes one person's risk
   tolerance. Move a row if yours differs. Just keep it as *the* complete list,
   in one place.
-- **The review cadence in `rules/REVIEWS.md`** — 3 to 10 tasks per batch. If
-  your work is riskier or your batches larger, change the number and say why.
+- **The review cadence in `rules/REVIEWS.md`** — 3 to 10 tasks per batch, and at
+  most two unreviewed batches in flight. If your work is riskier or your batches
+  larger, change the numbers and say why.
+- **The model roster in `rules/ROSTER.md`** — the models you actually have. It is
+  the only file that names one, so it is the only file a new model release makes
+  you touch.
 
 ## If your team shares this
 
@@ -183,10 +215,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.12**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.13**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.13** | Reviews no longer stall development: three kinds of review (mechanical · deep · high deep), the mechanics of pipelining a review against a commit, a ceiling of two unreviewed batches counted by git ancestry, and `rules/ROSTER.md` — the one file that names a model. Rule 3.5 is new. |
 | **v0.1.12** | A report on what the per-task documentation chain costs, and why a cheaper model is the wrong fix. Awaiting decision. |
 | **v0.1.11** | The 0.1.9 note omitted that the merge published four previously-local tags, and that two commits both carry version 0.1.1. |
 | **v0.1.10** | `HANDOFF.md` still pointed at v0.1.0, nine versions stale. |

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="An explorable map of all thirteen sections and forty-nine rules of the Claude Code Playbook - the Mantra, the approval table, the review ladder, and the model roster.">
+<meta name="description" content="An explorable map of all thirteen sections and fifty rules of the Claude Code Playbook - the Mantra, the approval table, the review ladder, and the model roster.">
 <style>
 html{color-scheme:light dark}
 body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;background:#fafaf9}
@@ -230,7 +230,7 @@ td code{font-family:var(--mono);font-size:.85em;color:var(--ink);background:var(
 .pill.gate{background:var(--gate-soft);color:var(--gate)}
 .pill.go{background:var(--go-soft);color:var(--go)}
 .tier{font-family:var(--mono);font-size:.8125rem;font-weight:700}
-.tier.deep{color:var(--seal)} .tier.std{color:var(--accent)} .tier.fast{color:var(--ink-3)}
+.tier.deep{color:var(--seal)} .tier.strong{color:var(--seal);opacity:.8} .tier.std{color:var(--accent)} .tier.fast{color:var(--ink-3)}
 
 .ladder{display:grid;gap:8px}
 .rung{
@@ -287,12 +287,12 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="wrap">
 
 <header class="masthead">
-  <p class="eyebrow">Open source · MIT · v0.1.12</p>
+  <p class="eyebrow">Open source · MIT · v0.1.13</p>
   <h1>Claude Code Playbook</h1>
-  <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: thirteen sections, forty-nine rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
+  <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: thirteen sections, fifty rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
   <dl class="facts">
     <div class="fact"><dt>Sections</dt><dd>13 &nbsp;<span style="color:var(--ink-3);font-weight:400">(0–12)</span></dd></div>
-    <div class="fact"><dt>Rules</dt><dd>49</dd></div>
+    <div class="fact"><dt>Rules</dt><dd>50</dd></div>
     <div class="fact"><dt>Auto-loaded</dt><dd>5 <span>of 13</span></dd></div>
     <div class="fact"><dt>Platform files</dt><dd>3</dd></div>
     <div class="fact"><dt>Dependencies</dt><dd style="font-size:1.05rem">shell + git</dd></div>
@@ -395,23 +395,25 @@ const S=[
 
 {n:3,name:"Code reviews",file:"rules/REVIEWS.md",auto:true,
  trigger:"A task lands · a batch boundary · a milestone or release · any reviewer dispatch.",
- blurb:"Dual review after every task is the right instinct and too slow on a real project. So the tier climbs a ladder, and risk overrides cadence.",
+ blurb:"Dual review after every task is the right instinct and too slow on a real project. So the tier climbs a ladder, risk overrides cadence, and development does not sit waiting for a review.",
  rules:[
-  ["3.1","<strong>Two kinds of review, and a tier that climbs.</strong> Mechanical per task; deep per batch of 3–10; the top tier at milestones and the release gate. Levels collapse on small plans; the tier of the level that closes never drops."],
+  ["3.1","<strong>Three kinds of review, and a tier that climbs.</strong> Mechanical per task; deep per batch of 3–10; high deep — the Top tier, dual-blind — at milestones and the release gate. Levels collapse on small plans; the tier of the level that closes never drops."],
   ["3.2","<strong>A batch closes at whichever comes first:</strong> the next task would build on unreviewed work it can’t cheaply undo · the diff outgrows one reviewer · the planner’s cap. <strong>Risk overrides cadence</strong> — security, concurrency, data, unsafe code and public API get deep review at task grain, always."],
-  ["3.3","<strong>Pipelined, never fire-and-forget.</strong> Review batch N while N+1 builds; every finding pins a commit and is re-checked against tip before anyone acts. A blocker <strong>stops the line</strong>."],
-  ["3.4","<strong>The release gate gets the best review</strong>, regardless of task count — dual-blind, fed the plan and every batch review, diving on risk-class files. No <code>v*</code> tag before it passes."]],
+  ["3.3","<strong>Pipelined, never fire-and-forget.</strong> Review batch N while N+1 builds; every finding pins a commit and is re-checked against tip before anyone acts. A blocker <strong>stops the line</strong>. <strong>A review’s input is a commit, never a working tree:</strong> the reviewer reads git objects only and builds in its own detached worktree; the brief defines what counts as blocking; the coordinator commits the reviewer’s output, that one path only, the moment it is complete; in-process subagents do not count as blind."],
+  ["3.4","<strong>The release gate gets the best review</strong>, regardless of task count — dual-blind, fed the plan and every batch review, diving on risk-class files. No <code>v*</code> tag before it passes."],
+  ["3.5","<strong>How far development may run ahead of review.</strong> Mechanical review never holds development. Deep review: at most <strong>two unreviewed batches under a line’s tip</strong> — one is normal, the second is announced loudly, a third never starts — counted by git ancestry, so a branch off unreviewed work inherits its count and a merge adds them. Three waits hold at any depth: work that is expensive to undo · anything irreversible or outward-facing · a blocker. <strong>High deep reviews are gates</strong>; the count drains to zero before one, and the wait works the queue of minor findings."]],
  features:[
   {t:"The review ladder",c:"Each level closes with a stronger review than the one below it, and gets its own tag.",
-   ladder:[["task","one unit of work — mechanical review, never blocks the next task","checkpoint/&lt;VERSION&gt;",0],
-           ["batch","3–10 tasks, boundaries written into the plan — deep review","gate/&lt;VERSION&gt;",0],
-           ["milestone","something real shown working end to end — deep + plan conformance","gate/&lt;VERSION&gt;",0],
-           ["release","the phase’s last task — the best review available","v&lt;VERSION&gt;",1]]},
-  {t:"The model roster",c:"Three tiers. The names are configuration; the tiers are the design.",
-   table:{h:["Tier","Model","Runs"],r:[
-    ['<span class="tier deep">Deep</span>',"<strong>Fable</strong>","Planning, design, architecture, milestone and release review. Never down-tiered."],
-    ['<span class="tier std">Standard</span>',"<strong>Sonnet</strong>","Implementation — and <strong>every mechanical review</strong>."],
-    ['<span class="tier fast">Fast</span>',"<strong>Haiku</strong>","Mechanical work that is <em>not</em> review: renames, formatting, single-file edits to spec."]]},
+   ladder:[["task","one unit of work — mechanical review; development never waits","checkpoint/&lt;VERSION&gt;",0],
+           ["batch","3–10 tasks, boundaries written into the plan — deep review; development keeps going, two batches at most","gate/&lt;VERSION&gt;",0],
+           ["milestone","something real shown working end to end — high deep review: deep + plan conformance; development waits","gate/&lt;VERSION&gt;",0],
+           ["release","the phase’s last task — high deep, the best review available; development waits","v&lt;VERSION&gt;",1]]},
+  {t:"The model roster",c:"Four tiers, defined in rules/ROSTER.md — the one file that names a model. The names are configuration; the tiers are the design. The second family is optional, for setups that can reach one.",
+   table:{h:["Tier","Claude model","Optional second family","Trusted with"],r:[
+    ['<span class="tier deep">Top</span>',"<strong>Fable</strong>","Astra 6","Planning, design, architecture, and <strong>high deep</strong> review. Never down-tiered."],
+    ['<span class="tier strong">Strong</span>',"<strong>Opus</strong>","Sol, highest effort","<strong>Deep</strong> review, per batch. The escalation step between Standard and Top."],
+    ['<span class="tier std">Standard</span>',"<strong>Sonnet</strong>","—","Implementation — and <strong>every mechanical review</strong>."],
+    ['<span class="tier fast">Fast</span>',"<strong>Haiku</strong>","—","Mechanical work that is <em>not</em> review: renames, formatting, single-file edits to spec."]]},
    note:{cls:"measured",html:"<b>Why mechanical review is Sonnet and not the fast tier — measured, not assumed.</b> Given an identical brief over one file containing nine real defects, Haiku found <b>five</b> with zero false positives; Sonnet found <b>all nine</b>, a strict superset. What Haiku missed was not exotic — a declared-but-never-enforced input limit, and a doc-says-X-code-does-Y mismatch — both squarely inside the classes the brief named. Haiku is precise but not thorough, and thoroughness is the entire job of the review that is supposed to be the safety net. <b>Re-measure before changing this.</b>"}}]},
 
 {n:4,name:"Documentation & ADRs",file:"rules/DOCS.md",auto:false,
@@ -466,7 +468,7 @@ const S=[
  trigger:"Before dispatching any subagent or planning a fan-out.",
  blurb:"Right-size the model, escalate fast, and never let the planner become the coordinator.",
  rules:[
-  ["8.1","<strong>Delegate when work decomposes; do it inline when briefing costs more.</strong> Lowest capable model for implementation, the deep tier for planning <em>always</em>. Security, concurrency and unsafe code start at the top. Every subagent carries the <code>ESCALATE:</code> instruction, and escalation carries the baton — what the last model tried, found, and where it stuck. <strong>The planner is not the coordinator:</strong> the deep model writes the plan and ends its turn."]],
+  ["8.1","<strong>Delegate when work decomposes; do it inline when briefing costs more.</strong> Lowest capable tier for implementation, the Top tier for planning <em>always</em>. Which model fills each tier is <code>rules/ROSTER.md</code> — the one file that names any. Security, concurrency and unsafe code start at the top. Every subagent carries the <code>ESCALATE:</code> instruction, and escalation carries the baton — what the last model tried, found, and where it stuck. <strong>The planner is not the coordinator:</strong> the Top tier writes the plan and ends its turn."]],
  features:[
   {t:"Concurrency follows measured load, not ambition",c:"Read the host before a fan-out — your platform file gives the three commands — and cap simultaneous subagents to spare capacity. Queued work still completes; only the concurrent count is bounded.",
    table:{h:["Host load (load ÷ cores)","Factor","10-core box","28-core box"],r:[
