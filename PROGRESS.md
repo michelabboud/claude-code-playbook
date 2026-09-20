@@ -1,6 +1,6 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-20 (v0.1.13 — reviews no longer stall development; one file names the models)
+**Last updated:** 2026-09-20 (v0.1.14 — the review-ahead rule's accounting corrected after an independent review)
 
 The bundle is complete and installable: thirteen numbered sections, fifty rules,
 the model roster (`rules/ROSTER.md`, the only file that names a model), three

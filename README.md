@@ -147,12 +147,12 @@ sits waiting for is a stall, so the rulebook pipelines them:
 | Kind | Closes | While it runs, development… |
 |---|---|---|
 | **Mechanical** | every task | never waits |
-| **Deep** | every batch of 3–10 tasks | keeps going — at most **two** unreviewed batches under a line's tip, counted by git ancestry |
+| **Deep** | every batch of 3–10 tasks | keeps going — at most **two closed** unreviewed batches under a line's tip, plus the one being built; counted by git ancestry as a set, against a ledger the coordinator keeps |
 | **High deep** | a milestone or a release | waits — it may revise the plan, and the wait works the queue of minor findings |
 
 What makes that safe is mechanics, not optimism: **a review's input is a commit,
 never a working tree**; the reviewer reads git objects only; the brief defines
-what counts as blocking; a blocker stops the line. The rule is 3.3 and 3.5 in
+what counts as blocking; a blocker stops the line, whichever kind of review found it. The rule is 3.3 and 3.5 in
 [`rules/REVIEWS.md`](rules/REVIEWS.md); the reasoning and the evidence are in
 [`docs/guides/non-blocking-review-pipeline.md`](docs/guides/non-blocking-review-pipeline.md).
 
@@ -215,10 +215,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.13**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.14**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.14** | The review-ahead rule's accounting corrected after an independent review: the ceiling says what it counts (two closed batches plus the one being built — three ranges worst case), a merge is a union not a sum, every lower review is settled before a gate, "commit only that path" replaces "stage only that path", and blindness controls are controls, not proof. |
 | **v0.1.13** | Reviews no longer stall development: three kinds of review (mechanical · deep · high deep), the mechanics of pipelining a review against a commit, a ceiling of two unreviewed batches counted by git ancestry, and `rules/ROSTER.md` — the one file that names a model. Rule 3.5 is new. |
 | **v0.1.12** | A report on what the per-task documentation chain costs, and why a cheaper model is the wrong fix. Awaiting decision. |
 | **v0.1.11** | The 0.1.9 note omitted that the merge published four previously-local tags, and that two commits both carry version 0.1.1. |

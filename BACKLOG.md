@@ -80,3 +80,8 @@ Dated one-liners for everything deferred or spotted and not done.
   was therefore **not tagged** — adding one is reversible, removing one is not.
   Needs the owner's word: what happened to the tags, and should this repo carry
   `checkpoint/` tags at all. Source: v0.1.13 close-out.
+- **2026-09-20 · hygiene · open** — 0.1.13's check that no model is named outside
+  `rules/ROSTER.md` searched for capitalised names and passed while a lower-case example sat
+  in `rules/WORKFLOW.md`. A passing check is a claim about the check. Whatever script is
+  written for the version and roster carriers should search case-insensitively, and should be
+  shown failing on a planted example before it is trusted. Source: v0.1.14.

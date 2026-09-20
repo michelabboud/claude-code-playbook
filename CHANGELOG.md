@@ -4,6 +4,52 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.14 — 2026-09-20
+
+### Fixed
+- **Rule 3.5's accounting, corrected within hours of 0.1.13 by an independent review.** The
+  rule was reviewed by a second model family — as a separate process, against a pinned commit,
+  cold-read note first — while reviewing a plan to port it to the Codex edition. Eleven
+  findings, all confirmed; five were in this rulebook's own text:
+  - **The ceiling now says what it counts:** at most two *closed*, unruled batches under a
+    line's tip, plus the one being built. 0.1.13 allowed batch N+2 to start and also said "a
+    third never starts". The honest worst case is **three** batch ranges of unreviewed code,
+    not two; the guide's "worst-case rework doubles" was wrong and is corrected in place.
+  - **A merge is a union, not a sum.** "A merge adds the two counts" double-counted a shared
+    unruled ancestor. The count is the set of unruled batches with any commit reachable from
+    the tip; a branch cut inside a batch inherits it; cherry-picks, squashes and copied code
+    carry no ancestry; a ruling clears a line only when its fixes are reachable from it; a
+    merge result is itself new work.
+  - **Every lower review is settled before a high deep gate — mechanical included.** 0.1.13
+    drained only the deep reviews, so a mechanical review that died or timed out could be left
+    owed while the gate claimed completion. The gate's candidate is frozen, and gate-time work
+    happens on a line not merged into it.
+  - **A finding's impact decides what it stops, never the kind of review that found it.** "A
+    mechanical finding is local" overclaimed: the roster's own measurement cites an unenforced
+    input limit, which can be a security defect.
+  - **"Commit only that path", index checked first** replaces "stage only that path" — anything
+    already staged rides along.
+- `rules/WORKFLOW.md` still cited "rules 3.1–3.4", and its close-out ledger example named models
+  in lower case — so 0.1.13's claim that no model is named outside `rules/ROSTER.md` was false
+  by one example. The verifying search matched capitals only. The example now names tiers.
+
+### Added
+- **Rule 3.5: the coordinator keeps a ledger, and one coordinator admits work.** Git knows
+  ancestry; it does not know which commits form a batch, which reviews are owed, or whether one
+  was ruled. Two coordinators admitting from the same stale count can exceed the ceiling with
+  correct arithmetic.
+- **Rule 3.3:** pin the base as well as the target; whoever holds the permission prepares the
+  reviewer's snapshot; *review-only is an authority, read-only is a filesystem* — a reviewer
+  that cannot write returns its notes through its reply, and its permissions are never widened
+  to make the rule look satisfied; an exited reviewer is not an accepted review; a fork of the
+  coordinating session is never a blind reviewer; the instruction environment (global rules,
+  skills, memory, hooks) is a review input; blindness controls are controls, not proof.
+- **Rule 3.5:** review capacity is not host load — rule 8.1's cap measures the machine, not a
+  remote model's allowance; never raise the ceiling to hide a starved review lane.
+- ADR 0002, amending ADR 0001.
+
+---
+
 ## 0.1.13 — 2026-09-20
 
 ### Added

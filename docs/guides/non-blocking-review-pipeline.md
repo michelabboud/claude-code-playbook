@@ -64,8 +64,10 @@ defines it, before the findings exist.
 file became later. Committing it the moment the findings are complete makes the
 reviewed version the record — and makes "this review was blind" demonstrable
 from the history rather than self-reported. The coordinator commits it, never
-the reviewer, and stages that one path only: the working tree holds someone's
-half-written task, and a broad `git add` would sweep it into the wrong commit.
+the reviewer, and commits that one path only — checking the index first, because
+anything already staged rides along with a commit however narrowly the last
+`git add` was aimed (corrected in 0.1.14; the first version said "stages that
+one path only"). The working tree holds someone's half-written task.
 
 **The dispatch is pipelined and the coordinator waits anyway.** The easiest
 failure to commit, because the review feels important. It has the pipeline's
@@ -84,9 +86,12 @@ stop-the-line rule, the three waits and the ceiling in rule 3.5.
 
 The test is never what the review costs. It is what being wrong costs.
 
-- A **mechanical** finding is local: a missed input check, a wrong comment.
-  Fixing it three tasks later costs what fixing it now would. It never needs to
-  hold development.
+- *Most* of what a **mechanical** review finds is local: a wrong comment, an
+  ignored return value. Fixing it three tasks later costs what fixing it now
+  would, so waiting for a routine mechanical review costs more than it saves.
+  Not all of it, though (corrected in 0.1.14): an unenforced input limit is a
+  mechanical finding and can be a security defect. **What a finding stops is
+  decided by its impact, never by the kind of review that found it.**
 - A **deep** finding is structural: a concurrency model, a data path, an API
   shape. Its fix grows with everything built on top of it while the review ran.
 
@@ -98,6 +103,9 @@ unbounded or the step cannot be undone. Those are the three waits.
 
 ### Why the ceiling is two, not one
 
+*Corrected in 0.1.14. The first version of this section said the ceiling's cost was that
+"worst-case rework doubles". It does not double; see the last paragraph.*
+
 A batch is 3–10 tasks and a deep review lasts about one to three tasks, so in
 normal running batch N's review lands long before batch N+1 is finished. A
 ceiling of one is therefore never reached in normal running. It is reached only
@@ -106,23 +114,49 @@ dual-blind pair held up on one side. With a ceiling of one, that outage halts
 development too, which is exactly the stall the pipeline exists to remove. A
 ceiling of two buys one more batch of room.
 
-It costs two things. Worst-case rework doubles — the exposure is the ceiling
-multiplied by the batch size, which is why the planner runs smaller batches
-whenever two are outstanding. And batch N+1's deep review examines code built on
+It costs two things. **The honest worst case is three batch ranges of unreviewed
+code, not two:** the ceiling counts *closed* batches awaiting a ruling, and the
+batch being built stands on top of them. With N and N+1 closed and unruled and
+N+2 building, three ranges are exposed. That is why the planner runs smaller
+batches whenever two are outstanding. (The stricter reading — two slots
+*including* the batch being built — caps exposure at two ranges, and is exactly
+the ceiling of one rejected above: any slow review halts the line.)
+
+And batch N+1's deep review examines code built on
 unreviewed batch N, so a blocker in N can make parts of that second review moot
 after it has been paid for. Both are bounded, and both are cheaper than a halted
-line. There is no third slot: three unreviewed batches is no longer a pipeline,
-it is unreviewed development.
+line. There is no third *closed* slot: when batch N+2 closes with two still
+unruled, the line waits. A third batch queued for review is no longer a
+pipeline, it is unreviewed development.
 
 ### Why the count follows ancestry
 
 Counting per worktree is almost right and leaks in two places. A branch started
 from unreviewed work is standing on that work, so it starts at one, not zero.
 And two lines each carrying two unruled batches produce, when merged, a line
-carrying four — so fan-out and merge-back would be a way around the ceiling.
-Defining the count as *the unruled batches reachable from the tip* closes both
-with no extra rule, and it is a question git already answers
-(`git merge-base --is-ancestor <batch-tip> <line-tip>`).
+carrying up to four — so fan-out and merge-back would be a way around the ceiling.
+Defining the count as *the set of unruled batches with any commit reachable from
+the tip* closes both with no extra rule.
+
+*Corrected in 0.1.14.* The first version said "a merge adds the counts". That
+double-counts a shared ancestor: if both lines inherit unruled batch A and one
+also carries B, the merged line carries `{A, B}` — two, not three. The count is a
+**set union**. Three further limits of ancestry, all found by independent review:
+
+- **A branch cut inside a batch** inherits part of it although the batch's tip is
+  not its ancestor — so a batch counts when *any* of its commits is reachable.
+- **Cherry-picks, squashes and copied code carry no ancestry.** Carry the batch's
+  identity by hand, or treat the copy as new work owing its own review.
+- **A ruling is not global.** A blocker fixed on one branch is still open on
+  another until the fix is reachable from it. And a merge result is new work: a
+  conflict resolution can hold a defect neither parent had.
+
+Which is why git alone is not enough. Git knows ancestry; it does not know which
+commits form a batch, which reviews are owed, or whether one was ruled. The
+coordinator keeps a small ledger — identity, kind, base and target, status,
+dispositions, fix commits, the lines a ruling applies to — and one coordinator
+owns admission, because two admitting work from the same stale count can exceed
+the ceiling with perfectly correct arithmetic.
 
 ### Why high deep reviews are gates
 
@@ -132,12 +166,17 @@ plan*. Work done past a milestone risks being built against a plan that is about
 to change, and no ceiling bounds that. At a release, the tag must sit on exactly
 the commit that was reviewed, so nothing can be added on top while it runs.
 
-Two consequences follow. A high deep review takes every batch review below it as
-input, so all of them are ruled first — **the count drains to zero at every
+Two consequences follow. A high deep review takes every review below it as input
+— **mechanical reviews included** (corrected in 0.1.14: the first version drained
+only the deep ones, so a mechanical review that died or timed out could be left
+owed while the gate claimed completion) — so all of them are settled first — **the count drains to zero at every
 milestone**, and unreviewed work never survives past one however the batches
 went. And the wait is not idle: the queue of minor findings, the backlog, test
 hardening and docs depend on nothing the review might change, and they are
-exactly the work the pipeline has been deferring.
+exactly the work the pipeline has been deferring. One caution: the gate's
+candidate is frozen, so that work happens on a line that is not merged into it
+until the gate passes — and where documentation *is* the product, as in a
+rulebook, docs are not "independent work" at all.
 
 ## Blindness is a convention, not a platform property
 
@@ -160,11 +199,16 @@ order of value:
    your scratch directory" is ambiguous about whose.
 2. **No sibling reviewers and no programme material anywhere above a reviewer's
    directory.** Two sibling reviewers are one `ls ..` apart.
-3. **A cold-read note written to disk before anything else is opened**, with
+3. **A cold-read note written to disk after the brief and the material under
+   review, and before anything else is opened**, with
    only the findings in that note counted as independent corroboration. This one
    generalises: it costs nothing, it works whether or not the isolation leaks,
    and it turns "it was blind" from a claim into evidence. Anything the reviewer
    adds later is still a finding — an ordinary one.
+*These are controls, not proof.* A separate process can be handed contaminated
+inputs, and a note preserves what the reviewer wrote, not everything it knew.
+Record what isolation the runtime actually provided and claim no more.
+
 4. **A separate process for the second reviewer.** Two in-process subagents of
    one session are not decorrelated at all. A model reached through another
    coding CLI is a separate process by construction — one more reason the
