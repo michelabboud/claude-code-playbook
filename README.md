@@ -92,8 +92,9 @@ templates/LOCAL.md      →  ~/.claude/rules/LOCAL.md
 templates/LOCAL_dev.md  →  ~/.claude/rules/LOCAL_dev.md
 ```
 
-Those two are **yours**. This repository never ships them, never copies over
-them, and never opens them — see *Make it yours* below.
+Those two are **yours**. This repository never ships them, and an update never
+writes to them, copies over them, or replaces them — it reads them only to check
+them. See *Make it yours* below.
 
 ## Nothing you install needs editing
 
@@ -189,8 +190,8 @@ bureaucracy.
 ## Make it yours
 
 **Don't edit the installed files.** Write your customizations in a **local
-layer** of your own — two files this repository never ships, never copies over,
-and never opens:
+layer** of your own — two files this repository never ships, and that an update
+never writes to, copies over or replaces (it reads them only to check them):
 
 | Your file | Loads |
 |---|---|
@@ -223,8 +224,11 @@ sh scripts/check-local.sh ~/.claude/rules ./rules
 ```
 
 Exit 0, every quoted string still present. Exit 1, at least one stale override,
-each reported with its file, its line and the words. Exit 2, something the
-check could not read — which is never treated as a pass. The update procedure in
+each reported with its file, its line and the words. Exit 2, something the check
+could not read or could not parse — an unreadable local file, a line that does
+not parse, an Override that never quoted any dead words — which is never treated
+as a pass, because "no override went stale" and "no override was looked at" must
+never come out the same. The update procedure in
 [`INSTALL.md`](INSTALL.md) runs it against the **staged** new text before
 anything is copied, so an update stops *before* it can surprise you.
 
@@ -283,7 +287,7 @@ Current: **v0.1.16**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
-| **v0.1.16** | "Make it yours" stopped meaning "edit the installed files". Customizations now live in a **local layer** — `rules/LOCAL.md` and `rules/LOCAL_dev.md`, two files this repository never ships or touches — and section 0 says in one sentence that an entry there wins over the playbook's wording. An entry is a **Fill**, an **Add**, or an **Override** that quotes the dead words it replaces, so `scripts/check-local.sh` can prove mechanically that it still bites before an update copies anything. An update is a copy plus a check; the git-email edit is gone; `INSTALL.md` gained an update procedure and a migration procedure for installations tailored the old way, and its file count was wrong (13, actually 14). |
+| **v0.1.16** | "Make it yours" stopped meaning "edit the installed files". Customizations now live in a **local layer** — `rules/LOCAL.md` and `rules/LOCAL_dev.md`, two files this repository never ships and an update never writes to, copies over or replaces — and section 0 says in one sentence that an entry there wins over the playbook's wording. An entry is a **Fill**, an **Add**, or an **Override** that quotes the dead words it replaces, so `scripts/check-local.sh` can prove mechanically that it still bites before an update copies anything. An update is a copy plus a check; the git-email edit is gone; `INSTALL.md` gained an update procedure and a migration procedure for installations tailored the old way, and its file count was wrong (13, actually 14). |
 | **v0.1.15** | A second independent review, this time of the finished Codex port, failed it — and four of its six blockers were in this rulebook's text: the ceiling was off by one at the boundary (now an admission rule, with a normative table of worked cases), "mechanical review never blocks" read as absolute, an isolation condition no filesystem can satisfy, and a roster that claimed single ownership while the rules restated it. A third review, of that repair and before anything was published, found the admission could be granted twice on one count: and a fourth found two more states the wording missed and said to stop patching — so the ceiling is now one invariant: a line carries at most three unruled batches, the open one included. A fifth review found the restatement had made unplanned work unlandable and left fixes unreviewed; both are closed, and the rule now ends in a clause that resolves anything it does not name toward review. Twenty worked cases. |
 | **v0.1.14** | The review-ahead rule's accounting corrected after an independent review: the ceiling says what it counts (two closed batches plus the one being built — three ranges worst case), a merge is a union not a sum, every lower review is settled before a gate, "commit only that path" replaces "stage only that path", and blindness controls are controls, not proof. |
 | **v0.1.13** | Reviews no longer stall development: three kinds of review (mechanical · deep · high deep), the mechanics of pipelining a review against a commit, a ceiling of two unreviewed batches counted by git ancestry, and `rules/ROSTER.md` — the one file that names a model. Rule 3.5 is new. |

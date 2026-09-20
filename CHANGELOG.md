@@ -7,7 +7,8 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 ## 0.1.16 — 2026-09-21
 
 ### Added
-- **A local layer: two files the playbook never ships, copies over, or opens.**
+- **A local layer: two files the playbook never ships, and that an update never
+  writes to, copies over or replaces.**
   `rules/LOCAL.md` loads in every session; `rules/LOCAL_dev.md` carries the same
   `paths:` scope as the six source-scoped files and loads with them. Until now
   "make it yours" meant editing the installed files, which made every update a
@@ -31,9 +32,11 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   `**Dead words:**` line and searches the named rule file for each quoted string
   as a fixed string. Exit 0, every string still present; exit 1, at least one
   stale override, reported with `file:line`, the words, and the file searched;
-  exit 2, a usage error, a missing named file, or a line that does not parse —
-  **never a pass**. It takes the rules directory as an argument so it can run
-  against *staged* new text before an update copies anything.
+  exit 2, a usage error, a missing named file, a line that does not parse or one
+  longer than 4,096 bytes, an **Override** with no valid **Dead words:** line, a
+  local file that exists and cannot be read as a regular file, or a search that
+  failed — **never a pass**. It takes the rules directory as an argument so it can
+  run against *staged* new text before an update copies anything.
 - **The line is scanned over its code spans, never split on the separator**, and
   the quoted words are the exact bytes between the backticks — never trimmed,
   never re-split. A real entry quotes `` `### 11 · Your platform` ``, so ` · `,
@@ -43,38 +46,64 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   an **error**, never a silently skipped entry — prose that needs to name it puts
   it inside a code span. Lines inside a fenced code block are ignored, and a
   fence left open at end of file is an error, because everything after it was.
+  **An Override with no valid **Dead words:** line is an error too**, reported at
+  the Override's own line: one mistyped character (`**dead words:**`) would
+  otherwise turn an override into a thing nothing can ever call stale. An entry
+  line is one that, after optional indentation and an optional `- ` or `* `
+  bullet, begins with `**Fill`, `**Add` or `**Override`; the words must arrive
+  before the next entry line, the next heading, or the end of the file. A Fill and
+  an Add owe nothing, and an Override inside a fence is an example.
+  **A local file that exists and cannot be read is an error, never "nothing is
+  customized"** — unreadable, a directory, a dangling symlink, or inside a
+  directory with no search permission. A symlink to a readable regular file is
+  still read, for dotfile managers. **A file name may carry no glob character**
+  and the script never expands one, so a local file means the same thing whatever
+  directory the check runs from.
 - **`tests/fixtures/dead-words-vectors.tsv`** — 47 conformance vectors for that
   grammar, shared **byte for byte** with `codex-playbook` so the two editions
   cannot drift apart quietly. Both editions run every vector; this one also
   asserts the file's SHA-256, so a local edit to a shared fixture cannot pass
   unnoticed.
 - **`templates/LOCAL.md` and `templates/LOCAL_dev.md`** — the header, the three
-  kinds, the grammar of a **Dead words:** line, a worked example of each kind
-  (fenced, so a copied template checks clean), and the git-identity Fill left
-  blank. They live in `templates/` and not under `rules/` because that folder
+  kinds, the grammar of a **Dead words:** line, and a worked example of each kind
+  — **every one of them fenced, including the git-identity Fill.** A template
+  ships no live entry: a copy taken as shipped would otherwise bind the agent to
+  "commits use [nothing]", and fencing is also what makes a fresh copy check
+  clean. `INSTALL.md` writes the entry out of its fence once it has the address.
+  They live in `templates/` and not under `rules/` because that folder
   loads recursively: an example saved there would become law in every session.
 - **`INSTALL.md` gained an update procedure and a migration procedure.** The
   update stages the new text, runs the check against it, stops on exit 1 or 2,
   lists from this changelog every rule the update touched that the user
-  overrides, backs up to a **sibling** of `rules/`, then copies file by file —
+  overrides, **asks the user before it copies anything**, backs up to a
+  **sibling** of `rules/`, then copies file by file —
   never replacing the directory, because the user's two files live in it. The
   migration turns each difference in a hand-tailored installation into an entry
   or an upstream candidate, compared against the published text of the version
-  that installation records.
+  that installation records — staged in a named directory alongside the new
+  version, because the check has to run against the text about to be installed
+  and the old checkout may not carry the script at all. **Migration copies only a
+  local file that is not already there**; where one exists it stops, shows the
+  difference and leaves the merge to the user. An uninstall restores the rule
+  files one by one and never over `LOCAL.md` or `LOCAL_dev.md`. The procedures
+  also say what they need on the machine — `curl` and a POSIX `sh` — rather than
+  assuming it.
 - **A guide** — `docs/guides/local-layer.md` — and the decision record,
   `docs/adr/0004-the-local-layer.md`, with five alternatives rejected.
-- **Tests.** `tests/check_local_test.sh` (89 assertions) over the script,
-  `tests/dead_words_vectors_test.sh` (88) over every shared vector plus the cases
+- **Tests.** `tests/check_local_test.sh` (160 assertions) over the script,
+  `tests/dead_words_vectors_test.sh` (93) over every shared vector plus the cases
   one vector line cannot express — a fenced entry, an unclosed fence, the exact
   bytes of a quotation, and the two templates checking clean as shipped — and
-  `tests/rules_text_test.sh` (94) over the rulebook's own text: the three hooks
-  present exactly where they belong and absent everywhere else, the template's
-  frontmatter byte-identical to the six scoped files, nothing but rule files
-  under `rules/`, and `INSTALL.md`'s counts matching reality. Each side has a
-  mutation harness — `tests/mutation_test.sh` (31) and
-  `tests/rules_text_mutation_test.sh` (17) — that breaks one behaviour at a time
+  `tests/rules_text_test.sh` (139) over the rulebook's own text: the three hooks
+  present exactly where they belong and absent everywhere else, **each required
+  phrase counted inside its own paragraph** so that moving a sentence to the end
+  of the file fails, the template's frontmatter byte-identical to the six scoped
+  files, no live entry in either template, nothing but rule files under `rules/`,
+  and `INSTALL.md`'s counts and load-bearing sentences matching reality. Each
+  side has a mutation harness — `tests/mutation_test.sh` (51) and
+  `tests/rules_text_mutation_test.sh` (37) — that breaks one behaviour at a time
   in a scratch copy and requires a suite to notice, naming the assertion that
-  caught it, because a green suite proves nothing on its own. 319 assertions in
+  caught it, because a green suite proves nothing on its own. 480 assertions in
   total; `sh tests/run.sh` runs them all.
 
 ### Changed

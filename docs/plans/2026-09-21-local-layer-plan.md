@@ -17,3 +17,37 @@
 **Publication:** `main` and `checkpoint/0.1.16`, after the deep review is ruled. Then the owner's installation is brought to the published text, and the acceptance test is the script itself: `check-local.sh` run against his local files and the published rules must exit 0, and his installed playbook files must be byte-identical to the tag.
 
 **Sibling plan:** `codex-playbook` ports the same decision as 0.1.6 (one local file, because that harness has no path-scoped loading, kept outside the skill folders its installer swaps).
+
+---
+
+## Amendments after the batch's mechanical review, 2026-09-21
+
+The five task rows above are the plan as approved and are left as they were. Three
+of their done-when statements were overtaken by rulings made after the work was
+built — recorded here rather than edited into the rows, so the plan still shows
+what was approved and what changed:
+
+- **Task 2's exit-2 list grows.** Beyond a usage error, a missing named file and a
+  line that does not parse, exit 2 now also covers: an **Override** with no valid
+  `**Dead words:**` line (which is what makes a mistyped marker a refusal instead
+  of a silent pass — ADR 0004 decision 4, completed); a Dead-words line longer than
+  4,096 bytes; a local file that exists and cannot be read as a regular file; a
+  file name carrying a glob character; and a search that failed. "No local files =
+  exit 0" still holds — but only when nothing is there at all.
+- **Task 3 ships no live entry.** The git-identity Fill is a *fenced example*, not
+  a blank live entry: a template copied as shipped would otherwise bind the agent
+  to "commits use [nothing]". `INSTALL.md` step 4 writes the entry out of its fence
+  once it has the address, and a test fails on any unfenced entry line in either
+  template.
+- **Task 4 gains four requirements.** The update asks the user before it copies;
+  the migration stages the *new* version in a named directory and runs the check
+  from it; migration copies only a local file that is not already there, and
+  otherwise stops and shows the difference; and the uninstall restore exempts the
+  two local files. `INSTALL.md` also states what it needs on the machine (`curl`
+  and a POSIX `sh`).
+
+Two wordings were corrected everywhere as part of the same round: "the playbook
+never *opens* the local files" was never true — the check script reads both — so
+the claim is now that the playbook never ships them and an update never writes to,
+copies over or replaces them; and the suite counts stated in the records were
+wrong and are now counted rather than copied.

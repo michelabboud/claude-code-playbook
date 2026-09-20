@@ -31,8 +31,11 @@ cp CLAUDE.md ~/.claude/
 mkdir -p ~/.claude/rules/platform
 cp rules/*.md ~/.claude/rules/
 cp rules/platform/MACOS.md ~/.claude/rules/platform/
-cp templates/LOCAL.md ~/.claude/rules/LOCAL.md                  # optional, and yours
+cp -n templates/LOCAL.md ~/.claude/rules/LOCAL.md               # optional, and yours
 ```
+
+The `-n` on the last line matters: it refuses to overwrite a `LOCAL.md` you
+already have. That file is yours, and nothing in this bundle may replace it.
 
 **Three things to know:**
 
@@ -40,8 +43,9 @@ cp templates/LOCAL.md ~/.claude/rules/LOCAL.md                  # optional, and 
    command above does that.
 2. **Nothing it installs needs editing.** Anything you want to change — starting
    with your git email — goes in your own `~/.claude/rules/LOCAL.md`, which the
-   repo never ships or touches. That is what makes an update a copy instead of a
-   merge. See *Make it yours* in the README.
+   repo never ships, and which an update never writes to, copies over or
+   replaces. That is what makes an update a copy instead of a merge. See *Make it
+   yours* in the README.
 3. **Start a fresh session afterwards.** An open session has already loaded the
    old file.
 

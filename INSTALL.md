@@ -29,6 +29,16 @@ configuration directory. Installing it means copying two things:
 
 On Windows the configuration directory is `%USERPROFILE%\.claude\`.
 
+**What the procedures below need on the machine.** Copying files needs nothing
+special. Two steps do: the version fetch needs `curl` (PowerShell's
+`Invoke-WebRequest -UseBasicParsing` is the equivalent), and the staleness check
+`scripts/check-local.sh` is a POSIX shell script, so it needs `sh` — on Windows
+that means Git Bash, WSL, or MSYS2, all of which ship one. **If you cannot run
+`sh` on this machine, say so and stop before the update or migration procedure**
+rather than skipping the check: an update that skips it is the merge this design
+exists to avoid. A first install needs neither, because there is no local layer
+to check yet.
+
 **Touch nothing else in that directory.** `~/.claude/` also holds the user's
 settings, their own skills, their own slash commands, and their session history.
 None of that is yours to move, merge, tidy, or "clean up".
@@ -40,10 +50,12 @@ None of that is yours to move, merge, tidy, or "clean up".
 | `LOCAL.md` | their customizations, loaded in every session |
 | `LOCAL_dev.md` | their customizations for the source-scoped sections, loaded with those |
 
-**Never copy over them, never move them, never delete them, and do not open
-them except where a step below tells you to read them.** They are the whole
-reason an update is a copy instead of a merge. This repository does not ship
-either file; it ships *templates* for them, in `templates/`.
+**Never copy over them, never move them, never delete them, never write to them
+unless the user asks you to, and do not read them except where a step below tells
+you to.** They are the whole reason an update is a copy instead of a merge. This
+repository does not ship either file; it ships *templates* for them, in
+`templates/`. The only thing that ever opens them is the staleness check in step
+U2, which reads them and writes nothing.
 
 **Nothing but rule files may live under `~/.claude/rules/`.** Claude Code loads
 that folder **recursively**, so any Markdown file in any subfolder of it becomes
@@ -135,7 +147,8 @@ all three on your own judgement.
 ## Step 4 — Offer the local layer
 
 **No installed file needs editing.** Everything the user wants to change about
-these rules goes in their own two files, which this repository never touches:
+these rules goes in their own two files — which this repository never ships, and
+which an update never writes to, copies over or replaces:
 
 | Template | Copy it to | Loads |
 |---|---|---|
@@ -146,8 +159,8 @@ these rules goes in their own two files, which this repository never touches:
 customization needs only the first; `LOCAL_dev.md` exists so that entries about
 code, tests, reviews, workflow, subagents and the roster load when those
 sections do, rather than in every session. **If either file already exists, do
-not overwrite it and do not merge into it** — say it is there and leave it
-alone.
+not copy the template over it and do not merge into it** — say it is there and
+leave it alone.
 
 **The one value the bundle leaves blank is the git identity.** `rules/WORKFLOW.md`
 carries it as a placeholder:
@@ -156,13 +169,23 @@ carries it as a placeholder:
 <YOUR GIT EMAIL — use your provider's noreply address if your real one is push-blocked>
 ```
 
-**Do not edit that file.** Ask the user for their git email and write it into
-`~/.claude/rules/LOCAL.md` as a **Fill** — the template has the entry ready, with
-the value left blank. Do not guess the address, do not read it out of their
-global git config and assume it is the right one, and do not leave the entry
-blank silently. It must not be shared between people.
+**Do not edit that file.** The value belongs in `~/.claude/rules/LOCAL.md` as a
+**Fill**. `templates/LOCAL.md` carries the entry as a fenced example — a template
+ships no live entry, because a copy taken as shipped would otherwise say "commits
+use [nothing]" — so the entry has to be written out of the fence with the real
+address in it. Ask the user for their git email, then:
 
-If the user is not available to answer, leave the Fill blank and tell them
+| What you found | What you do |
+|---|---|
+| No `~/.claude/rules/LOCAL.md`, and the user wants one | Copy the template, then write the Fill into the copy with their address, out of its fence. |
+| `~/.claude/rules/LOCAL.md` already exists | **Show them the entry to add** — the three lines, with their address filled in — and let them paste it. Do not write into a local file they already have unless they ask you to. |
+| The user declines the template | Show them the entry and say where it goes. Nothing is copied. |
+
+Do not guess the address, do not read it out of their global git config and
+assume it is the right one, and do not leave the entry blank silently. It must
+not be shared between people.
+
+If the user is not available to answer, leave the value unset and tell them
 clearly that it is outstanding and what it needs.
 
 ---
@@ -228,7 +251,7 @@ one names for the quoted string. It writes nothing.
 |---|---|---|
 | **0** | every quoted string is still in the new text, or the user has no local layer | Go on to step U3. |
 | **1** | at least one **stale override** — the new text no longer contains the words that override was written against | **Stop.** Show the user each reported line and ask what the override should become. Do not copy anything. |
-| **2** | a usage error, a named file that does not exist, a `**Dead words:**` line that does not parse, the bare marker anywhere but the start of a line, or a fenced code block left open | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
+| **2** | a usage error, a named file that does not exist, a `**Dead words:**` line that does not parse or is longer than 4,096 bytes, an **Override** with no valid `**Dead words:**` line, the bare marker anywhere but the start of a line, a fenced code block left open, a local file that exists and cannot be read as a regular file, or a search that failed | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
 
 **Step U3 — List the rules the update touched that the user overrides.** The
 check in U2 catches a *rewritten sentence*. It cannot catch a rule whose meaning
@@ -243,12 +266,20 @@ changed somewhere the override does not quote. So:
 If the intersection is empty, say so. Do not skip this because U2 exited 0 —
 they answer different questions.
 
-**Step U4 — Back up, then copy.** Run **step 1** (back up, sibling of `rules/`,
-verified), then **step 2** (copy file by file, never replacing the directory),
-then **step 3** (one platform file — the same OS as before), then **step 5**
-(verify and report).
+**Step U4 — Ask, and wait for the answer.** Nothing has been copied yet. Put in
+front of the user, in one message: the version gap from U0, the result of the
+check from U2, the intersection from U3, and the backup path step 1 will write.
+Then **ask whether to proceed, and stop until they answer.** This is the
+"stop and ask before replacing anything" that the rulebook's own front page
+promises; an update that copies on its own judgement has broken that promise even
+when nothing goes wrong.
 
-`LOCAL.md` and `LOCAL_dev.md` are not copied, not moved, not opened for writing
+**Step U5 — Back up, then copy.** Only after the user has said yes. Run **step 1**
+(back up, sibling of `rules/`, verified), then **step 2** (copy file by file,
+never replacing the directory), then **step 3** (one platform file — the same OS
+as before), then **step 5** (verify and report).
+
+`LOCAL.md` and `LOCAL_dev.md` are not copied over, not moved, and not written to
 at any point.
 
 **If a rule file was removed upstream**, an installed copy of it will still be
@@ -276,9 +307,25 @@ tag from this repository into a scratch directory. It is the only honest
 baseline: comparing a tailored installation against the *newest* text mixes the
 user's edits with three releases of upstream changes.
 
-**Step M2 — Compare, file by file.** Diff each installed file against the
-published text of its own version. Do it read-only, into a scratch directory,
-and keep the result.
+Two checkouts are needed before the end, so name them now and use the names
+literally in every command below:
+
+| Directory | What is in it |
+|---|---|
+| `<scratch>/published/` | this repository at the tag the installation records — the baseline for step M2 |
+| `<scratch>/new/` | this repository at the version being installed — what step M4 checks against and step M5 copies from |
+| `<scratch>/local/` | the `LOCAL.md` and `LOCAL_dev.md` being drafted in step M3, before they go anywhere near `~/.claude/` |
+
+**Step M1b — Stage the new version too.** Clone or fetch this repository at the
+new version into `<scratch>/new/`, exactly as step U1 does. **Do not copy
+anything into `~/.claude/` yet.** Step M4's check must run against the *new*
+text: pointing it at the old checkout makes it pass by construction, because the
+entries were written from that text. The old checkout also has no
+`scripts/check-local.sh` at all if it predates 0.1.16.
+
+**Step M2 — Compare, file by file.** Diff each installed file against its
+counterpart in `<scratch>/published/`. Do it read-only, into a scratch
+directory, and keep the result.
 
 **Step M3 — Turn every difference into a decision.** For each one, propose
 exactly one of:
@@ -291,36 +338,51 @@ exactly one of:
 | Something that would be a better rule for everyone | a **candidate to send upstream** — show it to the user as that, and keep it as an entry until it lands |
 | Upstream text the installation simply fell behind on | nothing — the update supplies it |
 
-Write the entries into `templates/LOCAL.md` and `templates/LOCAL_dev.md` copies
-in your scratch directory, **not** into `~/.claude/` yet. Section 0 of the
-rulebook, under "The local layer", defines the three kinds; `templates/LOCAL.md`
-carries the grammar of a `**Dead words:**` line and a worked example of each.
+Write the entries into copies of `<scratch>/new/templates/LOCAL.md` and
+`<scratch>/new/templates/LOCAL_dev.md`, placed in `<scratch>/local/` — **not**
+into `~/.claude/` yet, and never into a `LOCAL.md` the user already has. Section 0
+of the rulebook, under "The local layer", defines the three kinds;
+`templates/LOCAL.md` carries the grammar of a `**Dead words:**` line and a worked
+example of each, all of them fenced. Copy an example out of its fence before you
+fill it in: a fenced entry is an example and is not checked.
 
 **Write every entry to that grammar, and it will pass the check in step M4.**
-Three points catch people out: the quoted words are the **exact bytes between
+Four points catch people out: the quoted words are the **exact bytes between
 the backticks**, so the line is scanned over its code spans and never split on
 the ` · ` separator — a quotation may itself contain one; **every item names the
-file its words are in**; and the marker is an error anywhere but the start of a
-line, so prose that names it writes it inside a code span. A closing `.` after
-the last item is fine.
+file its words are in**; the marker is an error anywhere but the start of a
+line, so prose that names it writes it inside a code span; and **every Override
+needs its `**Dead words:**` line** — a mistyped marker (`**dead words:**`) is
+refused rather than skipped, which is the point. A closing `.` after the last
+item is fine.
 
 **Show the user the whole list and ask.** This is the step that decides what
 their rulebook says; it is not yours to settle.
 
-**Step M4 — Prove the entries before installing them.** With the approved local
-files still in the scratch directory, and the *new* version staged:
+**Step M4 — Prove the entries before installing them.** With the drafted local
+files in `<scratch>/local/` and the new version staged in `<scratch>/new/`, run
+the check **from the new checkout** so that both the script and the rules are the
+new ones:
 
 ```sh
-sh scripts/check-local.sh <scratch-dir> ./rules
+cd <scratch>/new && sh scripts/check-local.sh <scratch>/local ./rules
 ```
 
-Exit 0 means every Override still bites. Exit 1 or 2: fix the entries and run it
-again. Do not install a local layer that has not passed this.
+Exit 0 means every Override still bites against the text that is about to be
+installed. Exit 1 or 2: fix the entries and run it again. Do not install a local
+layer that has not passed this.
 
-**Step M5 — Install.** Back up (step 1), copy the approved `LOCAL.md` and
-`LOCAL_dev.md` into `~/.claude/rules/`, then run steps 2, 3 and 5. Tell the user
-which of their edits became which entry, and which ones you are holding as
-upstream candidates.
+**Step M5 — Install.** Back up first (step 1). Then, for each of `LOCAL.md` and
+`LOCAL_dev.md`:
+
+| In `~/.claude/rules/` | What you do |
+|---|---|
+| The file is not there | Copy the approved one from `<scratch>/local/` into place. |
+| The file is already there | **Stop and do not copy.** Show the user the difference between their file and the approved one, and let them merge it by hand. A half-migrated installation, or a local file they wrote themselves, is exactly the case this protects — and "the backup makes it recoverable" is not the rule. The rule is never. |
+
+Then run steps 2, 3 and 5. Tell the user which of their edits became which entry,
+which ones you are holding as upstream candidates, and — if either local file was
+already there — that its merge is still outstanding and theirs to do.
 
 ---
 
@@ -342,11 +404,15 @@ and rule, and is the fastest way for them to see what they just installed.
 
 ## Uninstalling
 
-Restore the timestamped backups from step 1 over `~/.claude/CLAUDE.md` and
-`~/.claude/rules/`. If there were no backups, the user had no previous rulebook —
-delete the fourteen rule files, `~/.claude/rules/platform/`, and
+Restore the timestamped backups from step 1 over `~/.claude/CLAUDE.md` and the
+rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or
+`LOCAL_dev.md`.** Restoring a whole backup directory over `rules/` would put back
+an old copy of a local file the user has changed since, and that is the one loss
+this design exists to prevent. If there were no backups, the user had no previous
+rulebook — delete the fourteen rule files, `~/.claude/rules/platform/`, and
 `~/.claude/CLAUDE.md`, and nothing else.
 
 **Leave `~/.claude/rules/LOCAL.md` and `~/.claude/rules/LOCAL_dev.md` where they
-are.** They are the user's own writing, not this bundle's. Say they are still
-there, and let them decide.
+are.** They are the user's own writing, not this bundle's — an uninstall neither
+restores over them nor deletes them. Say they are still there, and let them
+decide.

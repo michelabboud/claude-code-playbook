@@ -71,6 +71,33 @@ count_in_file() { # fixed-string path
     printf '%s\n' "$_c"
 }
 
+# The blank-line-delimited paragraph of a file that contains a fixed string.
+#
+# This is what makes a wording assertion mean what it says. Counting a phrase
+# per FILE passes as happily when the sentence has been moved to the end of the
+# file, or into an unrelated section, as when it is where the decision put it —
+# and a rule read out of its paragraph is a different rule. So the assertions
+# count inside the paragraph, and a phrase that moved out of it fails.
+#
+# Prints MISSING when the file is absent and nothing when the string is not in
+# it: either way the count that follows is 0 and the assertion fails.
+paragraph_with() { # fixed-string path
+    if [ ! -f "$2" ]; then
+        printf 'MISSING\n'
+        return
+    fi
+    # RS="" is awk's paragraph mode. The needle travels in the environment
+    # because awk -v would process backslash escapes inside it.
+    _pw_needle=$1 awk 'BEGIN { RS = ""; n = ENVIRON["_pw_needle"] }
+                       index($0, n) { print; exit }' "$2"
+}
+
+# Count the lines of a piece of text that contain a fixed string.
+count_in_text() { # fixed-string text
+    _c=$(printf '%s\n' "$2" | grep -F -c -e "$1") || _c=0
+    printf '%s\n' "$_c"
+}
+
 # The YAML frontmatter of a Markdown file: line 1 through the closing "---".
 frontmatter() { # path
     awk 'NR==1 { if ($0 != "---") exit 1; print; next }

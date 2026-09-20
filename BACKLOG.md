@@ -11,13 +11,12 @@ Dated one-liners for everything deferred or spotted and not done.
   after it); it needs `` (in `ENVIRONMENT.md`) ``. Nine of the ten quoted strings
   in that layer were searched and none was stale. The two fixes are the owner's
   file to make, not this repository's. Source: v0.1.16, lane A2.
-- **2026-09-21 · shared grammar · open** — the vectors file and ADR 0004's
-  completion paragraph name `, ` and ` and ` as the joiners between file names
-  inside one item; this edition also accepts the Oxford form `, and `, which the
-  shipped tests and both guides have specified since the first implementation. No
-  conformance vector covers `, and `, so the two editions could implement it
-  differently without any test noticing. Either add a vector for it or drop the
-  joiner from both editions. Source: v0.1.16, lane A2.
+- **2026-09-21 · shared grammar · done 2026-09-21** — the Oxford joiner `, and `
+  between file names inside one item was accepted by this edition with no shared
+  conformance vector covering it, so the two editions could have implemented it
+  differently without any test noticing. Vector 47 (`three files, comma before
+  and`) now covers it, and ADR 0004's completion paragraph names all three
+  joiners. Source: v0.1.16, lane A2; closed by lane A3's re-check.
 - **2026-09-21 · rule question · open** — section numbers are now a shared
   namespace: the playbook owns `0`–`12` and promises never to use `L1`, `L2`, …,
   which the local layer owns. The platform section keeps number 11, and an
@@ -35,12 +34,25 @@ Dated one-liners for everything deferred or spotted and not done.
   quote. `INSTALL.md` step U3 covers the gap by hand, from the changelog. A
   mechanical version would need the changelog to name rules in a parseable way,
   which it does not. Source: ADR 0004 consequences, v0.1.16.
-- **2026-09-21 · idea · open** — `scripts/check-local.sh` treats a `**Dead
-  words:**` line inside a fenced code block as documentation and skips it. Fence
-  detection is a simple toggle on a line starting with three backticks; it does
-  not understand tildes, indented fences, or a fence opened inside a list item.
-  A local file using one of those would have its examples checked. Source:
-  v0.1.16.
+- **2026-09-21 · wording · open** — three *titles* still say the playbook "never
+  touches" the local files, which the corrected wording elsewhere replaced with
+  "never ships them, and an update never writes to, copies over or replaces them":
+  ADR 0004's heading, its line in `docs/adr/README.md`, and the matching title of
+  the local-layer entry in `docs/index.html`'s dataset. Every *claim* in those
+  places is fixed; only the labels are left, and ADR 0004's heading is accepted
+  history that is superseded rather than edited. Closing this means agreeing a new
+  title for the ADR's successor, or accepting the label as shorthand. Source:
+  v0.1.16, lane A3.
+- **2026-09-21 · verification · open** — one mutation of `scripts/check-local.sh`
+  cannot be killed on this machine: removing `LC_ALL=C`. Measured under `dash`
+  with GNU `grep` 3.11 and `LC_ALL=C.utf8` in the environment, a quotation
+  containing invalid UTF-8 bytes is found identically with and without the
+  assignment — `dash` is byte-oriented for every string operation, and GNU
+  `grep -F` is byte-transparent. The line is kept because it is load-bearing under
+  `bash` (where `${#line}`, which measures the 4,096-byte bound, counts characters
+  in a UTF-8 locale) and on a `grep` that collates. Killing it needs a non-GNU
+  `grep` or a `bash`-run suite; it is the same gap as the macOS item above.
+  Source: v0.1.16, lane A3.
 - **2026-09-21 · hygiene · open** — the version now has **five** carriers:
   `VERSION`, the line in `CLAUDE.md`, the README table, the eyebrow in
   `docs/index.html`, and the "Written against **playbook &lt;VERSION&gt;**" line in

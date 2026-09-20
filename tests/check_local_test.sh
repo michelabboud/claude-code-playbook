@@ -21,6 +21,13 @@ if [ ! -f "$SCRIPT" ]; then
     exit 2
 fi
 
+# One case runs the script from a different working directory, to prove a file
+# name inside an item is never expanded against it. That needs an absolute path.
+case $SCRIPT in
+    /*) SCRIPT_ABS=$SCRIPT ;;
+    *)  SCRIPT_ABS=$(cd -- "$(dirname -- "$SCRIPT")" && pwd)/$(basename -- "$SCRIPT") ;;
+esac
+
 TMPROOT=$(make_tmpdir) || { printf 'cannot make a temp dir\n' >&2; exit 2; }
 trap 'cleanup_tmpdir "$TMPROOT"' EXIT INT TERM HUP
 
@@ -570,5 +577,465 @@ before=$(ls -a "$CASE/local" "$CASE/rules")
 run_check "$CASE/local" "$CASE/rules"
 after=$(ls -a "$CASE/local" "$CASE/rules")
 assert_eq "the check creates and removes nothing" "$before" "$after"
+
+# ---------------------------------------------------------------------------
+# 23. An Override must carry its Dead words.
+#
+# This is what makes a mistyped marker an error instead of a silent pass: the
+# words are the only thing that can ever go stale, so an Override without them
+# is not a smaller check, it is no check. Six cases, each a whole local file.
+# ---------------------------------------------------------------------------
+mkcase overridewithwords
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere.
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "Override then a valid Dead-words line: exit 0" 0 "$STATUS"
+assert_contains "Override then a valid line: the words were searched" \
+    "$OUT" "1 search(es), 0 stale, 0 error(s)"
+
+# A mistyped marker is not the marker. Before this rule it exited 0 with no
+# searches at all, which is the one failure a staleness check may never have.
+mkcase overridelowercasemarker
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere.
+  **dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "Override with a lower-case marker: exit 2" 2 "$STATUS"
+assert_contains "Override with a lower-case marker: reported at the Override's line" \
+    "$ERRO" "LOCAL.md:3:"
+assert_contains "Override with a lower-case marker: says what is missing" \
+    "$ERRO" "no valid **Dead words:** line"
+
+mkcase overridecolonoutside
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere.
+  **Dead words**: `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "Override with the colon outside the bold: exit 2" 2 "$STATUS"
+assert_contains "Override with the colon outside the bold: names the Override's line" \
+    "$ERRO" "LOCAL.md:3:"
+
+mkcase overridenolineatall
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere, and this
+  entry ends the file without ever quoting a dead word.
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "Override with no following line at all: exit 2" 2 "$STATUS"
+assert_contains "Override at end of file: names the Override's line" \
+    "$ERRO" "LOCAL.md:3:"
+
+# The same, with the Override as the very last line of the file and no newline
+# after it: end of file is end of file.
+mkcase overridelastline
+printf '# LOCAL\n\n- **Override — rule 9.1.** Mine lives elsewhere.' \
+    >"$CASE/local/LOCAL.md"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "an Override as the unterminated last line: exit 2" 2 "$STATUS"
+assert_contains "an Override as the last line: names its line" "$ERRO" "LOCAL.md:3:"
+
+# A blank line between an entry and its words is not a boundary — only another
+# entry, a heading, or the end of the file is. This layout is the common one.
+mkcase overrideblankline
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere.
+
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a blank line between the Override and its words: exit 0" 0 "$STATUS"
+assert_contains "a blank line does not orphan the words" "$OUT" "1 search(es), 0 stale, 0 error(s)"
+
+mkcase overridethenheading
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere.
+
+## 10 · Destructive actions
+
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a Dead-words line after a heading belongs to nothing: exit 2" 2 "$STATUS"
+assert_contains "Override then a heading: names the Override's line" \
+    "$ERRO" "LOCAL.md:3:"
+assert_contains "Override then a heading: the orphaned line is still searched" \
+    "$OUT" "1 search(es)"
+
+mkcase overridethenfill
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere.
+- **Fill — rule 9.1, the registry home.** Mine is `~/.config/fleet/ports/`.
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "the next entry ends the Override: exit 2" 2 "$STATUS"
+assert_contains "Override then a Fill: names the Override's line, not the Fill's" \
+    "$ERRO" "LOCAL.md:3:"
+
+mkcase overrideinfence
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+An Override looks like this:
+
+```
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere.
+  **Dead words:** `words this playbook never had` (in `ENVIRONMENT.md`)
+```
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "an Override inside a fence is an example, not an entry: exit 0" 0 "$STATUS"
+assert_contains "a fenced Override: nothing was searched" "$OUT" "0 search(es), 0 stale, 0 error(s)"
+
+# Two Overrides, each with its own line, and a Fill with none: all fine.
+mkcase twooverrides
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Fill — rule 9.1, the registry home.** Mine is `~/.config/fleet/ports/`.
+- **Override — rule 9.1, the registry home.** Mine lives elsewhere.
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+- **Add — a note the playbook lacks.** Nothing to quote here.
+- **Override — rule 8.1, the tiers.** Mine start higher.
+  **Dead words:** `start on the Top tier` (in `SUBAGENTS.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "two Overrides each with its own line, plus a Fill and an Add: exit 0" 0 "$STATUS"
+assert_contains "two Overrides: both lines were searched" "$OUT" "2 search(es), 0 stale, 0 error(s)"
+
+# An entry written without a list bullet is an entry too, and a bullet is not
+# what makes one: the pattern that strips "- " must not turn "* " into a wildcard
+# that swallows every line with a space in it.
+mkcase overridenobullet
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+**Override — rule 9.1, written with no list bullet.** Mine lives elsewhere.
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "an Override with no list bullet still owes its words: exit 2" 2 "$STATUS"
+
+mkcase prosewithstar
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+Some prose with spaces and a * star in it, which is not an entry at all.
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "prose containing a star is not an entry: exit 0" 0 "$STATUS"
+
+# A Dead-words line with no Override above it is still parsed and searched:
+# it is the Override that owes words, never the words that owe an Override.
+mkcase wordswithoutoverride
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `~/.config/gone-away/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a Dead-words line with no Override above it is still checked: exit 1" 1 "$STATUS"
+assert_contains "a Dead-words line with no Override: reported stale" "$OUT" "STALE"
+
+# ---------------------------------------------------------------------------
+# 24. The line bound, measured in bytes.
+# ---------------------------------------------------------------------------
+BOUND=4096
+
+# N bytes of 'x' on stdout, built by doubling so the loop is logarithmic.
+xbytes() { # n
+    _xb=x
+    while [ "${#_xb}" -lt "$1" ]; do _xb=$_xb$_xb; done
+    printf '%s' "$_xb" | cut -b "1-$1"
+}
+
+# The fixed parts of the line are 30 bytes: the marker and a space (16), the two
+# backticks around the words (2), and " (in `A.md`)" (12).
+mkcase atbound
+words=$(xbytes $((BOUND - 30)))
+printf '# LOCAL\n\n**Dead words:** `%s` (in `A.md`)\n' "$words" >"$CASE/local/LOCAL.md"
+assert_eq "the at-the-bound fixture really is $BOUND bytes" \
+    "$BOUND" "$(sed -n 3p "$CASE/local/LOCAL.md" | tr -d '\n' | wc -c | tr -d ' ')"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a line of exactly $BOUND bytes is accepted and searched: exit 1" 1 "$STATUS"
+assert_not_contains "a line of exactly $BOUND bytes: no bound error" "$ERRO" "the bound is"
+
+mkcase overbound
+words=$(xbytes $((BOUND - 29)))
+printf '# LOCAL\n\n**Dead words:** `%s` (in `A.md`)\n' "$words" >"$CASE/local/LOCAL.md"
+assert_eq "the over-the-bound fixture really is $((BOUND + 1)) bytes" \
+    "$((BOUND + 1))" "$(sed -n 3p "$CASE/local/LOCAL.md" | tr -d '\n' | wc -c | tr -d ' ')"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "one byte over the bound: exit 2" 2 "$STATUS"
+assert_contains "over the bound: the message names the bound" "$ERRO" "the bound is $BOUND bytes"
+assert_contains "over the bound: nothing was searched" "$OUT" "0 search(es)"
+
+# ---------------------------------------------------------------------------
+# 25. A local file that exists and cannot be read as a regular file.
+#
+# The failure this closes: the redirect fails, the shell prints one line and
+# carries on, and the summary says "ok — 0 strings checked". A stale override
+# passed an update that way.
+# ---------------------------------------------------------------------------
+mkcase localisdir
+mkdir -p -- "$CASE/local/LOCAL.md"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a directory named LOCAL.md: exit 2" 2 "$STATUS"
+assert_contains "a directory named LOCAL.md: says it is not a regular file" \
+    "$ERRO" "not a regular file"
+assert_not_contains "a directory named LOCAL.md: never 'nothing is customized'" \
+    "$OUT" "nothing is customized"
+
+mkcase localdangling
+ln -s -- "$CASE/local/no-such-target.md" "$CASE/local/LOCAL_dev.md"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a dangling symlink named LOCAL_dev.md: exit 2" 2 "$STATUS"
+assert_not_contains "a dangling symlink: never 'nothing is customized'" \
+    "$OUT" "nothing is customized"
+
+mkcase localsymlink
+cat >"$CASE/real-local.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `~/.config/gone-away/` (in `ENVIRONMENT.md`)
+EOF
+ln -s -- "$CASE/real-local.md" "$CASE/local/LOCAL.md"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a symlink to a readable regular file is read: exit 1" 1 "$STATUS"
+assert_contains "a symlink to a regular file: its entry was checked" "$OUT" "STALE"
+
+if [ "$(id -u)" -eq 0 ]; then
+    _pass "an unreadable local file is an error (skipped: running as root, which can read anything)"
+    _pass "an unsearchable local directory is an error (skipped: running as root)"
+    _pass "an unreadable playbook file is an error (skipped: running as root)"
+else
+    mkcase localunreadable
+    cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `~/.config/gone-away/` (in `ENVIRONMENT.md`)
+EOF
+    chmod 000 -- "$CASE/local/LOCAL.md"
+    run_check "$CASE/local" "$CASE/rules"
+    chmod 644 -- "$CASE/local/LOCAL.md"
+    assert_status "an unreadable LOCAL.md: exit 2" 2 "$STATUS"
+    assert_not_contains "an unreadable LOCAL.md: never reported ok" "$OUT" "ok — "
+    assert_contains "an unreadable LOCAL.md: says it could not be read" "$ERRO" "cannot be read"
+
+    mkcase localdirnosearch
+    cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `~/.config/gone-away/` (in `ENVIRONMENT.md`)
+EOF
+    chmod 600 -- "$CASE/local"
+    run_check "$CASE/local" "$CASE/rules"
+    chmod 700 -- "$CASE/local"
+    assert_status "a local directory with no search permission: exit 2" 2 "$STATUS"
+    assert_not_contains "an unsearchable local directory: never 'nothing is customized'" \
+        "$OUT" "nothing is customized"
+
+    # A failed search is not a found string. grep exits 2, and swallowing that
+    # reported the override as still biting.
+    mkcase rulesunreadable
+    cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+    chmod 000 -- "$CASE/rules/ENVIRONMENT.md"
+    run_check "$CASE/local" "$CASE/rules"
+    chmod 644 -- "$CASE/rules/ENVIRONMENT.md"
+    assert_status "an unreadable playbook file: exit 2" 2 "$STATUS"
+    assert_contains "an unreadable playbook file: says the search failed" "$ERRO" "search failed"
+fi
+
+# ---------------------------------------------------------------------------
+# 26. A file name is a name, not a pattern.
+#
+# Without this the same local file means different things depending on the
+# directory the check happened to be run from.
+# ---------------------------------------------------------------------------
+mkcase globname
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `alpha lives here` (in `[A].md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a bracket glob in a file name: exit 2" 2 "$STATUS"
+assert_contains "a bracket glob in a file name: says why" "$ERRO" "glob character"
+
+mkcase globstar
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `alpha lives here` (in `*.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a star glob in a file name: exit 2" 2 "$STATUS"
+
+# The same input, run from a directory that contains a matching file, must give
+# the same answer: the name was never expanded.
+mkcase globcwd
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `alpha lives here` (in `[A].md`)
+EOF
+OUT=$(cd "$CASE/rules" && sh "$SCRIPT_ABS" "$CASE/local" "$CASE/rules" 2>"$TMPROOT/stderr")
+STATUS=$?
+ERRO=$(cat "$TMPROOT/stderr")
+assert_status "a glob name run from a directory holding A.md: still exit 2" 2 "$STATUS"
+assert_contains "a glob name is never expanded against the current directory" \
+    "$ERRO" "glob character"
+
+# ---------------------------------------------------------------------------
+# 27. A final line with no newline is still a line.
+# ---------------------------------------------------------------------------
+mkcase unterminated
+printf '# LOCAL\n\n  **Dead words:** `~/.config/gone-away/` (in `ENVIRONMENT.md`)' \
+    >"$CASE/local/LOCAL.md"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a stale entry on a final line with no newline: exit 1" 1 "$STATUS"
+assert_contains "an unterminated final line: it was actually searched" "$OUT" "1 search(es), 1 stale"
+
+# ---------------------------------------------------------------------------
+# 28. The quoted words are searched whole, never as a prefix.
+#
+# A parser that cut the quotation at the first " · " would find the prefix and
+# report the override fresh — the playbook heading it quotes starts the same way.
+# ---------------------------------------------------------------------------
+mkcase prefixonly
+cat >"$CASE/rules/PLAT.md" <<'EOF'
+# 11 · Your platform
+
+### 11 · Your platform — the OS-specific commands.
+EOF
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `### 11 · Your operating system` (in `PLAT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "only the text after the separator is absent: exit 1, not 0" 1 "$STATUS"
+assert_contains "the whole quotation was searched, not its prefix" \
+    "$OUT" '### 11 · Your operating system'
+
+# ---------------------------------------------------------------------------
+# 29. A bare marker AFTER a code span on the same line is still an error.
+# ---------------------------------------------------------------------------
+mkcase markerafterspan
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1.** See `the registry` **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a marker after a code span: exit 2" 2 "$STATUS"
+assert_contains "a marker after a code span: names file and line" "$ERRO" "LOCAL.md:3:"
+assert_contains "a marker after a code span: says it is not at the start of the line" \
+    "$ERRO" "not at the start of the line"
+assert_contains "a marker after a code span: nothing was searched" "$OUT" "0 search(es)"
+
+# ---------------------------------------------------------------------------
+# 30. A backslash inside the quoted words is one of the bytes searched for.
+# ---------------------------------------------------------------------------
+mkcase backslashwords
+# The word the second case searches for must appear NOWHERE in this file
+# except with the backslash in the middle of it.
+cat >"$CASE/rules/BS.md" <<'EOF'
+# 11 · a file that quotes an escape
+
+The pattern *\\* in a case arm, and the words back\slash here.
+EOF
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `back\slash` (in `BS.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a backslash in the quoted words is kept: exit 0" 0 "$STATUS"
+assert_contains "a backslash in the quoted words: one search, found" \
+    "$OUT" "1 search(es), 0 stale, 0 error(s)"
+
+# The same fixture, so the only thing that changed is the backslash.
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `backslash` (in `BS.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "the same words without the backslash are absent: exit 1" 1 "$STATUS"
+
+# ---------------------------------------------------------------------------
+# 31. Fences: what closes one, and what never opened one.
+# ---------------------------------------------------------------------------
+mkcase fencetrailingtext
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+```
+``` and then some prose
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+```
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a closing run followed by prose does not close a fence: exit 0" 0 "$STATUS"
+assert_contains "a run with trailing text left the fence open: nothing searched" \
+    "$OUT" "0 search(es), 0 stale, 0 error(s)"
+
+mkcase fenceinfobacktick
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+```see `this` for the grammar
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a backtick in the info string means no fence opened: exit 0" 0 "$STATUS"
+assert_contains "no fence opened: the entry below it was checked" \
+    "$OUT" "1 search(es), 0 stale, 0 error(s)"
+
+# ---------------------------------------------------------------------------
+# 32. -h on its own prints usage, like --help.
+# ---------------------------------------------------------------------------
+OUT=$(sh "$SCRIPT" -h 2>&1); STATUS=$?
+assert_status "-h: exit 0" 0 "$STATUS"
+assert_contains "-h: prints usage" "$OUT" "usage:"
+
+# ---------------------------------------------------------------------------
+# 33. A named file that does not exist is not a search.
+#
+# The count is what the vectors suite reads; counting a file that was never
+# opened would make every "ok N" vector agree with a check that did less.
+# ---------------------------------------------------------------------------
+mkcase missingnotasearch
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+  **Dead words:** `shared phrase` (in `A.md` and `NOPE.md`)
+EOF
+run_check "$CASE/local" "$CASE/rules"
+assert_status "one file present, one missing: exit 2" 2 "$STATUS"
+assert_contains "a missing named file is not counted as a search" \
+    "$OUT" "1 search(es), 0 stale, 1 error(s)"
 
 finish

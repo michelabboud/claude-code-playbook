@@ -55,8 +55,10 @@ and makes it obvious which file a contributor must update.
 
 The bundle is replaced wholesale by an update. That is only safe because
 nothing a user wrote is inside it: their entries live in `rules/LOCAL.md` and
-`rules/LOCAL_dev.md`, which this repository never ships, copies over, or opens.
-An update is therefore a copy plus a check, not a merge.
+`rules/LOCAL_dev.md`, which this repository never ships, and which an update
+never writes to, copies over or replaces. One thing does read them —
+`scripts/check-local.sh`, and only to check them. An update is therefore a copy
+plus a check, not a merge.
 
 Precedence between the two texts is a **sentence**, not a loading order. The
 harness loads every file under `rules/` with no promised order, so "read the
@@ -90,6 +92,6 @@ Hence three placements that are not aesthetic: the templates live in
 | `tests/` | POSIX-`sh` suites over the script and over the rulebook's own text |
 | `docs/` | the visual map, guides, plans, reports, and the decision records |
 
-`tests/` carries two mutation harnesses as well as two suites. A green suite
+`tests/` carries two mutation harnesses as well as three suites. A green suite
 proves nothing on its own, so each harness breaks one behaviour in a scratch
 copy and requires the suite to notice.

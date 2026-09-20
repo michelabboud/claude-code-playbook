@@ -225,4 +225,108 @@ check_mutation "the reported count must be the searches actually made" \
     '        checked=$((checked + 1))' \
     '        checked=$((checked + 2))'
 
+check_mutation "a named file that was never opened must not count as a search" \
+    '            continue  # a file that was never opened is not a search' \
+    '            checked=$((checked + 1))'
+
+# --- an Override must carry its dead words ---------------------------------
+#
+# Every mutant below turns a mistyped or missing marker back into a silent pass,
+# which is the one failure a staleness check may never have.
+
+check_mutation "an Override with no Dead-words line must be an error" \
+    "        '**Override'*)      ENTRY_KIND=override ;;" \
+    "        '@@no-entry-starts-like-this@@'*)      ENTRY_KIND=override ;;"
+
+check_mutation "a heading must end the entry above it" \
+    "                   '#'*) ENTRY_KIND=heading ;;" \
+    "                   '@@no-line-starts-like-this@@'*) ENTRY_KIND=heading ;;"
+
+check_mutation "the next entry must end the Override above it" \
+    "        '**Fill'*|'**Add'*) ENTRY_KIND=other ;;" \
+    "        '@@nor-this@@'*) ENTRY_KIND=other ;;"
+
+check_mutation "an Override still owing its words at end of file must be an error" \
+    '    if [ "$_cf_override_line" -ne 0 ]; then' \
+    '    if false; then'
+
+check_mutation "a list bullet must not hide an entry" \
+    "        '- '*|'* '*) _ek_s=\$(ltrim \"\${_ek_s#??}\") ;;" \
+    "        '@@not-a-bullet@@'*) _ek_s=\$(ltrim \"\${_ek_s#??}\") ;;"
+
+# --- the line bound --------------------------------------------------------
+
+check_mutation "a Dead-words line longer than the bound must be refused" \
+    'MAX_LINE_BYTES=4096' \
+    'MAX_LINE_BYTES=999999'
+
+# --- a local file that cannot be read --------------------------------------
+
+check_mutation "a local file that is not a regular file must be an error" \
+    '        if [ ! -f "$path" ]; then' \
+    '        if [ ! -e "$path" ]; then'
+
+check_mutation "a dangling symlink must not read as 'nothing is customized'" \
+    '    if [ -e "$path" ] || [ -L "$path" ]; then' \
+    '    if [ -e "$path" ]; then'
+
+# Three more depend on a file the current user cannot read, which root can.
+if [ "$(id -u)" -eq 0 ]; then
+    _pass "an unreadable local file must be an error (skipped: running as root)"
+    _pass "an unsearchable local directory must be an error (skipped: running as root)"
+    _pass "a failed search must not be reported as found (skipped: running as root)"
+else
+    check_mutation "an unreadable local file must be an error" \
+        '        if [ ! -r "$path" ]; then' \
+        '        if false; then'
+
+    check_mutation "an unsearchable local directory must be an error" \
+        'if [ ! -x "$local_dir" ]; then' \
+        'if false; then'
+
+    check_mutation "a failed search must not be reported as found" \
+        '            *) parse_err "$_si_src" "$_si_ln" "search failed (grep status $_si_gs) on $_si_target" ;;' \
+        '            *) : ;;'
+fi
+
+# --- a file name is a name, not a pattern ----------------------------------
+
+check_mutation "a glob character in a file name must be refused" \
+    "            *'*'*|*'?'*|*'['*)" \
+    "            @@no-file-name-looks-like-this@@)"
+
+# --- the lines of a file ---------------------------------------------------
+
+check_mutation "a final line with no newline must still be read" \
+    '    while IFS= read -r _cf_line || [ -n "$_cf_line" ]; do' \
+    '    while IFS= read -r _cf_line; do'
+
+check_mutation "read must not eat a backslash in the quoted words" \
+    '    while IFS= read -r _cf_line || [ -n "$_cf_line" ]; do' \
+    '    while IFS= read _cf_line || [ -n "$_cf_line" ]; do'
+
+check_mutation "the quoted words must be searched whole, never as a prefix" \
+    '        _cl_words=$SCAN_WORDS' \
+    '        _cl_words=${SCAN_WORDS%%"$SEP"*}'
+
+check_mutation "a bare marker after a code span must still be seen" \
+    "                _hb_out=\$_hb_out\${_hb_r%%'\`'*}" \
+    "                _hb_out=\${_hb_r%%'\`'*}"
+
+# --- fences ----------------------------------------------------------------
+
+check_mutation "a closing run followed by prose must not close a fence" \
+    '    [ -z "$(rtrim "$_fc_r")" ]' \
+    '    :'
+
+check_mutation "a backtick in a fence's info string must mean no fence" \
+    "        case \$_fo_r in *'\`'*) return 1 ;; esac" \
+    '        :'
+
+# --- usage -----------------------------------------------------------------
+
+check_mutation "-h alone must print usage" \
+    '    -h|--help) usage; exit 0 ;;' \
+    '    --help) usage; exit 0 ;;'
+
 finish

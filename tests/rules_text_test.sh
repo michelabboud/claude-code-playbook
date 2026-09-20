@@ -72,20 +72,35 @@ done
 assert_eq "hook 1 is absent from CLAUDE.md" \
     0 "$(count_in_file "$HOOK1" "$ROOT/CLAUDE.md")"
 
-# The paragraph says the things the decision requires it to say.
+# The paragraph says the things the decision requires it to say — and says them
+# IN THE PARAGRAPH. Counting per file would pass just as happily with the
+# sentence moved to the end of the file or into the approval table's region,
+# where nobody reading the local layer's rule would ever see it.
 A=$ROOT/rules/AUTHORITY.md
-assert_eq "section 0 states that a local entry wins over the playbook's wording" \
-    1 "$(count_in_file 'where an entry there changes a rule, the entry wins over the playbook'"'"'s wording' "$A")"
-assert_eq "section 0 defines a Fill" \
-    1 "$(count_in_file 'a **Fill** supplies a value a rule leaves open' "$A")"
-assert_eq "section 0 defines an Add and reserves the L numbers" \
-    1 "$(count_in_file 'an **Add** is a rule or note the playbook lacks, its sections numbered `L1`, `L2`, … — numbers the playbook never uses' "$A")"
-assert_eq "section 0 defines an Override and its stale case" \
-    1 "$(count_in_file 'the override is stale and you tell me before relying on it' "$A")"
-assert_eq "section 0 says an absent local file means nothing is customized" \
-    1 "$(count_in_file 'A local file that is absent means nothing is customized.' "$A")"
-assert_eq "section 0 denies the local layer any new authority" \
-    1 "$(count_in_file 'it never adds authority the approval table doesn'"'"'t have, except by adding a row in so many words' "$A")"
+PARA=$(paragraph_with "$HOOK1" "$A")
+assert_contains "the section-0 paragraph was found at all" "$PARA" 'The local layer:'
+assert_eq "section 0's paragraph states that a local entry wins over the playbook's wording" \
+    1 "$(count_in_text 'where an entry there changes a rule, the entry wins over the playbook'"'"'s wording' "$PARA")"
+assert_eq "section 0's paragraph defines a Fill" \
+    1 "$(count_in_text 'a **Fill** supplies a value a rule leaves open' "$PARA")"
+assert_eq "section 0's paragraph defines an Add and reserves the L numbers" \
+    1 "$(count_in_text 'an **Add** is a rule or note the playbook lacks, its sections numbered `L1`, `L2`, … — numbers the playbook never uses' "$PARA")"
+assert_eq "section 0's paragraph defines an Override and its stale case" \
+    1 "$(count_in_text 'the override is stale and you tell me before relying on it' "$PARA")"
+assert_eq "section 0's paragraph says an absent local file means nothing is customized" \
+    1 "$(count_in_text 'A local file that is absent means nothing is customized.' "$PARA")"
+assert_eq "section 0's paragraph denies the local layer any new authority" \
+    1 "$(count_in_text 'it never adds authority the approval table doesn'"'"'t have, except by adding a row in so many words' "$PARA")"
+
+# The claim the mechanical review corrected: the check script reads both local
+# files, so "never opens them" was never true. What the paragraph may say is
+# that nothing writes to them.
+assert_eq "section 0's paragraph says an update never writes to, copies over or replaces the local files" \
+    1 "$(count_in_text 'an update replaces the playbook'"'"'s files and never writes to, copies over or replaces these two' "$PARA")"
+for f in $SCOPED $UNSCOPED; do
+    assert_eq "rules/$f.md never claims the playbook does not open the local files" \
+        0 "$(count_in_file 'without opening these two' "$ROOT/rules/$f.md")"
+done
 
 # The paragraph goes after Precedence, which is where the decision put it.
 prec=$(grep -F -n -e '**Precedence:**' -- "$A" | head -1 | cut -d: -f1)
@@ -122,22 +137,47 @@ for f in $SCOPED $UNSCOPED; do
         0 "$(count_in_file "$HOOK3" "$ROOT/rules/$f.md")"
 done
 
+# Hook 3 belongs to the front page's preamble, beside the self-update paragraph
+# it depends on — not parked at the end of the file, where a reader who has
+# already reached the section index will never meet it.
+h3=$(grep -F -n -e "$HOOK3" -- "$C" | head -1 | cut -d: -f1)
+ver=$(grep -F -n -e 'This rulebook is version' -- "$C" | head -1 | cut -d: -f1)
+index=$(grep -F -n -e '## The rulebook' -- "$C" | head -1 | cut -d: -f1)
+if [ "$h3" -gt "$ver" ] && [ "$h3" -lt "$index" ]; then
+    _pass "hook 3 sits in CLAUDE.md's preamble, before the section index"
+else
+    _fail "hook 3 sits in CLAUDE.md's preamble, before the section index" \
+        "version line $ver, hook 3 line $h3, section index line $index"
+fi
+
+# The self-update paragraph, asserted inside the paragraph.
+SELF=$(paragraph_with 'stop and ask before replacing anything.' "$C")
+assert_contains "the self-update paragraph was found at all" "$SELF" 'rule 10.2 action'
 assert_eq "the self-update paragraph no longer claims an update overwrites tailored files" \
     0 "$(count_in_file 'Updating overwrites files I may have tailored' "$C")"
 assert_eq "the self-update paragraph no longer names four tailorable places" \
     0 "$(count_in_file 'four places are explicitly meant to be tailored' "$C")"
 assert_eq "the self-update paragraph still stops and asks before replacing" \
-    1 "$(count_in_file 'stop and ask before replacing anything.' "$C")"
+    1 "$(count_in_text 'stop and ask before replacing anything.' "$SELF")"
 assert_eq "the self-update paragraph still calls an update a rule 10.2 action" \
-    1 "$(count_in_file 'it is a rule 10.2 action: back up first, verify the backup, and only then copy' "$C")"
+    1 "$(count_in_text 'it is a rule 10.2 action: back up first, verify the backup, and only then copy' "$SELF")"
 assert_eq "the self-update paragraph says customizations survive an update" \
-    1 "$(count_in_file 'they live in the local layer, which an update never opens' "$C")"
+    1 "$(count_in_text 'they live in the local layer, which an update never writes to, copies over or replaces' "$SELF")"
 assert_eq "the self-update paragraph runs the check against the new text first" \
-    1 "$(count_in_file 'scripts/check-local.sh` is run against the new text before anything is copied' "$C")"
+    1 "$(count_in_text 'scripts/check-local.sh` is run against the new text before anything is copied' "$SELF")"
 assert_eq "the self-update paragraph still points at INSTALL.md" \
-    1 "$(count_in_file 'The full procedure is `INSTALL.md` in the repo' "$C")"
+    1 "$(count_in_text 'The full procedure is `INSTALL.md` in the repo' "$SELF")"
 assert_eq "CLAUDE.md still reads VERSION as the source of truth" \
     1 "$(count_in_file 'The `VERSION` file is the single source of truth' "$C")"
+
+# Hook 3's own paragraph carries the two things it exists to say.
+H3PARA=$(paragraph_with "$HOOK3" "$C")
+assert_eq "hook 3's paragraph says the playbook never ships or replaces the local files" \
+    1 "$(count_in_text 'The playbook never ships those two files, and an update never writes to, copies over or replaces them' "$H3PARA")"
+assert_eq "hook 3's paragraph says a local entry wins" \
+    1 "$(count_in_text 'where an entry there changes a rule, the entry wins' "$H3PARA")"
+assert_eq "CLAUDE.md never claims the playbook does not touch the local files" \
+    0 "$(count_in_file 'never ships or touches' "$C")"
 
 # ---------------------------------------------------------------------------
 # The bundle ships no local file, and nothing but rule files.
@@ -156,7 +196,7 @@ expected='AUTHORITY.md CODE.md COLLABORATION.md DESTRUCTIVE.md DOCS.md ENVIRONME
 assert_eq "rules/ holds exactly the playbook's rule files" "$expected" "$rulenames"
 
 assert_eq "the templates live outside rules/" \
-    0 "$(find "$ROOT/rules" -type d -name templates | wc -l)"
+    0 "$(find "$ROOT/rules" -type d -name templates | wc -l | tr -d ' ')"
 for t in LOCAL.md LOCAL_dev.md; do
     if [ -f "$ROOT/templates/$t" ]; then
         _pass "templates/$t exists"
@@ -203,10 +243,94 @@ for p in "$ROOT"/rules/platform/*.md; do platcount=$((platcount + 1)); done
 assert_eq "there are three platform files" 3 "$platcount"
 
 # ---------------------------------------------------------------------------
-# The visual map's dataset carries the section-0 paragraph.
+# A template ships no LIVE entry.
+#
+# A user who copies a template as shipped must not be handed an entry that is
+# already law — the git-identity Fill shipped with an empty value once, which
+# bound the agent to "commits use [nothing]". Every example is fenced instead,
+# which is also what makes the templates pass the staleness check unedited.
 # ---------------------------------------------------------------------------
-assert_eq "docs/index.html describes the local layer" \
-    1 "$(count_in_file 'The local layer — customizations the playbook never touches' "$ROOT/docs/index.html")"
+unfenced_entries() { # path -> the offending "line: text" lines, or nothing
+    awk '
+        { line = $0
+          sub(/^[ \t]+/, "", line)
+          if (line ~ /^(```|~~~)/) { if (fence) fence = 0; else fence = 1; next }
+          if (fence) next
+          probe = line
+          sub(/^[-*][ \t]+/, "", probe)
+          if (probe ~ /^\*\*(Fill|Add|Override)/) printf "%d: %s\n", NR, $0
+        }' "$1"
+}
+for t in LOCAL.md LOCAL_dev.md; do
+    assert_eq "templates/$t ships no unfenced entry" \
+        "" "$(unfenced_entries "$ROOT/templates/$t")"
+done
+# The finder itself must be able to see one, or the two assertions above are
+# satisfied by a finder that never matches anything.
+TMPPROBE=${TMPDIR:-/tmp}/cclp-probe.$$
+{
+    printf '# probe\n\n'
+    printf '```\n- **Override — fenced, so invisible.**\n```\n\n'
+    printf -- '- **Override — rule 9.1.** Live, so the finder must see it.\n'
+} >"$TMPPROBE"
+assert_contains "the unfenced-entry finder can actually find one" \
+    "$(unfenced_entries "$TMPPROBE")" '**Override — rule 9.1.**'
+assert_not_contains "the unfenced-entry finder ignores a fenced one" \
+    "$(unfenced_entries "$TMPPROBE")" 'fenced, so invisible'
+rm -f -- "$TMPPROBE"
+
+# ---------------------------------------------------------------------------
+# The visual map's dataset carries the section-0 paragraph.
+#
+# Pinned as a dataset entry — title AND the start of its body — so that renaming
+# the entry and leaving the old title in an HTML comment does not pass.
+# ---------------------------------------------------------------------------
+assert_eq "docs/index.html carries the local layer as a dataset entry" \
+    1 "$(count_in_file '{t:"The local layer — customizations the playbook never touches",c:"' "$ROOT/docs/index.html")"
+assert_eq "the map's entry no longer says the playbook never opens the local files" \
+    0 "$(count_in_file 'never ships, copies over, or opens them' "$ROOT/docs/index.html")"
+assert_eq "the map's entry says what an update actually does" \
+    1 "$(count_in_file 'an update never writes to, copies over or replaces them' "$ROOT/docs/index.html")"
+
+# ---------------------------------------------------------------------------
+# INSTALL.md's load-bearing sentences.
+#
+# Most of INSTALL.md is prose the rules deprecate testing. These five sentences
+# are not prose: each is a property the whole design rests on, and each was a
+# mutant that survived the suite. A procedure that says the opposite installs
+# over somebody's file.
+# ---------------------------------------------------------------------------
+I=$ROOT/INSTALL.md
+assert_eq "the update checks the local layer against the STAGED rules, not the installed ones" \
+    1 "$(count_in_file 'sh scripts/check-local.sh ~/.claude/rules ./rules' "$I")"
+assert_eq "the update says which argument is the staged one" \
+    1 "$(count_in_file 'second is the **staged** rules, not the installed ones' "$I")"
+assert_eq "the update stages the new text before anything is copied" \
+    1 "$(count_in_file 'Everything below runs' "$I")"
+assert_eq "the migration stages the new version too, and names the directory" \
+    1 "$(count_in_file '**Step M1b — Stage the new version too.**' "$I")"
+assert_eq "the migration check runs from the new checkout" \
+    1 "$(count_in_file 'cd <scratch>/new && sh scripts/check-local.sh <scratch>/local ./rules' "$I")"
+assert_eq "the update asks before it copies" \
+    1 "$(count_in_file '**ask whether to proceed, and stop until they answer.**' "$I")"
+assert_eq "the backup comes before the copy" \
+    1 "$(count_in_file 'Back up, then copy.** Only after the user has said yes.' "$I")"
+assert_eq "the copy is file by file and never replaces the rules directory" \
+    1 "$(count_in_file '**Copy file by file. Never replace the whole directory**' "$I")"
+assert_eq "a template is never copied over an existing local file" \
+    1 "$(count_in_file 'not copy the template over it and do not merge into it' "$I")"
+assert_eq "migration copies only a local file that is not already there" \
+    1 "$(count_in_file '**Stop and do not copy.**' "$I")"
+assert_eq "the uninstall restore exempts the local files" \
+    1 "$(count_in_file 'and never `LOCAL.md` or' "$I")"
+for code in 1 2; do
+    row=$(grep -F -e "| **$code** |" -- "$I")
+    assert_contains "the check's exit-$code row exists at all" "$row" "| **$code** |"
+    assert_contains "exit $code from the check stops the update" "$row" '**Stop.**'
+    assert_not_contains "exit $code from the check never says carry on" "$row" 'Continue'
+done
+assert_eq "the procedures state what they need on the machine" \
+    1 "$(count_in_file 'it needs `sh` — on Windows' "$I")"
 
 # ---------------------------------------------------------------------------
 # End to end, against the real playbook text: a fresh override and a stale one.

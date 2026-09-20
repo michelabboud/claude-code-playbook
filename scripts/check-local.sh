@@ -3,7 +3,9 @@
 # check-local.sh — does every Override in the local layer still bite?
 #
 # The local layer (rules/LOCAL.md and rules/LOCAL_dev.md) belongs to the person
-# who installed this playbook; an update never opens it. An **Override** entry
+# who installed this playbook: the playbook never ships those two files, and an
+# update never writes to, copies over or replaces them. This script reads them,
+# and only to check them. An **Override** entry
 # there changes a playbook rule, and quotes — after a "**Dead words:**" line —
 # the playbook's exact words that no longer apply. If the playbook later
 # rewrites those words, the override is talking about text that is gone: it is
@@ -29,9 +31,11 @@
 #   1  at least one stale override; each is reported with file:line, the words,
 #      and the file it was sought in
 #   2  usage error, a named file that does not exist, a "**Dead words:**" line
-#      that does not parse, a bare marker anywhere but the start of a line, an
-#      unclosed fenced code block, or a failed search. An error outranks a stale
-#      finding: if both happen, the status is 2.
+#      that does not parse or is longer than the byte bound below, an **Override**
+#      entry with no valid "**Dead words:**" line, a bare marker anywhere but the
+#      start of a line, an unclosed fenced code block, a local file that exists
+#      and cannot be read as a regular file, or a failed search. An error
+#      outranks a stale finding: if both happen, the status is 2.
 #
 # The last line of stdout is always a machine-readable count:
 #
@@ -51,8 +55,10 @@
 #   * after the last item: one optional "." , then optional trailing whitespace
 #     and an optional carriage return. Any other trailing text is an error.
 #   * quoted words may not contain a backtick and may not be empty; file names
-#     may contain no whitespace and no "/" — no item may name a path outside the
-#     two directories given as arguments
+#     may contain no whitespace, no "/" and no glob character ("*", "?", "[") —
+#     no item may name a path outside the two directories given as arguments,
+#     and no name's meaning may depend on the current directory
+#   * the whole line may be at most MAX_LINE_BYTES bytes long
 #
 # **The line is scanned left to right over its code spans; it is never split on
 # the separator.** A real entry quotes `### 11 · Your platform`, so " · ",
@@ -60,16 +66,31 @@
 # and the words between two backticks are taken verbatim — never trimmed, never
 # re-split.
 #
-# Fail closed — two rules that make "skipped silently" impossible:
+# Fail closed — four rules that make "skipped silently" impossible:
 #
 #   * a line that contains the bare marker **Dead words:** anywhere other than
 #     its start is an ERROR, not a skipped entry. Prose that needs to name the
 #     marker puts it inside a code span, and is then ignored.
+#   * an **Override** entry with no valid "**Dead words:**" line before the next
+#     entry line, the next heading, or the end of the file is an ERROR. This is
+#     what turns every mistyped marker — "**dead words:**", "**Dead words**:",
+#     "Dead words:" — into a refusal instead of a silent pass. An *entry line* is
+#     a line that, after optional indentation and an optional "- " or "* "
+#     bullet, begins with **Fill, **Add or **Override; a *heading* is a line
+#     whose first non-whitespace character is "#". A Dead-words line with no
+#     Override above it is still parsed and searched: it is not the marker that
+#     needs justifying, it is the Override that needs its words.
 #   * lines inside a fenced code block are ignored, so a local file may quote
-#     this grammar without the example being checked. A fence opens on a line
-#     whose first non-whitespace is three or more backticks or tildes and closes
-#     on the matching run of the same character; a fence left open at end of
-#     file is an error.
+#     this grammar without the example being checked — an Override inside a fence
+#     is an example, and owes no Dead-words line. A fence opens on a line whose
+#     first non-whitespace is three or more backticks or tildes and closes on the
+#     matching run of the same character; a fence left open at end of file is an
+#     error.
+#   * a local file that exists and cannot be read as a regular file — unreadable,
+#     a directory, a dangling symlink, or inside a directory with no search
+#     permission — is an ERROR, never "nothing is customized". A symlink to a
+#     readable regular file IS read: dotfile managers install local files that
+#     way.
 #
 # POSIX sh — note that POSIX sh has no `local`, so every helper's variables
 # carry a prefix of their own and the parsers hand their results back in the
@@ -79,6 +100,14 @@
 # heredoc), printf. Everything else is a shell builtin.
 
 set -u
+
+# No pathname expansion, anywhere. A file name inside an item is data read out
+# of the user's file, and `$name` in a `for` list would otherwise be matched
+# against the current directory — so the same local file would mean different
+# things depending on where the script was run from. Names carrying a glob
+# character are refused outright as well (parse_files); this is the second lock.
+set -f
+
 unset IFS
 
 LC_ALL=C
@@ -89,6 +118,12 @@ SEP=' · '
 MARKER='**Dead words:**'
 CR=$(printf '\r')
 TAB=$(printf '\t')
+
+# The longest a **Dead words:** line may be, in bytes — a bound that fails
+# closed rather than handing an unbounded quotation to grep. The longest real
+# line measured is under 1 KB, so this is a runaway paste, not a quotation.
+# LC_ALL=C above is what makes ${#line} a count of bytes rather than characters.
+MAX_LINE_BYTES=4096
 
 LOCAL_FILES='LOCAL.md LOCAL_dev.md'
 
@@ -101,6 +136,7 @@ checked=0
 SCAN_WORDS=''
 SCAN_REST=''
 ITEM_FILES=''
+ENTRY_KIND=''
 
 # Fence state while one file is being read.
 FENCE_CHAR=''
@@ -219,6 +255,12 @@ parse_files() {
                   parse_err "$_pf_src" "$_pf_ln" \
                      "file name may not contain whitespace: $_pf_name"
                   return 1 ;;
+            # A name is a name, never a pattern: `*.md` would otherwise mean
+            # whatever the directory the script was run from happens to hold.
+            *'*'*|*'?'*|*'['*)
+                  parse_err "$_pf_src" "$_pf_ln" \
+                     "file name may not contain a glob character (* ? [): $_pf_name"
+                  return 1 ;;
         esac
 
         ITEM_FILES="$ITEM_FILES $_pf_name"
@@ -287,7 +329,7 @@ search_item() { # words files src ln
         if [ ! -f "$_si_target" ]; then
             parse_err "$_si_src" "$_si_ln" \
                "named file does not exist: $_si_name (looked in $_si_target)"
-            continue
+            continue  # a file that was never opened is not a search
         fi
         checked=$((checked + 1))
         grep -F -q -e "$_si_words" -- "$_si_target"
@@ -296,8 +338,9 @@ search_item() { # words files src ln
             0) ;;
             1) report_stale \
                  "$_si_src:$_si_ln: STALE — \`$_si_words\` no longer appears in $_si_name ($_si_target)" ;;
-            *) parse_err "$_si_src" "$_si_ln" \
-                 "search failed (grep status $_si_gs) on $_si_target" ;;
+            # grep says 2 or more: it could not read the file, or the pattern
+            # defeated it. A search that did not happen is never a match.
+            *) parse_err "$_si_src" "$_si_ln" "search failed (grep status $_si_gs) on $_si_target" ;;
         esac
     done
 }
@@ -393,13 +436,45 @@ has_bare_marker() { # raw line
     return 1
 }
 
+# Which kind of entry does this line open, if any? Sets ENTRY_KIND to
+# "override", "other" (a Fill or an Add) or "" (not an entry line at all).
+# The caller passes the already-ltrimmed line; a "- " or "* " list bullet is
+# stripped, because section 0's entries are written both ways.
+entry_kind() { # already-ltrimmed line
+    ENTRY_KIND=''
+    _ek_s=$1
+    case $_ek_s in
+        '- '*|'* '*) _ek_s=$(ltrim "${_ek_s#??}") ;;
+    esac
+    case $_ek_s in
+        '**Override'*)      ENTRY_KIND=override ;;
+        '**Fill'*|'**Add'*) ENTRY_KIND=other ;;
+    esac
+}
+
+# An Override that never quoted its dead words. Reported at the Override's own
+# line, because that is the line the user has to fix.
+err_no_dead_words() { # path lineno
+    parse_err "$1" "$2" \
+       "an **Override** entry with no valid $MARKER line before the next entry, the next heading, or the end of the file — an Override must quote the playbook's exact words that no longer apply, or nothing can tell you when it went stale. Check the marker's spelling: it is exactly $MARKER"
+}
+
 # Read one local file and check every **Dead words:** line in it.
 check_file() {
     _cf_path=$1
     _cf_lineno=0
+    _cf_override_line=0
     FENCE_CHAR=''
     FENCE_LEN=0
     FENCE_LINE=0
+
+    # An existing file the shell cannot open would otherwise make the redirect
+    # below fail while the summary still said "ok" — a check that silently
+    # checked nothing. Never a pass.
+    if [ ! -r "$_cf_path" ]; then
+        parse_err "$_cf_path" 0 "cannot read this file — the check cannot pass on a file it could not open"
+        return
+    fi
 
     while IFS= read -r _cf_line || [ -n "$_cf_line" ]; do
         _cf_lineno=$((_cf_lineno + 1))
@@ -417,15 +492,43 @@ check_file() {
         fi
 
         case $_cf_trimmed in
-            "$MARKER"*) ;;
-            *) # Not an entry. A bare marker anywhere else is an error, never a
-               # silently skipped entry; inside a code span it is prose.
+            "$MARKER"*) _cf_override_line=0 ;;
+            *) # Not a Dead-words line. A bare marker anywhere else is an error,
+               # never a silently skipped entry; inside a code span it is prose.
+               # The marker IS on this line, misplaced, so it neither satisfies
+               # an Override above nor opens a new one — the error is enough.
                if has_bare_marker "$_cf_line"; then
                    parse_err "$_cf_path" "$_cf_lineno" \
                       "the $MARKER marker is not at the start of the line — an entry here would be skipped. Give the entry a line of its own, or, if this is prose about the marker, put it inside a code span"
+                   _cf_override_line=0
+                   continue
+               fi
+               # A heading, or the next entry, ends whatever entry came before:
+               # a Dead-words line further down would belong to neither.
+               case $_cf_trimmed in
+                   '#'*) ENTRY_KIND=heading ;;
+                   *)    entry_kind "$_cf_trimmed" ;;
+               esac
+               if [ -n "$ENTRY_KIND" ]; then
+                   if [ "$_cf_override_line" -ne 0 ]; then
+                       err_no_dead_words "$_cf_path" "$_cf_override_line"
+                       _cf_override_line=0
+                   fi
+                   if [ "$ENTRY_KIND" = override ]; then
+                       _cf_override_line=$_cf_lineno
+                   fi
                fi
                continue ;;
         esac
+
+        # A quotation is a sentence, not a payload. Beyond the bound the line is
+        # a runaway paste, and handing it to grep is how "argument list too long"
+        # becomes the error the user has to decode.
+        if [ "${#_cf_line}" -gt "$MAX_LINE_BYTES" ]; then
+            parse_err "$_cf_path" "$_cf_lineno" \
+               "$MARKER line is ${#_cf_line} bytes long; the bound is $MAX_LINE_BYTES bytes"
+            continue
+        fi
 
         _cf_rest=${_cf_trimmed#"$MARKER"}
         case $_cf_rest in
@@ -448,9 +551,22 @@ check_file() {
         check_items "$_cf_rest" "$_cf_path" "$_cf_lineno"
     done < "$_cf_path"
 
+    # The redirect above can still fail on a file that passed [ -r ] a moment
+    # ago, or on something that is readable but yields nothing — a directory, a
+    # device. A file with bytes in it that produced no lines was not read.
+    if [ "$_cf_lineno" -eq 0 ] && [ -s "$_cf_path" ]; then
+        parse_err "$_cf_path" 0 \
+           "this file has contents but not one line could be read from it — the check cannot pass on a file it could not read"
+    fi
+
     if [ -n "$FENCE_CHAR" ]; then
         parse_err "$_cf_path" "$FENCE_LINE" \
            "fenced code block opened here is never closed — every line after it was ignored"
+    fi
+
+    # An Override still waiting for its words at the end of the file.
+    if [ "$_cf_override_line" -ne 0 ]; then
+        err_no_dead_words "$_cf_path" "$_cf_override_line"
     fi
 }
 
@@ -484,14 +600,32 @@ counts() {
         "$PROG" "$checked" "$stale" "$errors"
 }
 
+# A directory that cannot be searched answers "no such file" to every question
+# asked of its contents. Reporting that as "nothing is customized" would turn a
+# permission problem into a clean bill of health.
+if [ ! -x "$local_dir" ]; then
+    err "$PROG: cannot search $local_dir — a local file inside it could not be seen, so this is not a pass"
+fi
+
 present=''
 for name in $LOCAL_FILES; do
-    if [ -f "$local_dir/$name" ]; then
+    path=$local_dir/$name
+    # -e is false for a dangling symlink, so -L is asked as well: something is
+    # there under that name either way, and the harness would try to load it.
+    if [ -e "$path" ] || [ -L "$path" ]; then
+        if [ ! -f "$path" ]; then
+            err "$path: error: exists but is not a regular file (a directory, a dangling symlink, or a special file) — never read as 'nothing is customized'"
+            continue
+        fi
+        if [ ! -r "$path" ]; then
+            err "$path: error: exists and cannot be read — an unreadable local file is not an absent one"
+            continue
+        fi
         present="$present $name"
     fi
 done
 
-if [ -z "$present" ]; then
+if [ -z "$present" ] && [ "$errors" -eq 0 ]; then
     printf '%s: no local layer in %s — nothing is customized.\n' "$PROG" "$local_dir"
     counts
     exit 0

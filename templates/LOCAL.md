@@ -1,6 +1,6 @@
 # LOCAL · my local layer — loads every session
 
-*This file is mine, not the playbook's. An update replaces the playbook's files and never opens this one. Section 0 ("The local layer") gives it its force: **where an entry here changes a rule, the entry wins over the playbook's wording.** Its sibling `LOCAL_dev.md` carries the entries for the source-scoped sections (1, 2, 3, 6, 8 and the roster) and loads with them.*
+*This file is mine, not the playbook's. The playbook never ships it, and an update never writes to, copies over or replaces it — it replaces the playbook's own files and reads this one only to check it. Section 0 ("The local layer") gives it its force: **where an entry here changes a rule, the entry wins over the playbook's wording.** Its sibling `LOCAL_dev.md` carries the entries for the source-scoped sections (1, 2, 3, 6, 8 and the roster) and loads with them.*
 
 *Written against **playbook <VERSION>** — fill in the number on the `This rulebook is version` line of `CLAUDE.md`, so a later reader knows what this file was checked against.*
 
@@ -57,10 +57,11 @@ A script reads these lines, so their shape is fixed:
   **verbatim between the backticks** — never trimmed, never re-split — so they
   may contain ` · `, brackets, the word "in", and anything else: the script
   scans the line's code spans rather than splitting it on the separator.
-- File names carry no spaces and no `/`: they name a file in the playbook's
-  rules directory, and `CLAUDE.md` means the playbook's front page. **No item
-  may name a path outside those two places** — `../CLAUDE.md` is rejected,
-  deliberately.
+- File names carry no spaces, no `/` and no glob character (`*`, `?`, `[`): they
+  name a file in the playbook's rules directory, and `CLAUDE.md` means the
+  playbook's front page. **No item may name a path outside those two places** —
+  `../CLAUDE.md` is rejected, deliberately — and a name is never a pattern
+  matched against whatever directory the check happened to run from.
 - After the last item, **one closing `.` is allowed** — a sentence may end
   normally — and so is trailing whitespace. Any other trailing text is an error.
 - Lines inside a ``` fenced code block are skipped, which is why the examples
@@ -68,12 +69,22 @@ A script reads these lines, so their shape is fixed:
   fence you forget to close is an error, because everything after it is ignored.
 - Whitespace before the line is ignored. Whitespace *inside* the grammar is not
   — a doubled space is an error, not a guess.
+- The whole line may be at most **4,096 bytes**.
 
 A `**Dead words:**` line the script cannot parse is an error, never a pass.
 **So is the bare marker anywhere but the start of a line**: an entry buried
 mid-line would otherwise be skipped in silence, which is the one failure a
 staleness check may never have. Prose that needs to name the marker writes it
 inside a code span, the way this paragraph does.
+
+**And so is an Override with no `**Dead words:**` line at all** — reported at the
+Override's own line. One mistyped character (`**dead words:**`) would otherwise
+turn an override into something nothing can ever call stale. The script looks for
+the line between the Override and the next entry or the next heading; an entry is
+a line that, after optional indentation and an optional `- ` or `* ` bullet,
+begins with `**Fill`, `**Add` or `**Override`. A Fill and an Add owe no words —
+they leave no second text behind. An Override inside a fenced code block is an
+example and owes none either, which is why every example here is fenced.
 
 ## Worked examples — delete these once you have your own
 
@@ -109,13 +120,20 @@ An **Override**, with the line the check reads:
 
 ## Who and where
 
-- **Fill — git identity (section 6, "Git identity, every repo").** Commits use
-  `` — use your provider's noreply address if your real one is push-blocked.
-  The trailer stays as the rule gives it.
+**The one value the playbook leaves blank is your git identity.** Copy the
+entry below out of its fence, put your own address in it, and the bundle needs
+no other edit anywhere:
 
-  *This is the one value the playbook leaves blank. It lives here rather than in
-  `LOCAL_dev.md` because a commit is not always a source touch, and the identity
-  is needed at every commit. Nothing else in the installed bundle needs editing.*
+```
+- **Fill — git identity (section 6, "Git identity, every repo").** Commits use
+  `you@example.com` — use your provider's noreply address if your real one is
+  push-blocked. The trailer stays as the rule gives it.
+```
+
+*It lives in this file rather than in `LOCAL_dev.md` because a commit is not
+always a source touch, and the identity is needed at every commit. Until you
+copy the entry out, that value is unset — an address left inside the fence is an
+example, not your identity, and no agent will use it.*
 
 ## 0 · Authority
 

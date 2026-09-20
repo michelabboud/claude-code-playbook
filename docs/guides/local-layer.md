@@ -89,9 +89,12 @@ Use it for the generic terms the rules leave deliberately open: where your port
 registry lives, which tool implements a procedure, what "the deep-tier model"
 means in your setup, which channel is "the owner's channel".
 
-**Your git identity is a Fill.** It is the one value the playbook ships blank,
-and `templates/LOCAL.md` has the entry ready. It lives in `LOCAL.md` rather
-than `LOCAL_dev.md` because a commit is not always a source touch.
+**Your git identity is a Fill.** It is the one value the playbook ships blank.
+`templates/LOCAL.md` carries the entry as a **fenced example**, deliberately: a
+template ships no live entry, because a copy taken as shipped would otherwise
+bind your agent to "commits use [nothing]". Copy it out of the fence and put your
+own address in it. It lives in `LOCAL.md` rather than `LOCAL_dev.md` because a
+commit is not always a source touch.
 
 ### Add — a rule the playbook does not have
 
@@ -157,10 +160,14 @@ still a string. It writes nothing.
 |---|---|
 | **0** | every quoted string was found — or you have no local layer at all |
 | **1** | at least one stale override, each reported with `file:line`, the words, and the file it was sought in |
-| **2** | a usage error, a named file that does not exist, a `**Dead words:**` line that does not parse, the bare marker anywhere but the start of a line, or a fenced code block left open |
+| **2** | a usage error, a named file that does not exist, a `**Dead words:**` line that does not parse or runs past the 4,096-byte bound, **an Override with no valid `**Dead words:**` line**, the bare marker anywhere but the start of a line, a fenced code block left open, a local file that exists and cannot be read as a regular file, or a search that failed |
 
 **Exit 2 is never a pass.** A line the check cannot read is a check that stopped
 checking, and the update stops on it exactly as it stops on a stale override.
+That is why an unreadable local file — a mode the copy of a file can arrive with,
+or a directory where a file should be — is an error and not "nothing is
+customized": the difference between "no override went stale" and "no override was
+looked at" is the whole value of the check.
 
 The second argument is the point of the design: **point it at the staged new
 text**, before anything is copied. `INSTALL.md`'s update procedure does exactly
@@ -180,7 +187,9 @@ that, so an update fails *before* it can surprise you rather than after.
   `, and `. **Every item names its file**; one that names none is an error.
 - Quoted words may not contain a backtick and may not be empty, and are taken
   **verbatim between the backticks** — never trimmed, never re-split. A file
-  name carries no whitespace and no `/`: it names a file in the rules directory,
+  name carries no whitespace, no `/` and no glob character (`*`, `?`, `[`) — a
+  name is a name, never a pattern matched against whatever directory the check
+  was run from: it names a file in the rules directory,
   and `CLAUDE.md` means the playbook's front page, which resolves to the parent
   of the rules directory (or to an explicit third argument). **No item may name
   a path outside those two places** — `../CLAUDE.md` is rejected on purpose.
@@ -192,6 +201,9 @@ that, so an update fails *before* it can surprise you rather than after.
 - Whitespace before the line and after the last item is ignored — an invisible
   trailing space should not halt an update. Whitespace *inside* the grammar is
   not ignored: a doubled space is an error.
+- The whole line may be at most **4,096 bytes**. The longest real one measured is
+  under a kilobyte; past the bound it is a runaway paste, and the bound fails
+  closed rather than handing an unbounded string to `grep`.
 
 **The line is scanned, never split.** A real entry quotes
 `` `### 11 · Your platform` ``, so the separator, `(in ` and `)` all occur
@@ -204,6 +216,20 @@ is an **error**, never a skipped entry: an override buried mid-line would
 otherwise be dropped in silence, and a staleness check that silently checks
 nothing is worse than none. Prose that needs to name the marker puts it inside a
 code span, as this guide does throughout.
+
+**An Override with no `**Dead words:**` line is an error too**, reported at the
+Override's own line. This is what makes a mistyped marker — `**dead words:**`,
+`**Dead words**:`, a bare `Dead words:` — a refusal instead of a silent pass:
+without it, one wrong character turns an override into a thing nothing can ever
+call stale. The check looks for the line between the Override and the next entry
+or the next heading, where an *entry* is a line that (after optional indentation
+and an optional `- ` or `* ` bullet) begins with `**Fill`, `**Add` or
+`**Override`. A Fill and an Add owe nothing: they leave no second text to go
+stale. An Override written inside a fenced code block is an example and owes
+nothing either — which is why every example in this guide and in the templates is
+fenced. A `**Dead words:**` line with no Override above it is still parsed and
+searched: it is the Override that owes its words, not the words that owe an
+Override.
 
 ### What the check cannot do
 
@@ -224,8 +250,10 @@ executed by an agent or a person. In short:
   the two templates. Nothing installed needs editing.
 - **Update** — stage the new text, run the check against it, stop on 1 or 2,
   list the overridden rules the changelog touched, back up to a *sibling* of
-  `rules/`, then copy file by file. Your two files are never copied over, never
-  moved, never opened for writing.
+  `rules/`, then copy file by file. The playbook never ships your two files, and
+  an update never writes to them, copies over them, or replaces them — the check
+  reads them, and only to check them. The update asks you before it copies
+  anything.
 - **Migrate** — for an installation tailored the old way: diff it against the
   published text *of the version it records*, turn each difference into a Fill,
   an Add, an Override or an upstream candidate, get the list approved, prove it
