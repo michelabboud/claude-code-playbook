@@ -85,15 +85,23 @@ If you already have a `~/.claude/CLAUDE.md`, **back it up first** — this repla
 it. (Rule 10.2, in this very bundle, says the same thing about any file you did
 not create.)
 
-## The one thing you must edit
-
-`rules/WORKFLOW.md` carries a placeholder for your git identity:
+There is a third thing you may want, and it is optional:
 
 ```
-<YOUR GIT EMAIL — use your provider's noreply address if your real one is push-blocked>
+templates/LOCAL.md      →  ~/.claude/rules/LOCAL.md
+templates/LOCAL_dev.md  →  ~/.claude/rules/LOCAL_dev.md
 ```
 
-Replace it. Everything else works unedited.
+Those two are **yours**. This repository never ships them, never copies over
+them, and never opens them — see *Make it yours* below.
+
+## Nothing you install needs editing
+
+Earlier versions asked you to paste your git email into `rules/WORKFLOW.md`.
+They don't any more. That value — and everything else you want to change —
+goes in your own `LOCAL.md`, which an update cannot touch. The placeholder
+stays in the playbook's file as a blank, and `templates/LOCAL.md` has the entry
+ready for you to fill.
 
 ## Pick your platform file
 
@@ -158,14 +166,20 @@ what counts as blocking; a blocker stops the line, whichever kind of review foun
 
 ## How it is organised
 
-Thirteen numbered sections. `CLAUDE.md` holds the Mantra and an index;
-`rules/AUTHORITY.md` (section 0) holds precedence, how to classify a request,
-and **the approval table — the complete list of what needs your OK**. The rest
-are subject files you open when their trigger fires.
+Thirteen numbered sections across fourteen files. `CLAUDE.md` holds the Mantra
+and an index; `rules/AUTHORITY.md` (section 0) holds precedence, the local
+layer's force, how to classify a request, and **the approval table — the
+complete list of what needs your OK**. The rest are subject files you open when
+their trigger fires.
 
 Six of them (`CODE`, `TESTING`, `REVIEWS`, `WORKFLOW`, `SUBAGENTS`, `ROSTER`) carry a
 `paths:` scope so they load only when source is touched — a session that never
 opens a source file shouldn't pay for development detail.
+
+**Nothing but rule files lives under `rules/`.** Claude Code loads that folder
+recursively, so a backup, a draft or an example saved there becomes law in every
+session. That is why the templates in this repo sit in `templates/`, and why
+`INSTALL.md` puts backups in a *sibling* of `rules/`.
 
 **A subject file carries procedure, never new authority.** If you are about to
 ask permission and can't point at a row in the approval table, you don't need
@@ -174,21 +188,70 @@ bureaucracy.
 
 ## Make it yours
 
-Four places worth tailoring before anything else:
+**Don't edit the installed files.** Write your customizations in a **local
+layer** of your own — two files this repository never ships, never copies over,
+and never opens:
 
-- **`rules/WRITING.md` (section 12)** — how the assistant writes to you. It is
-  the most personal section in the bundle: it leads with the next action, bans
+| Your file | Loads |
+|---|---|
+| `~/.claude/rules/LOCAL.md` | every session |
+| `~/.claude/rules/LOCAL_dev.md` | with the six source-scoped sections |
+
+Start from `templates/LOCAL.md` and `templates/LOCAL_dev.md`. A few lines of
+customization need only the first.
+
+Section 0 gives the local layer its force in one sentence: **where an entry
+there changes a rule, the entry wins over the playbook's wording.** Reading
+order cannot carry that — the harness loads everything under `rules/` with no
+promised order — so it is stated, once, in the one file that is always read.
+
+**An entry is one of three kinds:**
+
+| Kind | What it does | Example |
+|---|---|---|
+| **Fill** | Supplies a value a rule leaves open, or binds a generic term to what you actually have. | your git identity; where your port registry lives; which tool implements a procedure |
+| **Add** | A rule or note the playbook lacks. Sections numbered `L1`, `L2`, … — numbers the playbook promises never to use. | a house convention; why a rule exists for you |
+| **Override** | Changes what a named rule says — and quotes, after a **Dead words:** line, the playbook's exact words that no longer apply. | "deep review at task grain is not required for this language, and here is the sentence that no longer holds" |
+
+Only an Override leaves two texts alive for one rule, and that is why it quotes
+the words it replaces. If a later release rewrites that sentence, the quoted
+words are gone, the override is **stale** — arguing with text nobody will read —
+and you are told before you rely on it:
+
+```sh
+sh scripts/check-local.sh ~/.claude/rules ./rules
+```
+
+Exit 0, every quoted string still present. Exit 1, at least one stale override,
+each reported with its file, its line and the words. Exit 2, something the
+check could not read — which is never treated as a pass. The update procedure in
+[`INSTALL.md`](INSTALL.md) runs it against the **staged** new text before
+anything is copied, so an update stops *before* it can surprise you.
+
+The guide is [`docs/guides/local-layer.md`](docs/guides/local-layer.md); the
+decision and the alternatives rejected are in
+[`docs/adr/0004-the-local-layer.md`](docs/adr/0004-the-local-layer.md).
+
+**Where people usually start:**
+
+- **`rules/WRITING.md` (section 12)** — how the assistant writes to you. The
+  most personal section in the bundle: it leads with the next action, bans
   preambles and "let me know if", and restates state every turn. Excellent for
-  some people, too clipped for others. Adapt it to how you actually read.
+  some people, too clipped for others.
 - **The approval table in `rules/AUTHORITY.md`** — it encodes one person's risk
-  tolerance. Move a row if yours differs. Just keep it as *the* complete list,
+  tolerance. Add or move a row if yours differs. Keep it as *the* complete list,
   in one place.
 - **The review cadence in `rules/REVIEWS.md`** — 3 to 10 tasks per batch, and at
-  most three unruled batches on a line, the open one included. If your work is riskier or your batches
-  larger, change the numbers and say why.
-- **The model roster in `rules/ROSTER.md`** — the models you actually have. It is
-  the only file that names one, so it is the only file a new model release makes
-  you touch.
+  most three unruled batches on a line, the open one included. If your work is
+  riskier or your batches larger, change the numbers and say why.
+- **The model roster in `rules/ROSTER.md`** — the models you actually have. It
+  is the only file that names one.
+
+Each of those is an entry in your local layer, not an edit to the file.
+
+**If an entry would be a better rule for everyone, send it upstream** and then
+delete it from your local file. A local layer that grows into a second rulebook
+has stopped doing its job.
 
 ## If your team shares this
 
@@ -197,8 +260,9 @@ account to be granted — every procedure in it is complete by hand, on purpose.
 
 Three things are worth agreeing on once, before everyone starts:
 
-- **Each person edits their own git identity** in `rules/WORKFLOW.md`. It is the
-  only required edit, and it must not be shared.
+- **Each person keeps their own local layer**, starting with their git identity
+  as a Fill in `LOCAL.md`. Nobody edits an installed rule file, and nobody
+  shares a `LOCAL.md` — that is the file where one person's setup lives.
 - **Decide which mode each repo is in.** `rules/WORKFLOW.md` rule 6.1 has two:
   solo developers commit straight to `main`; a repo with a second contributor
   runs the same chain on a feature branch and lands by pull request. Read it from
@@ -215,10 +279,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.15**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.16**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.16** | "Make it yours" stopped meaning "edit the installed files". Customizations now live in a **local layer** — `rules/LOCAL.md` and `rules/LOCAL_dev.md`, two files this repository never ships or touches — and section 0 says in one sentence that an entry there wins over the playbook's wording. An entry is a **Fill**, an **Add**, or an **Override** that quotes the dead words it replaces, so `scripts/check-local.sh` can prove mechanically that it still bites before an update copies anything. An update is a copy plus a check; the git-email edit is gone; `INSTALL.md` gained an update procedure and a migration procedure for installations tailored the old way, and its file count was wrong (13, actually 14). |
 | **v0.1.15** | A second independent review, this time of the finished Codex port, failed it — and four of its six blockers were in this rulebook's text: the ceiling was off by one at the boundary (now an admission rule, with a normative table of worked cases), "mechanical review never blocks" read as absolute, an isolation condition no filesystem can satisfy, and a roster that claimed single ownership while the rules restated it. A third review, of that repair and before anything was published, found the admission could be granted twice on one count: and a fourth found two more states the wording missed and said to stop patching — so the ceiling is now one invariant: a line carries at most three unruled batches, the open one included. A fifth review found the restatement had made unplanned work unlandable and left fixes unreviewed; both are closed, and the rule now ends in a clause that resolves anything it does not name toward review. Twenty worked cases. |
 | **v0.1.14** | The review-ahead rule's accounting corrected after an independent review: the ceiling says what it counts (two closed batches plus the one being built — three ranges worst case), a merge is a union not a sum, every lower review is settled before a gate, "commit only that path" replaces "stage only that path", and blindness controls are controls, not proof. |
 | **v0.1.13** | Reviews no longer stall development: three kinds of review (mechanical · deep · high deep), the mechanics of pipelining a review against a commit, a ceiling of two unreviewed batches counted by git ancestry, and `rules/ROSTER.md` — the one file that names a model. Rule 3.5 is new. |

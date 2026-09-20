@@ -4,6 +4,83 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.16 — 2026-09-21
+
+### Added
+- **A local layer: two files the playbook never ships, copies over, or opens.**
+  `rules/LOCAL.md` loads in every session; `rules/LOCAL_dev.md` carries the same
+  `paths:` scope as the six source-scoped files and loads with them. Until now
+  "make it yours" meant editing the installed files, which made every update a
+  merge — and a merge done by hand loses upstream fixes silently. Measured on one
+  real hand-merged installation: of fourteen shared rule files, three were
+  identical, seven differed by two to eight lines, four differed substantially,
+  and the fork still carried a rule number from a scheme retired a week earlier.
+- **Section 0 gives the layer its force, in a sentence:** where an entry there
+  changes a rule, the entry wins over the playbook's wording. It has to be a
+  sentence rather than a reading order, because the harness loads everything
+  under `rules/` with no promised order. Each of the six source-scoped files
+  carries one line pointing back at it.
+- **Three kinds of entry.** A **Fill** supplies a value a rule leaves open or
+  binds a generic term to something real. An **Add** is a rule the playbook
+  lacks, in sections numbered `L1`, `L2`, … — numbers the playbook now promises
+  never to use. An **Override** changes a named rule and quotes, after a
+  **Dead words:** line, the playbook's exact words that no longer apply. Only the
+  Override leaves two texts alive for one rule, which is why it is the only one
+  that has to quote anything.
+- **`scripts/check-local.sh`** — POSIX `sh`, no dependency. Reads every
+  **Dead words:** line and searches the named rule file for each quoted string as
+  a fixed string. Exit 0, every string still present; exit 1, at least one stale
+  override, reported with `file:line`, the words, and the file searched; exit 2,
+  a usage error, a missing named file, or a line that does not parse — **never a
+  pass**. It takes the rules directory as an argument so it can run against
+  *staged* new text before an update copies anything.
+- **`templates/LOCAL.md` and `templates/LOCAL_dev.md`** — the header, the three
+  kinds, the grammar of a **Dead words:** line, a worked example of each kind
+  (fenced, so a copied template checks clean), and the git-identity Fill left
+  blank. They live in `templates/` and not under `rules/` because that folder
+  loads recursively: an example saved there would become law in every session.
+- **`INSTALL.md` gained an update procedure and a migration procedure.** The
+  update stages the new text, runs the check against it, stops on exit 1 or 2,
+  lists from this changelog every rule the update touched that the user
+  overrides, backs up to a **sibling** of `rules/`, then copies file by file —
+  never replacing the directory, because the user's two files live in it. The
+  migration turns each difference in a hand-tailored installation into an entry
+  or an upstream candidate, compared against the published text of the version
+  that installation records.
+- **A guide** — `docs/guides/local-layer.md` — and the decision record,
+  `docs/adr/0004-the-local-layer.md`, with five alternatives rejected.
+- **Tests.** `tests/check_local_test.sh` (70 assertions) over the script, and
+  `tests/rules_text_test.sh` (94) over the rulebook's own text: the three hooks
+  present exactly where they belong and absent everywhere else, the template's
+  frontmatter byte-identical to the six scoped files, nothing but rule files
+  under `rules/`, and `INSTALL.md`'s counts matching reality. Each suite has a
+  mutation harness — `tests/mutation_test.sh` (16) and
+  `tests/rules_text_mutation_test.sh` (17) — that breaks one behaviour at a time
+  in a scratch copy and requires the suite to notice, because a green suite
+  proves nothing on its own. 197 assertions in total; `sh tests/run.sh` runs them
+  all.
+
+### Changed
+- **Nothing installed needs editing any more.** The git-identity placeholder
+  stays in `rules/WORKFLOW.md` as a blank; the value is a Fill in the user's
+  `LOCAL.md`. `INSTALL.md`'s old step 4 is gone and the README's "the one thing
+  you must edit" with it.
+- **`CLAUDE.md`'s self-update paragraph no longer says an update overwrites
+  files you may have tailored** — it cannot any more. It now says customizations
+  live in the local layer and survive an update, and that the check runs against
+  the new text first. It still calls an update a rule 10.2 action and still stops
+  to ask before replacing anything.
+- **README's "Make it yours" is written around entries** rather than around four
+  files to edit.
+
+### Fixed
+- **`INSTALL.md`'s verification step said `~/.claude/rules/` should contain 13
+  `.md` files. It contains 14** — thirteen numbered sections, but `AUTHORITY.md`
+  is section 0 *and* a file, so the count of sections and the count of files were
+  never the same number. Found by counting, and now asserted by a test.
+
+---
+
 ## 0.1.15 — 2026-09-20
 
 ### Fixed

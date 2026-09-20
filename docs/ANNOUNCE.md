@@ -31,14 +31,17 @@ cp CLAUDE.md ~/.claude/
 mkdir -p ~/.claude/rules/platform
 cp rules/*.md ~/.claude/rules/
 cp rules/platform/MACOS.md ~/.claude/rules/platform/
+cp templates/LOCAL.md ~/.claude/rules/LOCAL.md                  # optional, and yours
 ```
 
 **Three things to know:**
 
 1. **It replaces `~/.claude/CLAUDE.md`.** If you have one, back it up — the first
    command above does that.
-2. **Edit one line:** `~/.claude/rules/WORKFLOW.md` has a placeholder for your git
-   email. It is the only required edit, and it is yours, not shared.
+2. **Nothing it installs needs editing.** Anything you want to change — starting
+   with your git email — goes in your own `~/.claude/rules/LOCAL.md`, which the
+   repo never ships or touches. That is what makes an update a copy instead of a
+   merge. See *Make it yours* in the README.
 3. **Start a fresh session afterwards.** An open session has already loaded the
    old file.
 
@@ -46,7 +49,8 @@ cp rules/platform/MACOS.md ~/.claude/rules/platform/
 whole, take one section, or take the idea and write your own — the approval
 table, the review cadence and the close-out chain each stand alone. It is written
 in the first person and *you* are the "I", so it only works if you actually agree
-with it. Disagree with a rule? Change it; it is yours once installed.
+with it. Disagree with a rule? Write an entry in your own `LOCAL.md` that
+overrides it — and keep the upstream fixes anyway.
 
 ---
 

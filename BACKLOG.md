@@ -2,6 +2,36 @@
 
 Dated one-liners for everything deferred or spotted and not done.
 
+- **2026-09-21 · rule question · open** — section numbers are now a shared
+  namespace: the playbook owns `0`–`12` and promises never to use `L1`, `L2`, …,
+  which the local layer owns. The platform section keeps number 11, and an
+  installation that needs its own meaning for a playbook section number has to
+  say so with an Override rather than by renumbering. Nothing enforces the
+  promise; a check that no shipped rule file defines an `L` section would.
+  Source: ADR 0004, v0.1.16.
+- **2026-09-21 · verification · open** — `scripts/check-local.sh` has been run
+  under `dash` and under `bash` in POSIX mode on Linux only. It has not been run
+  on macOS (BSD `grep`) or under `busybox ash`. The flags it relies on are all
+  POSIX (`grep -F -q -e --`), but that is an argument, not a measurement.
+  Source: v0.1.16.
+- **2026-09-21 · hygiene · open** — the staleness check catches a *rewritten*
+  sentence, not a rule whose meaning changed somewhere the override does not
+  quote. `INSTALL.md` step U3 covers the gap by hand, from the changelog. A
+  mechanical version would need the changelog to name rules in a parseable way,
+  which it does not. Source: ADR 0004 consequences, v0.1.16.
+- **2026-09-21 · idea · open** — `scripts/check-local.sh` treats a `**Dead
+  words:**` line inside a fenced code block as documentation and skips it. Fence
+  detection is a simple toggle on a line starting with three backticks; it does
+  not understand tildes, indented fences, or a fence opened inside a list item.
+  A local file using one of those would have its examples checked. Source:
+  v0.1.16.
+- **2026-09-21 · hygiene · open** — the version now has **five** carriers:
+  `VERSION`, the line in `CLAUDE.md`, the README table, the eyebrow in
+  `docs/index.html`, and the "Written against **playbook &lt;VERSION&gt;**" line in
+  both templates. The templates carry a literal placeholder rather than a
+  number, so they do not drift — but the other four still do. Widens the
+  existing four-carrier item below. Source: v0.1.16.
+
 - **2026-09-14 · verification · open** — `rules/platform/LINUX.md` commands have
   not been executed on Linux. Source: generalisation task. Needs one pass on a
   real Linux box.
