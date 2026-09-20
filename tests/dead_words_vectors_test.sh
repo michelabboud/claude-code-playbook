@@ -29,7 +29,7 @@ if [ ! -f "$SCRIPT" ]; then
 fi
 
 VECTORS=$HERE/fixtures/dead-words-vectors.tsv
-VECTORS_SHA256=9e3522e66e36ff328e36310d98839bb075020fdd0438da698165a5a105a4a345
+VECTORS_SHA256=644a4eb1215d06e7486f4b1b256098109d51b428c3130357c56d688e1c8d5765
 
 # The two file names the vectors' @F1@ and @F2@ stand for in this edition: both
 # are real rule-file names here, and both exist in the fixture rules directory.

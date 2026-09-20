@@ -43,7 +43,7 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   an **error**, never a silently skipped entry — prose that needs to name it puts
   it inside a code span. Lines inside a fenced code block are ignored, and a
   fence left open at end of file is an error, because everything after it was.
-- **`tests/fixtures/dead-words-vectors.tsv`** — 44 conformance vectors for that
+- **`tests/fixtures/dead-words-vectors.tsv`** — 47 conformance vectors for that
   grammar, shared **byte for byte** with `codex-playbook` so the two editions
   cannot drift apart quietly. Both editions run every vector; this one also
   asserts the file's SHA-256, so a local edit to a shared fixture cannot pass
