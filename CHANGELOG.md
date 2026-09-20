@@ -4,6 +4,39 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.15 — 2026-09-20
+
+### Fixed
+- **Rule 3.5's ceiling was off by one at its boundary — in the sentence 0.1.14 had just
+  rewritten.** "At most two closed, unruled batches… plus the one being built" then let batch
+  N+2 close with two still unruled: three closed. Found by a second independent review, this
+  time a deep review of the finished Codex port, which it failed. The ceiling is now an
+  **admission rule — a new batch starts only while at most two closed batches are unruled**;
+  when a third closes, all three reviews run and nothing new starts until one is ruled. Worst
+  case three batch ranges, unchanged. A merge waits when its union would exceed three.
+- **Rule 3.1: "never blocks the next task" read as absolute** and contradicted stop-the-line.
+  Now: a *pending* mechanical review never delays the next reversible task; a *returned*
+  blocking finding stops the line, whatever kind of review found it.
+- **Rule 3.3: "no programme material anywhere above" a reviewer's scratch directory is
+  unsatisfiable** — every path has the filesystem root above it. Scoped to a dedicated parent
+  within the task-managed workspace, with the review header recording when the runtime cannot
+  provide it.
+- **`rules/ROSTER.md` claimed single ownership while rules 3.1 and 8.1 restated who does what.**
+  Boundary stated: rules own assignments; the roster owns which model is each tier, the optional
+  second family, and the evidence. Its "trusted with" column and kinds-of-review table are gone;
+  rule 8.1 now states the Strong tier's job itself.
+
+### Added
+- **Rule 3.5: a normative table of twelve worked cases** — the boundary states of the ceiling,
+  union on merge, a branch cut inside a batch, cherry-picks, a fix reachable from one line only,
+  a dead mechanical review holding a gate, a mechanical blocker, a docs fix during a gate. Where
+  the prose and a row disagree, the row wins. Prose failed at the same boundary twice in a day,
+  and keyword tests passed while it was wrong.
+- ADR 0003, amending ADR 0002 — including the plain statement that 0.1.13 and 0.1.14 were
+  published before an independent review, which is what this rule now forbids.
+
+---
+
 ## 0.1.14 — 2026-09-20
 
 ### Fixed

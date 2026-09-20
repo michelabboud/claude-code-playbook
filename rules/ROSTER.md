@@ -13,32 +13,24 @@ paths:
 ---
 # 8 · The roster — definitions for rules 3.1–3.5 and 8.1
 
-*Read before dispatching any reviewer or subagent. **This is the only file in the rulebook that names a model.** Every other rule names a role — a tier, or a kind of review — and this file says which model currently fills it. Models change several times a year; when one does, edit this file and nothing else. It carries definitions, never authority and never procedure.*
+*Read before dispatching any reviewer or subagent. **This is the only file in the rulebook that names a model.** Every other rule names a role — a tier, or a kind of review — and this file says which model currently fills it. **The boundary: numbered rules own the assignments — which tier does which work (rule 8.1) and which review (rule 3.1); this file owns which model *is* each tier, the optional second family, and the evidence.** It does not restate who does what. Models change several times a year; when one does, edit this file and nothing else. It carries definitions, never authority and never procedure.*
 
 **Last revised:** 2026-09-20. If that date is more than a few months old, check the names below against what your harness actually offers before trusting them.
 
-## Tiers — what a model is trusted with
+## Tiers — which model fills each
 
-| Tier | Claude model | Optional second family — only if your setup has it | Trusted with |
-|---|---|---|---|
-| **Top** | **Claude Fable** | Astra 6 | Planning, design, architecture, hard reasoning, and **high deep** review. Never down-tiered. |
-| **Strong** | **Claude Opus** | Sol, at its highest reasoning effort | **Deep** review. The escalation step between Standard and Top. |
-| **Standard** | **Claude Sonnet** | — | Implementation — multi-file and integration work — and **every mechanical review**. |
-| **Fast** | **Claude Haiku** | — | Mechanical, fully-specified work that is *not* review: renames, formatting, single-file edits to spec, doc transforms. |
+| Tier | Claude model | Optional second family — only if your setup has it |
+|---|---|---|
+| **Top** | **Claude Fable** | Astra 6 |
+| **Strong** | **Claude Opus** | Sol, at its highest reasoning effort |
+| **Standard** | **Claude Sonnet** | — |
+| **Fast** | **Claude Haiku** | — |
+
+What each tier is trusted with is rule 8.1; which review each tier runs is rule 3.1.
 
 **Escalation ladder:** Fast → Standard → Strong → Top, one tier at a time (rule 8.1).
 
 **The Claude column is the default and is sufficient on its own.** The second-family column is optional: use an entry only when that model is genuinely reachable from your setup — through another coding CLI or a dispatcher — and leave it out otherwise. Its purpose is decorrelation: it is the second reviewer of a dual-blind pair, because two instances of one model share the same blind spots (REVIEWS.md, "Dual review"). A model reached through another CLI is also a separate process by construction, which is what blind review requires (rule 3.3). With no second family, the pair is two **separate sessions** of the Claude model, and the review header says so: *same-family pair*.
-
-## Kinds of review — what each one closes, and who runs it
-
-| Kind | Closes | Runs on | While it runs, development… |
-|---|---|---|---|
-| **Mechanical** | a task | Standard — never Fast (measured, below) | never waits |
-| **Deep** | a batch; or a single task in a risk class (rule 3.2) | Strong | keeps going, up to the ceiling (rule 3.5) |
-| **High deep** | a milestone; a release | Top, dual-blind | waits (rule 3.5) |
-
-A kind of review is defined by **what it closes**, not by the model that happens to run it today. When a model is replaced, the kinds and their behaviour stay; only the "Runs on" column's meaning moves, through the tier table above.
 
 ## Measurements behind this roster
 
