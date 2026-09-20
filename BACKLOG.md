@@ -69,7 +69,10 @@ Dated one-liners for everything deferred or spotted and not done.
   prose. The first two are marked as copies and will drift exactly as the version
   carriers do; the check proposed for those should cover the roster too, and the
   rule count ("fifty") in README, `docs/ANNOUNCE.md` and the page. Source: v0.1.13.
-- **2026-09-20 · discrepancy · open, cause unconfirmed** — the 0.1.9 and 0.1.11
+- **2026-09-20 · discrepancy · half closed 2026-09-20** — *the owner's word the
+  same day: this repo carries `checkpoint/<VERSION>` tags, and every update goes
+  straight to `main`. `checkpoint/0.1.13` was then created on the 0.1.13 commit
+  and pushed. Still open: what happened to the four earlier tags.* The 0.1.9 and 0.1.11
   changelog entries say four tags were published to the remote. On 2026-09-20
   `git tag -l` and `git ls-remote --tags origin` both return nothing, and there
   are no GitHub releases. Either the tags were removed afterwards (which rule 6.4
