@@ -1,6 +1,6 @@
 # Handoff
 
-**Current:** v0.1.15 is **held in review and unpublished** — local commits on `main`, no `checkpoint/0.1.15` tag yet. It becomes complete in the publication close-out commit, after its independent review passes.
+**Current:** no session is mid-work. v0.1.15 is complete: its independent review passed (the fifth of the day; records in `codex-playbook` under `docs/reviews/2026-09-20-*`) and it is published as `checkpoint/0.1.15`.
 
 Where we are: the bundle is installable and swept clean of private references.
 The macOS platform file is verified on real hardware; Linux and Windows are

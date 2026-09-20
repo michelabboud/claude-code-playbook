@@ -47,10 +47,11 @@ Dated one-liners for everything deferred or spotted and not done.
   questions in `docs/reports/2026-09-15-documentation-chain-cost.md`. Deferred by
   Michel to a session with budget to do it properly. Supersedes the narrower
   "version carriers drift" item above, which is Option 2 of this report.
-- **2026-09-20 · measurement · open** — the ceiling of two unreviewed batches
-  (rule 3.5) and the claim that a deep review lasts "one to three tasks" rest on
+- **2026-09-20 · measurement · open** — the ceiling of three unruled batches per line,
+  the open one included (rule 3.5), and the claim that a deep review lasts "one to three tasks" rest on
   one programme, a behaviour-preserving refactor. Needs the close-out metric
-  (how often a line reached the ceiling) from at least one feature-work programme
+  (how often a line carried three unruled batches, and how often a batch was
+  admitted with two already carried) from at least one feature-work programme
   with real dependencies before the number is treated as settled. Source: v0.1.13,
   ADR 0001.
 - **2026-09-20 · verification · open** — *why* context crossed the blind-review
