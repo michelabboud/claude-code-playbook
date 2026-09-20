@@ -1,6 +1,6 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-20 (v0.1.15 — rule 3.5's boundary corrected after a second independent review, and its admission semantics after a third, before publication; worked cases are now part of the rule)
+**Last updated:** 2026-09-20 (v0.1.15 — rule 3.5's boundary corrected after a second independent review, its admission semantics after a third, and the ceiling restated as one invariant after a fourth — all before publication; worked cases are now part of the rule)
 
 The bundle is complete and installable: thirteen numbered sections, fifty rules,
 the model roster (`rules/ROSTER.md`, the only file that names a model), three

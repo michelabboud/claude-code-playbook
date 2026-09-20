@@ -1,6 +1,6 @@
 # Handoff
 
-**Current:** no session is mid-work. v0.1.15 is complete.
+**Current:** v0.1.15 is **held in review and unpublished** — local commits on `main`, no `checkpoint/0.1.15` tag yet. It becomes complete in the publication close-out commit, after its independent review passes.
 
 Where we are: the bundle is installable and swept clean of private references.
 The macOS platform file is verified on real hardware; Linux and Windows are

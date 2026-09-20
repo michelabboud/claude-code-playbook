@@ -26,6 +26,17 @@ sentence ADR 0002 had just rewritten.
    is never a new batch, or the count could never come down. A merge that carries no fix waits
    even when its union stays three; a later task already dispatched may finish, and its result
    is preserved, not accepted, until a ruling reopens admission. Rows 13–16 of the table.
+   **Restated, still before publication, after a fourth review and at the owner's choice:** the
+   ceiling is one invariant, enforced at admission — *a line carries at most three unruled
+   batches, the open one included.* A batch is unruled from its first dispatch; closing pins
+   the review target, freezes membership and changes the batch's state, never the count; only
+   a ruling brings the count down; nothing lands on a line outside a batch. The fourth review
+   found two more omitted states — a batch closed early under rule 3.2 with a task still
+   running, and a branch cut from an open batch — and, asked directly, said not to patch
+   again: every defect had sat between closed batches, which the rule counted, and open work,
+   which admission, branching and merging act on. Counting from admission removes that seam;
+   the exposure is unchanged. The file keeps its name; the admission rule is how the
+   invariant is enforced.
 2. **Rule 3.5 carries a normative table of worked cases**, and the table wins over the prose.
    Prose failed at this boundary twice in one day; keyword tests passed while it was wrong.
 3. **"A pending mechanical review never delays the next reversible task; once any review
@@ -47,6 +58,11 @@ sentence ADR 0002 had just rewritten.
 - **A strict ceiling of two including the batch being built** — rejected in ADR 0001 and 0002
   for the same reason: any slow review halts the line.
 - **Another prose rewrite with no cases.** Two rewrites had already failed.
+- **Rows 17–18 for the two newest states.** The reviewer's advice and the owner's choice: a
+  rule that needs a new row every review is counting the wrong thing.
+- **A short ceiling with "at the boundary, ask the coordinator".** Offered to the owner and
+  not taken: it drops per-line counting and the merge bound, and asking is the stall this rule
+  exists to remove.
 - **Several batches open on one line, bounded by a count of open batches.** A second counter
   to keep honest, for nothing a separate line does not already give: parallel batches run on
   their own lines, and the merge rule bounds what comes back.

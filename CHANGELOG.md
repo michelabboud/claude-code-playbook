@@ -23,6 +23,18 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   batch** — a fix is never a new batch; a merge that carries no fix waits even when its union
   stays three; a later task already dispatched may finish, and its result is preserved, not
   accepted, until a ruling reopens admission.
+- **Then the ceiling was restated as one invariant rather than patched a fifth time** — a
+  fourth independent review, still before publication, found two more omitted states (a batch
+  that rule 3.2 closes early with a task still running; a branch cut from an *open* batch) and,
+  asked directly, said the rule was too intricate to patch. Every defect had sat between
+  *closed* batches, which the rule counted, and *open* work, which admission, branching and
+  merging act on. Now: **a line carries at most three unruled batches, the open one
+  included.** A batch is unruled from its first dispatch; closing pins the review target,
+  freezes membership and never changes the count; only a ruling brings it down; nothing lands
+  on a line outside a batch. Same exposure as before — two in review plus the one being built.
+  Rows 7 and 13–16 reworded; still sixteen.
+- Public summaries said the ceiling counts "unreviewed" batches; a returned review with open
+  findings is reviewed and still counts. They say *unruled*, defined in place.
 - **Rule 3.1: "never blocks the next task" read as absolute** and contradicted stop-the-line.
   Now: a *pending* mechanical review never delays the next reversible task; a *returned*
   blocking finding stops the line, whatever kind of review found it.
