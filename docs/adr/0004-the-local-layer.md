@@ -1,0 +1,40 @@
+# 0004 — Customizations live in a local layer the playbook never touches
+
+- **Status:** accepted, 2026-09-21 (the owner's design; his approval the same day).
+- **Rules it changed:** section 0 (`rules/AUTHORITY.md`, a new paragraph after Precedence); one header line in each source-scoped file; the self-update paragraph of `CLAUDE.md`; `INSTALL.md`; README "Make it yours".
+
+## Context
+
+The README says *install these rules and make them your own* — and until now "make them your own" meant editing the installed files. That made every update a merge: the install guide had to say "stop and ask before replacing anything", and the user had to re-apply their tailoring by hand or stay behind.
+
+The cost was measured on the owner's own installation, a hand-merged fork of this playbook. Of 14 shared files, 3 were identical and 7 differed by 2–8 lines — a git email, a registry path, example names, provenance notes. Five files differed substantially. And the fork had already drifted the wrong way: it still carried a rule number from a numbering scheme retired a week earlier, and wording this playbook had since improved. **Hand-merging loses upstream fixes silently.**
+
+The same measurement showed what the differences *are*: almost all of them supply a value, bind a generic term to something the user actually has, or add a rule the playbook lacks. Very few change what a rule says.
+
+## Decision
+
+1. **Two files belong to the user and the playbook never ships, copies over, or opens them:** `rules/LOCAL.md`, which loads in every session, and `rules/LOCAL_dev.md`, which carries the same `paths:` scope as the six source-scoped files and loads with them. A user with ten lines of customization uses only the first. Every other file under `rules/`, and `CLAUDE.md`, is the playbook's and is replaced wholesale by an update.
+2. **Section 0 gives the local layer its force, in words:** where an entry there changes a rule, the entry wins over the playbook's wording. Reading order cannot carry this — the harness loads every file under `rules/` with no promised order — so the precedence is a sentence, stated once in section 0 and pointed at from each source-scoped file's header.
+3. **An entry is one of three kinds.** A **Fill** supplies a value a rule leaves open, or binds a generic term to what the user has. An **Add** is a rule or note the playbook lacks; its sections are numbered `L1`, `L2`, … — numbers the playbook promises never to use. An **Override** changes a named rule: it says what is different in whole sentences and quotes, after **Dead words:**, the playbook's exact words that no longer apply, each with the file they are in.
+4. **Staleness is checked mechanically.** `scripts/check-local.sh` reads every **Dead words:** line in the local files and searches the named playbook file for each quoted string, as a fixed string. Found: the override still bites on the text it was written against. Not found: the playbook rewrote that rule, the override is **stale**, and the update stops to tell the user. A **Dead words:** line the script cannot parse is an error, never a pass. The install guide runs the check against the *staged* new text before anything is copied.
+5. **The grammar of a Dead-words line is fixed**, because a script reads it: the line begins (after optional indentation) with `**Dead words:**`; items are separated by ` · `; each item is one code span of the quoted words followed by `(in ` and one or more code spans naming files `)`. Quoted words may not contain a backtick.
+6. **Templates live in `templates/`, not under `rules/`.** The harness loads `rules/` recursively — measured: a platform file in a subfolder arrived in a fresh session unasked — so an example file under `rules/` would load into every session as if it were law. For the same reason **nothing but rule files lives under `rules/`**: a backup, a draft or a note saved there with a Markdown name becomes law in every session. Backups go to a sibling of `rules/`, as the install guide already does.
+7. **The one edit the install used to demand — the git email inside `WORKFLOW.md` — becomes a Fill.** The placeholder stays in the playbook's file as a blank; the value lives in `LOCAL.md`. No installed playbook file is edited by hand any more.
+8. **An installation tailored the old way is migrated, not overwritten.** The install guide compares each installed file with the published text of the version that installation records, and every difference becomes an entry — or is shown to the user as a candidate to send upstream.
+
+## Alternatives rejected
+
+- **A `<rule>_local` file beside every rule file** (the owner's first form). Closest to the rule it changes, but up to fourteen files to find, back up and scan; the authority page's one-line summary of an overridden rule would live in a different local file from the override, and the two would drift. One file keeps an override and its summary together.
+- **One local file, always loaded.** Simplest, and right for most users. Rejected as the only form because the playbook deliberately scopes six files to source work — a session that never opens a source file does not pay for review and tiering detail — and most of a heavy customizer's entries are about exactly those sections. The second file exists only to keep that property.
+- **A generator that renders customized rules from the playbook plus a values file** (the owner's second form). It gives the model a single text per rule, which is its real merit. But a customization that changes a sentence becomes a patch against upstream text, and breaks whenever upstream rewrites that sentence — a merge conflict, inside a home-made tool instead of git; generated files look like ordinary rule files and get edited by hand, then silently regenerated; and it ends "needs nothing but a shell and git".
+- **A fork merged with git.** Works for one disciplined owner; is a merge at every update; offers nothing to anyone who installs by copying.
+- **Whole-rule replacement only** (the first draft of the Override). Replacing a rule to change one clause freezes the rest of it; rule 3.5 is twenty kilobytes and changed five times in one day. Quoting the dead words keeps an override as small as the disagreement and is what makes decision 4 possible.
+
+## Consequences
+
+- An update is a copy plus a check, and the user's customizations cannot be lost by it.
+- An override is the one place where two texts exist for one rule. It is contained: the dead words say exactly which text lost, and the check says when that stopped being true. A Fill and an Add create no second text at all.
+- The check catches a *rewritten* sentence, not a changed *meaning* elsewhere in the rule. The install guide therefore also lists, from the changelog, every rule an update touched that the user overrides.
+- A local file can grow into a second rulebook. The guide says what to do about it: an entry that would be a better rule for everyone is sent upstream, and then leaves the local file.
+- Section numbers are now a shared namespace with a reserved range. The platform section keeps number 11; an installation that needs its own meaning for a playbook section number says so with an Override.
+- Proven before it was written here: installed on the owner's own rules on 2026-09-21, tested in two fresh sessions outside any project — the always-loaded file answered with no source touched, the scoped file arrived with a source file, and the local entry won where the texts disagreed.
