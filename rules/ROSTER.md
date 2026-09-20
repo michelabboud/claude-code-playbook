@@ -15,6 +15,8 @@ paths:
 
 *Read before dispatching any reviewer or subagent. **This is the only file in the rulebook that names a model.** Every other rule names a role — a tier, or a kind of review — and this file says which model currently fills it. **The boundary: numbered rules own the assignments — which tier does which work (rule 8.1) and which review (rule 3.1); this file owns which model *is* each tier, the optional second family, and the evidence.** It does not restate who does what. Models change several times a year; when one does, edit this file and nothing else. It carries definitions, never authority and never procedure.*
 
+*Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*
+
 **Last revised:** 2026-09-20. If that date is more than a few months old, check the names below against what your harness actually offers before trusting them.
 
 ## Tiers — which model fills each

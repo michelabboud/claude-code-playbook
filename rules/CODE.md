@@ -15,6 +15,8 @@ paths:
 
 *Read before writing or changing code. Rule 1.5's vetting is mandatory before any new or major-bumped direct dependency.*
 
+*Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*
+
 1.1 **NO FAKES, NO STUBS, NO PLACEHOLDERS.** Nothing may look complete that isn't. If you can't finish a piece — blocked, ambiguous, or out of scope — leave an explicit, clearly-marked `TODO` / `unimplemented!()` and tell me. Never paper over a gap.
    - **In practice = vertical slices that are fully real:** build narrow but 100% complete pieces (code + tests + docs) end-to-end before starting the next. Every piece that exists is real, never fake scaffolding.
 

@@ -15,6 +15,8 @@ paths:
 
 *Read before dispatching any subagent or planning a fan-out. Which model fills each tier is `ROSTER.md` — read it with this file.*
 
+*Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*
+
 8.1 **Subagents & model tiering — prefer delegating, right-size the model, escalate fast.** Reach for subagents whenever work decomposes cleanly: independent pieces that can run in parallel, or large sub-tasks better kept out of the main session's context. This never overrides execution order — work that is sequential by workflow, or that shares code/files, stays sequential; only genuinely independent work runs in parallel. **Don't over-delegate, either:** if briefing and dispatching a subagent would cost more than just doing the task inline, do it inline — spawn overhead and orchestration tokens aren't free.
 
     **The roster is `ROSTER.md`** — four tiers, **Top · Strong · Standard · Fast**, and the one file in the rulebook that says which model fills each. This rule names tiers, never models, so a model change is an edit to that file and to nothing here.

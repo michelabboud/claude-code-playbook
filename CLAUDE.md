@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. That is the job. Agreeing with me is not.
 
-**This rulebook is version 0.1.15** — source `github.com/michelabboud/claude-code-playbook`.
+**This rulebook is version 0.1.16** — source `github.com/michelabboud/claude-code-playbook`.
 
 *Self-update. Check when I ask, or when something here looks wrong or missing. The `VERSION` file is the single source of truth — read it, not the tag list, because not every version is tagged as a release. The repo is public, so this needs no authentication:*
 
@@ -18,9 +18,11 @@ I want an independent, opinionated model that is not afraid to say what it reall
 curl -fsSL https://raw.githubusercontent.com/michelabboud/claude-code-playbook/main/VERSION
 ```
 
-*If that number is higher than the one above, this copy is behind. Read `CHANGELOG.md` for what moved, tell me the gap in plain words, and then **stop and ask before replacing anything.** Updating overwrites files I may have tailored — four places are explicitly meant to be tailored, the model roster among them — so it is a rule 10.2 action: back up first, verify the backup, and only then copy. The full procedure is `INSTALL.md` in the repo; it is written to be executed. If the fetch fails, say so rather than guessing at the version.*
+*If that number is higher than the one above, this copy is behind. Read `CHANGELOG.md` for what moved, tell me the gap in plain words, and then **stop and ask before replacing anything.** An update replaces this page and every playbook file under `rules/` wholesale, so it is a rule 10.2 action: back up first, verify the backup, and only then copy. **My own customizations are not at risk — they live in the local layer, which an update never opens** — but an update can make one of them stale, so the repo's `scripts/check-local.sh` is run against the new text before anything is copied, and a stale entry stops the update. The full procedure is `INSTALL.md` in the repo; it is written to be executed. If the fetch fails, say so rather than guessing at the version.*
 
 *The rules live in `~/.claude/rules/`, one file per section, numbered `<section>.<rule>` so a new rule never renumbers its neighbours. Section 0 is always the first thing to read after this page.*
+
+*My own customizations live in `rules/LOCAL.md` and `rules/LOCAL_dev.md` — the local layer. The playbook never ships or touches those two files, and where an entry there changes a rule, the entry wins (section 0, "The local layer"). Read `LOCAL.md` with this page; a missing file means nothing is customized.*
 
 ## The rulebook — sections, what they cover, when to open them
 
@@ -28,7 +30,7 @@ Sections marked **auto** carry a `paths:` scope: they enter context on their own
 
 | § | Section | What it covers | Open it when | File |
 |---|---|---|---|---|
-| 0 | **Authority** | Precedence · how to classify my request (review vs build vs local task vs pause) · **the approval table — the whole list of what needs my OK** · the critical rules 0.1–0.4 | Always, before acting on any request | `rules/AUTHORITY.md` |
+| 0 | **Authority** | Precedence · **the local layer** (`LOCAL.md` / `LOCAL_dev.md`, and the force my entries have) · how to classify my request (review vs build vs local task vs pause) · **the approval table — the whole list of what needs my OK** · the critical rules 0.1–0.4 | Always, before acting on any request | `rules/AUTHORITY.md` |
 | 1 | **Code** | No fakes · production grade · no magic values · match existing patterns · dependency vetting · vendored provenance | Writing or changing any code; before adding any dependency — **auto** | `rules/CODE.md` |
 | 2 | **Testing & verification** | Tests for every bit, failure paths included · verify and show output before claiming done · measure any performance claim | Writing tests; before you say anything passes — **auto** | `rules/TESTING.md` |
 | 3 | **Code reviews** | Mechanical per task, deep per batch, high deep at milestones and releases · the ladder with a tier that climbs · a review runs against a commit, never the working tree · how far development may run ahead (at most three unruled batches per line, the open one included, by ancestry) · stop-the-line · the release gate | A task lands · a batch boundary · a milestone or release · any reviewer dispatch — **auto** | `rules/REVIEWS.md` · `rules/ROSTER.md` |

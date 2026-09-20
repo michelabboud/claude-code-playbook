@@ -15,6 +15,8 @@ paths:
 
 *Read when a task lands, at a batch boundary, before a milestone or release, and before dispatching any reviewer. What a review may NOT do is in the classification table and rule 7.4 (read, report, never fix); this file is what a review MUST do, who does it, and when. The record is the persisted review with its CONFIRMED / REFUTED / UNVERIFIED header. **This file names roles, never models:** which model fills a tier today is `ROSTER.md`, the one file that names any.*
 
+*Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*
+
 **Why this shape:** a dual review after every task — one mechanical, one deep — is the right instinct, but on a big project it slows development dramatically. Mechanical reviews are slow; deep reviews are slow *and* expensive; and a review that development sits waiting for is a stall either way. So: development does not wait for a review unless waiting is cheaper than the rework — rule 3.5 says exactly when — and the deep review is batched every 3 to 10 tasks depending on complexity, with the coordinator or the plan's author deciding. At the end, regardless of task count, run the best review available. Split the tiers so expensive reasoning is not spent on overkill. The cost of a review is mostly the reviewer reloading the codebase; batching pays that once. The cost of a *late* review is rework on everything built on top of the defect; dependencies, not counts, bound the batch.
 
 3.1 **Three kinds of review — and a tier that climbs the ladder.** The planner plans in levels (WORKFLOW.md vocabulary) and each level closes with a stronger review than the one below it:
