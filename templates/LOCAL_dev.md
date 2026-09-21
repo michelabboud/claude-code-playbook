@@ -15,7 +15,7 @@ paths:
 
 *This file is mine, not the playbook's: the playbook never ships it, and an update never writes to, copies over or replaces it — it is read only to check it. It carries my entries for sections 1, 2, 3, 6, 8 and the roster, and it has the same `paths:` scope as those files, so it arrives when they do. When you read one of them by path, read this file too.*
 
-*The three kinds of entry — **Fill**, **Add**, **Override** with its `**Dead words:**` line — and the force they have are defined at the top of `LOCAL.md` and in section 0 ("The local layer"). Read that file first; this one does not repeat the grammar. Note how the marker is written here: **inside a code span**, because the bare marker anywhere but the start of a line is an error rather than a silently skipped entry.*
+*The three kinds of entry — **Fill**, **Add**, **Override** with its Anchor, Rule digest, and `**Dead words:**` verifier — and the force they have are defined at the top of `LOCAL.md` and in section 0 ("The local layer"). Read that file first; this one does not repeat the grammar. Note how the marker is written here: **inside a code span**, because the bare marker anywhere but the start of a line is an error rather than a silently skipped entry.*
 
 *Written against **playbook <VERSION>** — fill in the number on the `This rulebook is version` line of `CLAUDE.md`, so a later reader knows what this file was checked against.*
 
@@ -39,13 +39,16 @@ is absent means nothing is customized.
 
 ## Worked example — delete it once you have your own
 
-An **Override** of a scoped rule, with the line `scripts/check-local.sh` reads:
+An **Override** of a scoped rule, with the verifier `scripts/check-local.sh`
+reads:
 
 ```
 - **Override — rule 8.1, the Top tier never runs a dev lane.** The Top tier is
   reserved for planning and review, so the hard domains — security, concurrency,
   Rust, unsafe code — start on the **Strong** tier, and the dev escalation ladder
   is Fast → Standard → Strong and ends there. Written against 0.1.16.
+  **Anchor:** `# 8 · Subagents` (in `SUBAGENTS.md`)
+  **Rule digest:** `sha256:0000000000000000000000000000000000000000000000000000000000000000`
   **Dead words:** `start on the Top tier` (in `SUBAGENTS.md`)
 ```
 

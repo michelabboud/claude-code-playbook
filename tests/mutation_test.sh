@@ -116,8 +116,8 @@ check_mutation "an unparsable line must be an error, never a pass" \
 # the separator. Splitting again must never pass unnoticed.
 
 check_mutation "splitting the line on the separator is caught" \
-    '        check_items "$_cf_rest" "$_cf_path" "$_cf_lineno"' \
-    '        check_items "${_cf_rest%%"$SEP"*}" "$_cf_path" "$_cf_lineno"'
+    '            check_items "$_cf_rest" "$_cf_path" "$_cf_lineno"' \
+    '            check_items "${_cf_rest%%"$SEP"*}" "$_cf_path" "$_cf_lineno"'
 
 check_mutation "items separated by the middle dot must all be checked" \
     "SEP=' · '" \
@@ -326,7 +326,7 @@ check_mutation "a backtick in a fence's info string must mean no fence" \
 # --- usage -----------------------------------------------------------------
 
 check_mutation "-h alone must print usage" \
-    '    -h|--help) usage; exit 0 ;;' \
-    '    --help) usage; exit 0 ;;'
+    '        -h|--help) usage; exit 0 ;;' \
+    '        --help) usage; exit 0 ;;'
 
 finish

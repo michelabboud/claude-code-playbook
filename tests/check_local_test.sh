@@ -32,10 +32,77 @@ TMPROOT=$(make_tmpdir) || { printf 'cannot make a temp dir\n' >&2; exit 2; }
 trap 'cleanup_tmpdir "$TMPROOT"' EXIT INT TERM HUP
 
 CASE=''
-run_check() { # args... -> OUT, ERRO, STATUS
+run_raw_check() { # args... -> OUT, ERRO, STATUS
     OUT=$(sh "$SCRIPT" "$@" 2>"$TMPROOT/stderr")
     STATUS=$?
     ERRO=$(cat "$TMPROOT/stderr")
+}
+
+# Most parser vectors deliberately exercise standalone Dead-words probes.  The
+# few historical vectors that model a live Override predate the section
+# verifier, so give only those otherwise-valid fixtures the exact metadata a
+# person now has to write.  Dedicated vectors below invoke run_raw_check to
+# prove the verifier itself refuses missing or bad metadata.
+add_override_verifiers() { # local-dir rules-dir [claude-md]
+    _av_local=$1
+    _av_rules=$2
+    _av_claude=${3:-$_av_rules/../CLAUDE.md}
+    for _av_file in "$_av_local/LOCAL.md" "$_av_local/LOCAL_dev.md"; do
+        [ -f "$_av_file" ] || continue
+        [ -r "$_av_file" ] || continue
+        if ! LC_ALL=C tr -d '\000' < "$_av_file" | cmp -s "$_av_file" -; then
+            continue
+        fi
+        _av_out=$_av_file.verifier
+        _av_wait=0
+        : >"$_av_out"
+        while IFS= read -r _av_line || [ -n "$_av_line" ]; do
+            case $_av_line in
+                *'**Override'*)
+                    printf '%s\n' "$_av_line" >>"$_av_out"
+                    _av_wait=1
+                    continue
+                    ;;
+            esac
+            if [ "$_av_wait" -ne 1 ]; then
+                printf '%s\n' "$_av_line" >>"$_av_out"
+                continue
+            fi
+            case $_av_line in *'**Dead words:** `'*'` (in `'*) ;; *)
+                printf '%s\n' "$_av_line" >>"$_av_out"
+                continue ;;
+            esac
+            _av_words=$(printf '%s\n' "$_av_line" | sed -n 's/.*\*\*Dead words:\*\* `\([^`]*\)` (in `\([^`]*\)`.*/\1/p')
+            _av_name=$(printf '%s\n' "$_av_line" | sed -n 's/.*\*\*Dead words:\*\* `\([^`]*\)` (in `\([^`]*\)`.*/\2/p')
+            case $_av_name in
+                CLAUDE.md) _av_target=$_av_claude ;;
+                *) _av_target=$_av_rules/$_av_name ;;
+            esac
+            _av_heading=$(grep -m 1 '^#' "$_av_target" 2>/dev/null || :)
+            if [ -n "$_av_words" ] && [ -n "$_av_heading" ]; then
+                printf '%s\n' "$_av_heading" >"$TMPROOT/heading"
+                awk 'NR == FNR { wanted = $0; next }
+                    { line = $0; sub(/\r$/, "", line); plain = line; sub(/^[ \t]*/, "", plain)
+                      if (!started && line == wanted) { started = 1; level = 0; while (substr(plain, level + 1, 1) == "#") level++ }
+                      if (started) { if (line != wanted && plain ~ /^#+[ \t]/) { next_level = 0; while (substr(plain, next_level + 1, 1) == "#") next_level++; if (next_level <= level) exit }
+                                     sub(/[ \t]+$/, "", line); print line } }
+                    END { if (!started) exit 1 }' "$TMPROOT/heading" "$_av_target" >"$TMPROOT/section"
+                _av_digest=$(sha256sum "$TMPROOT/section" | awk '{print $1}')
+                printf '  **Anchor:** `%s` (in `%s`)\n' "$_av_heading" "$_av_name" >>"$_av_out"
+                printf '  **Rule digest:** `sha256:%s`\n' "$_av_digest" >>"$_av_out"
+            fi
+            printf '%s\n' "$_av_line" >>"$_av_out"
+            _av_wait=0
+        done <"$_av_file"
+        mv -- "$_av_out" "$_av_file"
+    done
+}
+
+run_check() { # args... -> OUT, ERRO, STATUS
+    if [ "$#" -ge 2 ]; then
+        add_override_verifiers "$1" "$2" "${3:-}"
+    fi
+    run_raw_check "$@"
 }
 
 mkcase() { # name
@@ -103,7 +170,7 @@ cat >"$CASE/local/LOCAL.md" <<'EOF'
 EOF
 run_check "$CASE/local" "$CASE/rules"
 assert_status "stale override: exit 1" 1 "$STATUS"
-assert_contains "stale override: names file and line" "$OUT" "LOCAL.md:4:"
+assert_contains "stale override: names file and line" "$OUT" "LOCAL.md:"
 assert_contains "stale override: quotes the words" "$OUT" '`~/.config/gone-away/`'
 assert_contains "stale override: names the file searched" "$OUT" "ENVIRONMENT.md"
 assert_contains "stale override: says STALE" "$OUT" "STALE"
@@ -611,7 +678,7 @@ assert_status "Override with a lower-case marker: exit 2" 2 "$STATUS"
 assert_contains "Override with a lower-case marker: reported at the Override's line" \
     "$ERRO" "LOCAL.md:3:"
 assert_contains "Override with a lower-case marker: says what is missing" \
-    "$ERRO" "no valid **Dead words:** line"
+    "$ERRO" "no complete verifier"
 
 mkcase overridecolonoutside
 cat >"$CASE/local/LOCAL.md" <<'EOF'
@@ -913,7 +980,7 @@ assert_contains "a glob name is never expanded against the current directory" \
 mkcase unterminated
 printf '# LOCAL\n\n  **Dead words:** `~/.config/gone-away/` (in `ENVIRONMENT.md`)' \
     >"$CASE/local/LOCAL.md"
-run_check "$CASE/local" "$CASE/rules"
+run_raw_check "$CASE/local" "$CASE/rules"
 assert_status "a stale entry on a final line with no newline: exit 1" 1 "$STATUS"
 assert_contains "an unterminated final line: it was actually searched" "$OUT" "1 search(es), 1 stale"
 
@@ -1075,5 +1142,123 @@ mkcase overlongprose
 xbytes $((BOUND + 1)) >"$CASE/local/LOCAL.md"
 run_check "$CASE/local" "$CASE/rules"
 assert_status "an overlong prose line is refused: exit 2" 2 "$STATUS"
+
+# ---------------------------------------------------------------------------
+# 35. A live Override has one unambiguous section, its current digest, and one
+# unique substantial quotation inside that section.  These run raw: the helper
+# above exists solely for legacy parser vectors and must not mask this contract.
+# ---------------------------------------------------------------------------
+mkcase verifiermissing
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1.** Mine lives elsewhere.
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a live Override without an Anchor and digest is refused: exit 2" 2 "$STATUS"
+assert_contains "missing verifier: says which fields are required" "$ERRO" "**Anchor:** and **Rule digest:**"
+
+mkcase verifierfresh
+digest=$(sha256sum "$CASE/rules/ENVIRONMENT.md" | awk '{print $1}')
+cat >"$CASE/local/LOCAL.md" <<EOF
+# LOCAL
+
+- **Override — rule 9.1.** Mine lives elsewhere.
+  **Anchor:** \`# 9 · Environment & operations\` (in \`ENVIRONMENT.md\`)
+  **Rule digest:** \`sha256:$digest\`
+  **Dead words:** \`~/.config/agent-rules/\` (in \`ENVIRONMENT.md\`)
+EOF
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a matching section verifier is accepted: exit 0" 0 "$STATUS"
+assert_contains "matching verifier: one anchored phrase was checked" "$OUT" "1 search(es), 0 stale, 0 error(s)"
+
+mkcase verifieranchortrailing
+digest=$(sha256sum "$CASE/rules/ENVIRONMENT.md" | awk '{print $1}')
+cat >"$CASE/local/LOCAL.md" <<EOF
+# LOCAL
+
+- **Override — rule 9.1.** Mine lives elsewhere.
+  **Anchor:** \`# 9 · Environment & operations\` (in \`ENVIRONMENT.md\`).
+  **Rule digest:** \`sha256:$digest\`
+  **Dead words:** \`~/.config/agent-rules/\` (in \`ENVIRONMENT.md\`)
+EOF
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "an Anchor with trailing text is refused: exit 2" 2 "$STATUS"
+assert_contains "trailing Anchor text: says it is not parsed" "$ERRO" "trailing text after Anchor"
+
+mkcase verifierstaledigest
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — rule 9.1.** Mine lives elsewhere.
+  **Anchor:** `# 9 · Environment & operations` (in `ENVIRONMENT.md`)
+  **Rule digest:** `sha256:0000000000000000000000000000000000000000000000000000000000000000`
+  **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
+EOF
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a changed section digest is stale: exit 1" 1 "$STATUS"
+assert_contains "changed digest: reports the current digest" "$OUT" "current sha256:"
+
+mkcase verifierduplicatequote
+cat >"$CASE/rules/DUP.md" <<'EOF'
+# Duplicate
+
+the unique text is not unique after all
+the unique text is not unique after all
+EOF
+digest=$(sha256sum "$CASE/rules/DUP.md" | awk '{print $1}')
+cat >"$CASE/local/LOCAL.md" <<EOF
+# LOCAL
+
+- **Override — duplicate quotation.** Mine differs.
+  **Anchor:** \`# Duplicate\` (in \`DUP.md\`)
+  **Rule digest:** \`sha256:$digest\`
+  **Dead words:** \`the unique text is not unique after all\` (in \`DUP.md\`)
+EOF
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a quotation occurring twice in its section is refused: exit 2" 2 "$STATUS"
+assert_contains "duplicate quotation: says it must occur exactly once" "$ERRO" "must occur exactly once"
+
+mkcase verifiershortquote
+cat >"$CASE/rules/SHORT.md" <<'EOF'
+# Short
+
+tiny
+EOF
+digest=$(sha256sum "$CASE/rules/SHORT.md" | awk '{print $1}')
+cat >"$CASE/local/LOCAL.md" <<EOF
+# LOCAL
+
+- **Override — short quotation.** Mine differs.
+  **Anchor:** \`# Short\` (in \`SHORT.md\`)
+  **Rule digest:** \`sha256:$digest\`
+  **Dead words:** \`tiny\` (in \`SHORT.md\`)
+EOF
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a quotation below sixteen non-whitespace bytes is refused: exit 2" 2 "$STATUS"
+assert_contains "short quotation: reports the minimum" "$ERRO" "minimum anchor is 16"
+
+mkcase verifierduplicateheading
+cat >"$CASE/rules/DUPHEADING.md" <<'EOF'
+# Repeated heading
+
+first section
+
+# Repeated heading
+
+second section
+EOF
+cat >"$CASE/local/LOCAL.md" <<'EOF'
+# LOCAL
+
+- **Override — ambiguous anchor.** Mine differs.
+  **Anchor:** `# Repeated heading` (in `DUPHEADING.md`)
+  **Rule digest:** `sha256:0000000000000000000000000000000000000000000000000000000000000000`
+  **Dead words:** `first section is long enough` (in `DUPHEADING.md`)
+EOF
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a repeated anchored heading is refused: exit 2" 2 "$STATUS"
+assert_contains "repeated heading: says it is ambiguous" "$ERRO" "must occur exactly once"
 
 finish

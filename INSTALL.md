@@ -33,11 +33,12 @@ On Windows the configuration directory is `%USERPROFILE%\.claude\`.
 special. Two steps do: the version fetch needs `curl` (PowerShell's
 `Invoke-WebRequest -UseBasicParsing` is the equivalent), and the staleness check
 `scripts/check-local.sh` is a POSIX shell script, so it needs `sh` — on Windows
-that means Git Bash, WSL, or MSYS2, all of which ship one. **If you cannot run
-`sh` on this machine, say so and stop before the update or migration procedure**
-rather than skipping the check: an update that skips it is the merge this design
-exists to avoid. A first install needs neither, because there is no local layer
-to check yet.
+that means Git Bash, WSL, or MSYS2, all of which ship one. A live Override also
+needs `sha256sum`, `shasum -a 256`, or `openssl` for its section digest. **If you
+cannot run the required check on this machine, say so and stop before the update
+or migration procedure** rather than skipping it: an update that skips the check
+is the merge this design exists to avoid. A first install needs neither, because
+there is no local layer to check yet.
 
 **Touch nothing else in that directory.** `~/.claude/` also holds the user's
 settings, their own skills, their own slash commands, and their session history.
@@ -244,15 +245,16 @@ sh scripts/check-local.sh ~/.claude/rules ./rules
 ```
 
 The first argument is where the user's `LOCAL.md` and `LOCAL_dev.md` live; the
-second is the **staged** rules, not the installed ones. The script reads every
-`**Dead words:**` line in the local files and searches the staged rule file each
-one names for the quoted string. It writes nothing.
+second is the **staged** rules, not the installed ones. The script reads a live
+Override's complete verifier: it extracts the anchored staged rule section,
+checks its SHA-256 digest, and searches that section for the quoted words. It
+writes nothing.
 
 | Exit | Meaning | What you do |
 |---|---|---|
-| **0** | every quoted string is still in the new text, or the user has no local layer | Go on to step U3. |
+| **0** | every quoted string and section digest is current, or the user has no local layer | Go on to step U3. |
 | **1** | at least one **stale override** — the new text no longer contains the words that override was written against | **Stop.** Show the user each reported line and ask what the override should become. Do not copy anything. |
-| **2** | a usage error, a named file that does not exist, a `**Dead words:**` line that does not parse or is longer than 4,096 bytes, an **Override** with no valid `**Dead words:**` line, the bare marker anywhere but the start of a line, a fenced code block left open, a local file that exists and cannot be read as a regular file, or a search that failed | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
+| **2** | a usage error, a named file that does not exist, an Anchor, Rule digest, or `**Dead words:**` line that does not parse or is longer than 4,096 bytes, an **Override** with no complete verifier, an ambiguous heading, a short or repeated quote, the bare marker anywhere but the start of a line, a fenced code block left open, a local file that exists and cannot be read as a regular file, or a search that failed | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
 
 **Step U3 — List the rules the update touched that the user overrides.** The
 check in U2 catches a *rewritten sentence*. It cannot catch a rule whose meaning
@@ -335,7 +337,7 @@ exactly one of:
 |---|---|
 | A value the rule leaves open, or a generic term bound to something real — a git identity, a registry path, a tool name | a **Fill** in the local layer |
 | A rule or note the playbook does not have | an **Add**, in a section numbered `L1`, `L2`, … |
-| A changed sentence in a named rule | an **Override**, with a `**Dead words:**` line quoting the published words it replaced |
+| A changed sentence in a named rule | an **Override**, with an Anchor, Rule digest, and `**Dead words:**` line binding it to that published section |
 | Something that would be a better rule for everyone | a **candidate to send upstream** — show it to the user as that, and keep it as an entry until it lands |
 | Upstream text the installation simply fell behind on | nothing — the update supplies it |
 
@@ -343,8 +345,8 @@ Write the entries into copies of `<scratch>/new/templates/LOCAL.md` and
 `<scratch>/new/templates/LOCAL_dev.md`, placed in `<scratch>/local/` — **not**
 into `~/.claude/` yet, and never into a `LOCAL.md` the user already has. Section 0
 of the rulebook, under "The local layer", defines the three kinds;
-`templates/LOCAL.md` carries the grammar of a `**Dead words:**` line and a worked
-example of each, all of them fenced. Copy an example out of its fence before you
+`templates/LOCAL.md` carries the grammar of a complete Override verifier and a
+worked example of each, all of them fenced. Copy an example out of its fence before you
 fill it in: a fenced entry is an example and is not checked.
 
 **Write every entry to that grammar, and it will pass the check in step M4.**
@@ -353,9 +355,9 @@ the backticks**, so the line is scanned over its code spans and never split on
 the ` · ` separator — a quotation may itself contain one; **every item names the
 file its words are in**; the marker is an error anywhere but the start of a
 line, so prose that names it writes it inside a code span; and **every Override
-needs its `**Dead words:**` line** — a mistyped marker (`**dead words:**`) is
-refused rather than skipped, which is the point. A closing `.` after the last
-item is fine.
+needs its complete Anchor, Rule digest, and `**Dead words:**` verifier** — a
+mistyped marker is refused rather than skipped, which is the point. A closing
+`.` after the last item is fine.
 
 **Show the user the whole list and ask.** This is the step that decides what
 their rulebook says; it is not yours to settle.

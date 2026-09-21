@@ -29,15 +29,39 @@ has stopped doing its job.
 |---|---|---|
 | **Fill** | Supplies a value a rule leaves open, or binds one of its generic terms to the thing you actually have. | Which rule, and the value. |
 | **Add** | A rule or a note the playbook does not have. It contradicts nothing. Its own sections are numbered `L1`, `L2`, … — numbers the playbook promises never to use. | What the rule is. |
-| **Override** | Changes what a named rule says. | The rule it names, what is different **in whole sentences**, and a `**Dead words:**` line quoting the playbook's exact words that no longer apply. |
+| **Override** | Changes what a named rule says. | The rule it names, what is different **in whole sentences**, and an Anchor, Rule digest, and `**Dead words:**` line that bind it to one current rule section. |
 
-**Why an Override quotes dead words.** It is the one kind that leaves two texts
-alive for one rule, so it has to say precisely which text lost. If the playbook
-later rewrites that sentence, the quoted words are no longer there — the
-override is **stale** and suspended: it has no force until its owner rewrites
-it. If its scope or freshness is unclear, use the stricter constraint and hold
-the affected action for the owner. `scripts/check-local.sh` checks that
-mechanically before an update or restore changes managed text.
+**Why an Override has a section verifier.** It is the one kind that leaves two
+texts alive for one rule, so it has to name precisely which bounded text lost.
+Its literal Markdown heading must occur once, its normalized section has a
+SHA-256 digest, and its quote must contain at least 16 non-whitespace bytes and
+occur exactly once inside that section. If the playbook changes either the
+section or the quote, the override is **stale** and suspended: it has no force
+until its owner re-reads the rule and rewrites it. If its scope or freshness is
+unclear, use the stricter constraint and hold the affected action for the owner.
+`scripts/check-local.sh` checks that mechanically before an update or restore
+changes managed text.
+
+## The Override verifier
+
+Immediately after the Override's own sentence, write these three lines in this
+order:
+
+```
+  **Anchor:** `# The literal section heading` (in `FILE.md`)
+  **Rule digest:** `sha256:64-lowercase-hex-characters`
+  **Dead words:** `at least sixteen non-whitespace bytes, unique in that section` (in `FILE.md`)
+```
+
+The Anchor's literal heading must occur exactly once in its named managed file.
+The Rule digest covers that heading through the line before the next heading of
+equal or higher level, with CRLF normalized to LF and trailing blanks ignored.
+The checker reports the current digest when it is stale; after re-reading the
+changed rule, copy that value into the rewritten entry. `sha256sum`, `shasum -a
+256`, or `openssl` supplies the digest. If none is available, the checker
+refuses the Override rather than guessing. The quoted words name the same file
+as the Anchor. A standalone `**Dead words:**` line remains a non-authorizing
+compatibility probe; it cannot activate an Override.
 
 ## The grammar of a Dead-words line
 
@@ -78,14 +102,14 @@ mid-line would otherwise be skipped in silence, which is the one failure a
 staleness check may never have. Prose that needs to name the marker writes it
 inside a code span, the way this paragraph does.
 
-**And so is an Override with no `**Dead words:**` line at all** — reported at the
-Override's own line. One mistyped character (`**dead words:**`) would otherwise
-turn an override into something nothing can ever call stale. The script looks for
-the line between the Override and the next entry or the next heading; an entry is
-a line that, after optional indentation and an optional `- ` or `* ` bullet,
-begins with `**Fill`, `**Add` or `**Override`. A Fill and an Add owe no words —
-they leave no second text behind. An Override inside a fenced code block is an
-example and owes none either, which is why every example here is fenced.
+**And so is an Override with no complete verifier** — reported at the Override's
+own line. One mistyped marker would otherwise turn an override into something
+nothing can ever call stale. The script looks for the three lines between the
+Override and the next entry or the next heading; an entry is a line that, after
+optional indentation and an optional `- ` or `* ` bullet, begins with `**Fill`,
+`**Add` or `**Override`. A Fill and an Add owe no verifier. An Override inside a
+fenced code block is an example and owes none either, which is why every example
+here is fenced.
 
 ## Worked examples — delete these once you have your own
 
@@ -106,12 +130,14 @@ An **Add**, a note the playbook does not carry:
   session. Backups go to `~/.claude/rules-backups/`.
 ```
 
-An **Override**, with the line the check reads:
+An **Override**, with the verifier the check reads:
 
 ```
 - **Override — rule 9.1, the registry home.** My claims registry is
   `~/.config/my-fleet/ports/`, and machine-specific gotchas live in
   `~/.config/my-fleet/machine.md`. Written against 0.1.16.
+  **Anchor:** `# 9 · Environment & operations` (in `ENVIRONMENT.md`)
+  **Rule digest:** `sha256:0000000000000000000000000000000000000000000000000000000000000000`
   **Dead words:** `~/.config/agent-rules/` (in `ENVIRONMENT.md`)
 ```
 

@@ -6,13 +6,15 @@
 # who installed this playbook: the playbook never ships those two files, and an
 # update never writes to, copies over or replaces them. This script reads them,
 # and only to check them. An **Override** entry
-# there changes a playbook rule, and quotes — after a "**Dead words:**" line —
-# the playbook's exact words that no longer apply. If the playbook later
-# rewrites those words, the override is talking about text that is gone: it is
-# STALE, and the person must be told before they rely on it.
+# there changes a playbook rule and carries a three-line verifier: an Anchor
+# naming one literal Markdown section, that normalized section's SHA-256 Rule
+# digest, and — after a "**Dead words:**" line — an exact quote. If the
+# playbook later rewrites that section or quote, the Override is STALE and its
+# owner must be told before they rely on it.
 #
-# This script reads every "**Dead words:**" line and searches the named playbook
-# file for each quoted string, as a fixed string. It never writes anything.
+# This script reads every live Override's verifier and searches the anchored
+# section for each quoted string, as a fixed string. It never writes managed or
+# local text; its private scratch directory is removed on exit.
 #
 # Usage:
 #   check-local.sh <local-dir> <rules-dir> [claude-md-path]
@@ -27,12 +29,14 @@
 #                      the layout both in this repository and under ~/.claude.
 #
 # Exit status:
-#   0  every quoted string was found — or there is no local layer at all
+#   0  every quoted string and section digest was current — or there is no local
+#      layer at all
 #   1  at least one stale override; each is reported with file:line, the words,
 #      and the file it was sought in
 #   2  usage error, a named file that does not exist, a "**Dead words:**" line
 #      that does not parse or is longer than the byte bound below, an **Override**
-#      entry with no valid "**Dead words:**" line, a bare marker anywhere but the
+#      entry with no complete Anchor, Rule digest, and "**Dead words:**" verifier,
+#      a bare marker anywhere but the
 #      start of a line, an unclosed fenced code block, a local file that exists
 #      and cannot be read as a regular file, or a failed search. An error
 #      outranks a stale finding: if both happen, the status is 2.
@@ -71,7 +75,8 @@
 #   * a line that contains the bare marker **Dead words:** anywhere other than
 #     its start is an ERROR, not a skipped entry. Prose that needs to name the
 #     marker puts it inside a code span, and is then ignored.
-#   * an **Override** entry with no valid "**Dead words:**" line before the next
+#   * an **Override** entry with no complete Anchor, Rule digest, and valid
+#     "**Dead words:**" line before the next
 #     entry line, the next heading, or the end of the file is an ERROR. This is
 #     what turns every mistyped marker — "**dead words:**", "**Dead words**:",
 #     "Dead words:" — into a refusal instead of a silent pass. An *entry line* is
@@ -96,8 +101,9 @@
 # carry a prefix of their own and the parsers hand their results back in the
 # globals SCAN_WORDS, ITEM_FILES and SCAN_REST.
 #
-# External utilities used, all POSIX: grep (-F, -q, -e, --), cat (for the usage
-# heredoc), printf. Everything else is a shell builtin.
+# External utilities used: grep (-F, -q, -e, --), cat (for the usage heredoc),
+# cmp, tr, awk, wc, mktemp, rm, and sha256sum, shasum, or openssl. Everything
+# else is a shell builtin.
 
 set -u
 
@@ -116,6 +122,8 @@ export LC_ALL
 PROG=${0##*/}
 SEP=' · '
 MARKER='**Dead words:**'
+ANCHOR_MARKER='**Anchor:**'
+DIGEST_MARKER='**Rule digest:**'
 CR=$(printf '\r')
 TAB=$(printf '\t')
 
@@ -137,6 +145,20 @@ SCAN_WORDS=''
 SCAN_REST=''
 ITEM_FILES=''
 ENTRY_KIND=''
+
+# A live Override is bound to one literal Markdown section, rather than merely
+# to a phrase which might occur in several rules.  The verifier consists of an
+# Anchor line naming that section, its normalized SHA-256 digest, and quoted
+# words that occur exactly once inside it.
+PENDING_ANCHOR_HEADING=''
+PENDING_ANCHOR_NAME=''
+PENDING_ANCHOR_PATH=''
+PENDING_DIGEST=''
+ACTIVE_ANCHOR_NAME=''
+ACTIVE_ANCHOR_PATH=''
+SCRATCH_DIR=''
+SECTION_FILE=''
+WORDS_FILE=''
 
 # Fence state while one file is being read.
 FENCE_CHAR=''
@@ -213,6 +235,21 @@ target_for() {
         CLAUDE.md) printf '%s' "$claude_md" ;;
         *)         printf '%s' "$rules_dir/$1" ;;
     esac
+}
+
+cleanup_scratch() {
+    if [ -n "$SCRATCH_DIR" ]; then
+        rm -rf -- "$SCRATCH_DIR"
+    fi
+}
+
+clear_verifier() {
+    PENDING_ANCHOR_HEADING=''
+    PENDING_ANCHOR_NAME=''
+    PENDING_ANCHOR_PATH=''
+    PENDING_DIGEST=''
+    ACTIVE_ANCHOR_NAME=''
+    ACTIVE_ANCHOR_PATH=''
 }
 
 # ------------------------------------------------------------------ the scanner
@@ -317,6 +354,145 @@ parse_item() {
     return 0
 }
 
+# Parse `## A section` (in `FILE.md`), prove the heading is unambiguous, and
+# write its normalized rule block into SECTION_FILE.  The actual heading is the
+# anchor: a rule number alone can move or repeat, while this bounded section is
+# the text an Override depends on.
+parse_anchor() { # rest src ln
+    _pa_rest=$1
+    _pa_src=$2
+    _pa_ln=$3
+    parse_item "$_pa_rest" "$_pa_src" "$_pa_ln" || return 1
+    PENDING_ANCHOR_HEADING=$SCAN_WORDS
+    if [ -n "$SCAN_REST" ]; then
+        parse_err "$_pa_src" "$_pa_ln" "trailing text after Anchor: $SCAN_REST"
+        return 1
+    fi
+    case $PENDING_ANCHOR_HEADING in
+        '# '*|'## '*|'### '*|'#### '*|'##### '*|'###### '*) ;;
+        *) parse_err "$_pa_src" "$_pa_ln" "Anchor must name a Markdown heading, got: $PENDING_ANCHOR_HEADING"; return 1 ;;
+    esac
+
+    set -- $ITEM_FILES
+    if [ "$#" -ne 1 ]; then
+        parse_err "$_pa_src" "$_pa_ln" "Anchor must name exactly one file"
+        return 1
+    fi
+    PENDING_ANCHOR_NAME=$1
+    PENDING_ANCHOR_PATH=$(target_for "$PENDING_ANCHOR_NAME")
+    if [ ! -f "$PENDING_ANCHOR_PATH" ]; then
+        parse_err "$_pa_src" "$_pa_ln" \
+            "Anchor names a file that does not exist: $PENDING_ANCHOR_NAME (looked in $PENDING_ANCHOR_PATH)"
+        return 1
+    fi
+
+    _pa_count=$(grep -F -x -c -e "$PENDING_ANCHOR_HEADING" -- "$PENDING_ANCHOR_PATH")
+    _pa_status=$?
+    if [ "$_pa_status" -ne 0 ]; then
+        parse_err "$_pa_src" "$_pa_ln" "could not count the anchored heading in $PENDING_ANCHOR_NAME"
+        return 1
+    fi
+    if [ "$_pa_count" -ne 1 ]; then
+        parse_err "$_pa_src" "$_pa_ln" \
+            "anchored heading must occur exactly once in $PENDING_ANCHOR_NAME; found $_pa_count"
+        return 1
+    fi
+
+    printf '%s\n' "$PENDING_ANCHOR_HEADING" > "$SCRATCH_DIR/heading"
+    awk '
+        NR == FNR { wanted = $0; next }
+        {
+            line = $0
+            sub(/\r$/, "", line)
+            plain = line
+            sub(/^[ \t]*/, "", plain)
+            if (!started && line == wanted) {
+                started = 1
+                level = 0
+                while (substr(plain, level + 1, 1) == "#") level++
+            }
+            if (started) {
+                if (line != wanted && plain ~ /^#+[ \t]/) {
+                    next_level = 0
+                    while (substr(plain, next_level + 1, 1) == "#") next_level++
+                    if (next_level <= level) exit
+                }
+                sub(/[ \t]+$/, "", line)
+                print line
+            }
+        }
+        END { if (!started) exit 1 }
+    ' "$SCRATCH_DIR/heading" "$PENDING_ANCHOR_PATH" > "$SECTION_FILE"
+    _pa_status=$?
+    if [ "$_pa_status" -ne 0 ] || [ ! -s "$SECTION_FILE" ]; then
+        parse_err "$_pa_src" "$_pa_ln" "could not extract the anchored section from $PENDING_ANCHOR_NAME"
+        return 1
+    fi
+    return 0
+}
+
+parse_digest() { # rest src ln
+    _pd_rest=$1
+    _pd_src=$2
+    _pd_ln=$3
+    case $_pd_rest in
+        '`'*) ;;
+        *) parse_err "$_pd_src" "$_pd_ln" "Rule digest must be one sha256 code span"; return 1 ;;
+    esac
+    _pd_after=${_pd_rest#'`'}
+    case $_pd_after in
+        *'`'*) ;;
+        *) parse_err "$_pd_src" "$_pd_ln" "unterminated Rule digest code span"; return 1 ;;
+    esac
+    PENDING_DIGEST=${_pd_after%%'`'*}
+    _pd_tail=${_pd_after#*'`'}
+    if [ -n "$_pd_tail" ]; then
+        parse_err "$_pd_src" "$_pd_ln" "trailing text after Rule digest: $_pd_tail"
+        return 1
+    fi
+    case $PENDING_DIGEST in sha256:*) ;;
+        *) parse_err "$_pd_src" "$_pd_ln" "Rule digest must be sha256 followed by 64 lowercase hexadecimal characters"; return 1 ;;
+    esac
+    _pd_hex=${PENDING_DIGEST#sha256:}
+    case $_pd_hex in *[!0-9a-f]*|'')
+        parse_err "$_pd_src" "$_pd_ln" "Rule digest must be sha256 followed by 64 lowercase hexadecimal characters"
+        return 1 ;;
+    esac
+    if [ "${#_pd_hex}" -ne 64 ]; then
+        parse_err "$_pd_src" "$_pd_ln" "Rule digest must be sha256 followed by 64 lowercase hexadecimal characters"
+        return 1
+    fi
+    return 0
+}
+
+check_section_digest() { # src override-line
+    _sd_src=$1
+    _sd_ln=$2
+    if command -v sha256sum >/dev/null 2>&1; then
+        _sd_actual=$(sha256sum "$SECTION_FILE" | awk '{print $1}')
+    elif command -v shasum >/dev/null 2>&1; then
+        _sd_actual=$(shasum -a 256 "$SECTION_FILE" | awk '{print $1}')
+    elif command -v openssl >/dev/null 2>&1; then
+        _sd_actual=$(openssl dgst -sha256 "$SECTION_FILE" | awk '{print $NF}')
+    else
+        parse_err "$_sd_src" "$_sd_ln" "cannot calculate the required SHA-256 Rule digest (need sha256sum, shasum, or openssl)"
+        return 1
+    fi
+    case $_sd_actual in *[!0-9a-f]*|'')
+        parse_err "$_sd_src" "$_sd_ln" "could not calculate a SHA-256 Rule digest"
+        return 1 ;;
+    esac
+    if [ "${#_sd_actual}" -ne 64 ]; then
+        parse_err "$_sd_src" "$_sd_ln" "could not calculate a SHA-256 Rule digest"
+        return 1
+    fi
+    if [ "sha256:$_sd_actual" != "$PENDING_DIGEST" ]; then
+        report_stale \
+          "$_sd_src:$_sd_ln: STALE — section digest $PENDING_DIGEST (current sha256:$_sd_actual) no longer matches $PENDING_ANCHOR_NAME ($PENDING_ANCHOR_PATH)"
+    fi
+    return 0
+}
+
 # Search one item's quoted words in each file it names.
 search_item() { # words files src ln
     _si_words=$1
@@ -325,6 +501,37 @@ search_item() { # words files src ln
     _si_ln=$4
 
     for _si_name in $_si_files; do
+        if [ -n "$ACTIVE_ANCHOR_NAME" ]; then
+            if [ "$_si_name" != "$ACTIVE_ANCHOR_NAME" ]; then
+                parse_err "$_si_src" "$_si_ln" \
+                    "an Override's Dead words must name its anchored file $ACTIVE_ANCHOR_NAME, not $_si_name"
+                continue
+            fi
+            _si_nonblank=$(printf '%s' "$_si_words" | tr -d '[:space:]' | wc -c | tr -d ' ')
+            if [ "$_si_nonblank" -lt 16 ]; then
+                parse_err "$_si_src" "$_si_ln" \
+                    "an Override's quoted words have $_si_nonblank non-whitespace bytes; the minimum anchor is 16"
+                continue
+            fi
+            printf '%s\n' "$_si_words" > "$WORDS_FILE"
+            _si_count=$(awk 'NR == FNR { needle = $0; next }
+                { rest = $0; while ((at = index(rest, needle)) != 0) { count++; rest = substr(rest, at + length(needle)) } }
+                END { print count + 0 }' "$WORDS_FILE" "$SECTION_FILE")
+            _si_status=$?
+            if [ "$_si_status" -ne 0 ]; then
+                parse_err "$_si_src" "$_si_ln" "could not search the anchored section in $ACTIVE_ANCHOR_NAME"
+                continue
+            fi
+            checked=$((checked + 1))
+            case $_si_count in
+                0) report_stale \
+                   "$_si_src:$_si_ln: STALE — \`$_si_words\` no longer appears in the anchored section of $ACTIVE_ANCHOR_NAME ($ACTIVE_ANCHOR_PATH)" ;;
+                1) ;;
+                *) parse_err "$_si_src" "$_si_ln" \
+                   "an Override's quoted words occur $_si_count times in the anchored section; they must occur exactly once" ;;
+            esac
+            continue
+        fi
         _si_target=$(target_for "$_si_name")
         if [ ! -f "$_si_target" ]; then
             parse_err "$_si_src" "$_si_ln" \
@@ -483,7 +690,7 @@ entry_kind() { # already-ltrimmed line
 # line, because that is the line the user has to fix.
 err_no_dead_words() { # path lineno
     parse_err "$1" "$2" \
-       "an **Override** entry with no valid $MARKER line before the next entry, the next heading, or the end of the file — an Override must quote the playbook's exact words that no longer apply, or nothing can tell you when it went stale. Check the marker's spelling: it is exactly $MARKER"
+       "an **Override** entry with no complete verifier before the next entry, the next heading, or the end of the file — it must carry $ANCHOR_MARKER, $DIGEST_MARKER, and a valid $MARKER line"
 }
 
 # Read one local file and check every **Dead words:** line in it.
@@ -491,6 +698,7 @@ check_file() {
     _cf_path=$1
     _cf_lineno=0
     _cf_override_line=0
+    clear_verifier
     FENCE_CHAR=''
     FENCE_LEN=0
     FENCE_LINE=0
@@ -531,7 +739,33 @@ check_file() {
         fi
 
         case $_cf_trimmed in
-            "$MARKER"*) _cf_override_line=0 ;;
+            "$ANCHOR_MARKER"*)
+               if [ "$_cf_override_line" -eq 0 ] || [ -n "$PENDING_ANCHOR_PATH" ]; then
+                   parse_err "$_cf_path" "$_cf_lineno" "$ANCHOR_MARKER is valid only once inside the Override it verifies"
+                   continue
+               fi
+               _cf_anchor=${_cf_trimmed#"$ANCHOR_MARKER"}
+               case $_cf_anchor in
+                   ' '*|"$TAB"*) _cf_anchor=$(ltrim "$_cf_anchor") ;;
+                   *) parse_err "$_cf_path" "$_cf_lineno" "$ANCHOR_MARKER must continue with an anchored Markdown heading"; continue ;;
+               esac
+               parse_anchor "$_cf_anchor" "$_cf_path" "$_cf_lineno" || :
+               continue
+               ;;
+            "$DIGEST_MARKER"*)
+               if [ "$_cf_override_line" -eq 0 ] || [ -z "$PENDING_ANCHOR_PATH" ] || [ -n "$PENDING_DIGEST" ]; then
+                   parse_err "$_cf_path" "$_cf_lineno" "$DIGEST_MARKER is valid once after a valid $ANCHOR_MARKER inside the Override it verifies"
+                   continue
+               fi
+               _cf_digest=${_cf_trimmed#"$DIGEST_MARKER"}
+               case $_cf_digest in
+                   ' '*|"$TAB"*) _cf_digest=$(ltrim "$_cf_digest") ;;
+                   *) parse_err "$_cf_path" "$_cf_lineno" "$DIGEST_MARKER must continue with a sha256 code span"; continue ;;
+               esac
+               parse_digest "$_cf_digest" "$_cf_path" "$_cf_lineno" || :
+               continue
+               ;;
+            "$MARKER"*) ;;
             *) # Not a Dead-words line. A bare marker anywhere else is an error,
                # never a silently skipped entry; inside a code span it is prose.
                # The marker IS on this line, misplaced, so it neither satisfies
@@ -558,9 +792,11 @@ check_file() {
                    if [ "$_cf_override_line" -ne 0 ]; then
                        err_no_dead_words "$_cf_path" "$_cf_override_line"
                        _cf_override_line=0
+                       clear_verifier
                    fi
                    if [ "$ENTRY_KIND" = override ]; then
                        _cf_override_line=$_cf_lineno
+                       clear_verifier
                    fi
                fi
                continue ;;
@@ -584,7 +820,21 @@ check_file() {
             continue
         fi
 
-        check_items "$_cf_rest" "$_cf_path" "$_cf_lineno"
+        if [ "$_cf_override_line" -ne 0 ]; then
+            if [ -z "$PENDING_ANCHOR_PATH" ] || [ -z "$PENDING_DIGEST" ]; then
+                parse_err "$_cf_path" "$_cf_override_line" \
+                    "this Override's $MARKER line has no complete verifier: add $ANCHOR_MARKER and $DIGEST_MARKER before it"
+            else
+                ACTIVE_ANCHOR_NAME=$PENDING_ANCHOR_NAME
+                ACTIVE_ANCHOR_PATH=$PENDING_ANCHOR_PATH
+                check_section_digest "$_cf_path" "$_cf_override_line" || :
+                check_items "$_cf_rest" "$_cf_path" "$_cf_lineno"
+            fi
+            _cf_override_line=0
+            clear_verifier
+        else
+            check_items "$_cf_rest" "$_cf_path" "$_cf_lineno"
+        fi
     done < "$_cf_path"
 
     # The redirect above can still fail on a file that passed [ -r ] a moment
@@ -603,6 +853,7 @@ check_file() {
     # An Override still waiting for its words at the end of the file.
     if [ "$_cf_override_line" -ne 0 ]; then
         err_no_dead_words "$_cf_path" "$_cf_override_line"
+        clear_verifier
     fi
 }
 
@@ -668,6 +919,15 @@ if [ -z "$present" ] && [ "$errors" -eq 0 ]; then
     counts
     exit 0
 fi
+
+SCRATCH_DIR=$(mktemp -d "${TMPDIR:-/tmp}/claude-code-playbook-check-local.XXXXXX") || {
+    err "$PROG: cannot create private scratch space for local-layer verification"
+    counts
+    exit 2
+}
+SECTION_FILE=$SCRATCH_DIR/section
+WORDS_FILE=$SCRATCH_DIR/words
+trap cleanup_scratch EXIT HUP INT TERM
 
 for name in $present; do
     check_file "$local_dir/$name"

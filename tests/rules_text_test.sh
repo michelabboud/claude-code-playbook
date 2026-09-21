@@ -88,7 +88,7 @@ assert_eq "section 0's paragraph defines an Add and reserves the L numbers" \
 assert_eq "section 0's paragraph defines an Override and its stale case" \
     1 "$(count_in_text 'A stale Override is **suspended**: tell me before relying on it' "$PARA")"
 assert_eq "section 0's paragraph says an absent local file means nothing is customized" \
-    1 "$(count_in_text 'A missing local file means nothing is customized.' "$PARA")"
+    1 "$(count_in_text 'A local file that is absent means nothing is customized.' "$PARA")"
 assert_eq "section 0's paragraph denies the local layer any new authority" \
     1 "$(count_in_text 'Its authority comes only from this paragraph and never extends beyond it.' "$PARA")"
 

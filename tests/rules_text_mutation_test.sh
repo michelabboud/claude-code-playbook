@@ -175,13 +175,13 @@ check_mutation "the absent-local-file sentence moved out of the paragraph is cau
     'move_to_end "$M/rules/AUTHORITY.md" "A local file that is absent means nothing is customized."'
 
 check_mutation "the never-adds-authority sentence moved out of the paragraph is caught" \
-    'move_to_end "$M/rules/AUTHORITY.md" "The local layer carries my standing customizations; it never adds authority the approval table doesn'"'"'t have, except by adding a row in so many words."'
+    'move_to_end "$M/rules/AUTHORITY.md" "A local entry may never expand authority, remove an approval, relax a safety, destructive, security, or secret-handling constraint, change precedence, or override this paragraph."'
 
 check_mutation "hook 3 moved to the end of CLAUDE.md is caught" \
     'l=$(grep -F -e "My own customizations live in" -- "$M/CLAUDE.md") && drop_line "$M/CLAUDE.md" "My own customizations live in" && printf "\n%s\n" "$l" >> "$M/CLAUDE.md"'
 
 check_mutation "the Fill definition restated only at the end of the file is caught" \
-    'move_to_end "$M/rules/AUTHORITY.md" "a **Fill** supplies a value a rule leaves open or binds a generic term to what I actually have"'
+    'move_to_end "$M/rules/AUTHORITY.md" "A **Fill** supplies only a value a rule leaves open"'
 
 check_mutation "the map's entry renamed with its title left in a comment is caught" \
     'replace_in_file "$M/docs/index.html" "{t:\"The local layer — customizations the playbook never touches\",c:\"" "{t:\"Local customizations\",c:\"" && printf "%s\n" "<!-- The local layer — customizations the playbook never touches -->" >> "$M/docs/index.html"'
@@ -192,7 +192,7 @@ check_mutation "section 0 going back to 'without opening these two' is caught" \
     'replace_in_file "$M/rules/AUTHORITY.md" "an update replaces the playbook'"'"'s files and never writes to, copies over or replaces these two" "an update replaces the playbook'"'"'s files without opening these two"'
 
 check_mutation "CLAUDE.md going back to 'never ships or touches' is caught" \
-    'replace_in_file "$M/CLAUDE.md" "The playbook never ships those two files, and an update never writes to, copies over or replaces them" "The playbook never ships or touches those two files"'
+    'replace_in_file "$M/CLAUDE.md" "The playbook never ships them, and an update never writes to, copies over or replaces them" "The playbook never ships or touches those two files"'
 
 # --- a template shipping a live entry ----------------------------------------
 
@@ -226,7 +226,7 @@ check_mutation "U2's exit-1 row saying Continue instead of Stop is caught" \
     'replace_in_file "$M/INSTALL.md" "| **Stop.** Show the user each reported line" "| **Continue.** Show the user each reported line"'
 
 check_mutation "migration copying over an existing local file is caught" \
-    'drop_line "$M/INSTALL.md" "**Stop and do not copy.**"'
+    'drop_line "$M/INSTALL.md" "**Stop this migration and do not copy.**"'
 
 check_mutation "migration not staging the new version is caught" \
     'drop_line "$M/INSTALL.md" "**Step M1b — Stage the new version too.**"'
