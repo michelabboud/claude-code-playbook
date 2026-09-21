@@ -436,6 +436,33 @@ has_bare_marker() { # raw line
     return 1
 }
 
+# A Markdown-looking entry outside this small documented grammar must not be
+# silently ignored. Complete code spans are removed so prose can name the
+# grammar without becoming an entry.
+has_unrecognized_entry_marker() { # raw line
+    _he_out=''
+    _he_r=$1
+    while :; do
+        case $_he_r in
+            *'`'*'`'*)
+                _he_out=$_he_out${_he_r%%'`'*}
+                _he_r=${_he_r#*'`'}
+                _he_r=${_he_r#*'`'}
+                ;;
+            *) break ;;
+        esac
+    done
+    _he_out=$_he_out$_he_r
+    _he_out=$(ltrim "$_he_out")
+    case $_he_out in
+        [0-9]*.\ \*\*Override*|[0-9]*.\ \*\*Fill*|[0-9]*.\ \*\*Add*|\
+        \>\ \*\*Override*|\>\ \*\*Fill*|\>\ \*\*Add*|\
+        \#*\ \*\*Override*|\#*\ \*\*Fill*|\#*\ \*\*Add*|\
+        \*\*\*Override*|\*\*\*Fill*|\*\*\*Add*) return 0 ;;
+    esac
+    return 1
+}
+
 # Which kind of entry does this line open, if any? Sets ENTRY_KIND to
 # "override", "other" (a Fill or an Add) or "" (not an entry line at all).
 # The caller passes the already-ltrimmed line; a "- " or "* " list bullet is
@@ -476,9 +503,21 @@ check_file() {
         return
     fi
 
+    # A shell variable cannot carry NUL. Compare the original byte stream to a
+    # NUL-free stream before line parsing; an unavailable scan is unsafe too.
+    if ! LC_ALL=C tr -d '\000' < "$_cf_path" | cmp -s "$_cf_path" -; then
+        parse_err "$_cf_path" 0 "contains a NUL byte, or its binary-safety scan failed — a local layer must be text"
+        return
+    fi
+
     while IFS= read -r _cf_line || [ -n "$_cf_line" ]; do
         _cf_lineno=$((_cf_lineno + 1))
         _cf_line=${_cf_line%"$CR"}
+        if [ "${#_cf_line}" -gt "$MAX_LINE_BYTES" ]; then
+            parse_err "$_cf_path" "$_cf_lineno" \
+               "local-layer line is ${#_cf_line} bytes long; the bound is $MAX_LINE_BYTES bytes"
+            continue
+        fi
         _cf_trimmed=$(ltrim "$_cf_line")
 
         if [ -n "$FENCE_CHAR" ]; then
@@ -509,6 +548,12 @@ check_file() {
                    '#'*) ENTRY_KIND=heading ;;
                    *)    entry_kind "$_cf_trimmed" ;;
                esac
+               if { [ -z "$ENTRY_KIND" ] || [ "$ENTRY_KIND" = heading ]; } && has_unrecognized_entry_marker "$_cf_line"; then
+                   parse_err "$_cf_path" "$_cf_lineno" \
+                      "looks like a Fill, Add, or Override but is not in the canonical entry shape (optional - or * bullet, then **Override**, **Fill**, or **Add**) — refusing a silently ignored entry"
+                   _cf_override_line=0
+                   continue
+               fi
                if [ -n "$ENTRY_KIND" ]; then
                    if [ "$_cf_override_line" -ne 0 ]; then
                        err_no_dead_words "$_cf_path" "$_cf_override_line"
@@ -520,15 +565,6 @@ check_file() {
                fi
                continue ;;
         esac
-
-        # A quotation is a sentence, not a payload. Beyond the bound the line is
-        # a runaway paste, and handing it to grep is how "argument list too long"
-        # becomes the error the user has to decode.
-        if [ "${#_cf_line}" -gt "$MAX_LINE_BYTES" ]; then
-            parse_err "$_cf_path" "$_cf_lineno" \
-               "$MARKER line is ${#_cf_line} bytes long; the bound is $MAX_LINE_BYTES bytes"
-            continue
-        fi
 
         _cf_rest=${_cf_trimmed#"$MARKER"}
         case $_cf_rest in
@@ -572,9 +608,11 @@ check_file() {
 
 # ---------------------------------------------------------------- arguments
 
-case ${1:-} in
-    -h|--help) usage; exit 0 ;;
-esac
+if [ "$#" -eq 1 ]; then
+    case ${1:-} in
+        -h|--help) usage; exit 0 ;;
+    esac
+fi
 
 if [ $# -lt 2 ] || [ $# -gt 3 ]; then
     die_usage "expected 2 or 3 arguments, got $#"

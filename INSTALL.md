@@ -54,8 +54,9 @@ None of that is yours to move, merge, tidy, or "clean up".
 unless the user asks you to, and do not read them except where a step below tells
 you to.** They are the whole reason an update is a copy instead of a merge. This
 repository does not ship either file; it ships *templates* for them, in
-`templates/`. The only thing that ever opens them is the staleness check in step
-U2, which reads them and writes nothing.
+`templates/`. The update, migration, uninstall, and backup procedures open them
+only at their named compatibility or preservation steps; the staleness check is
+the only mechanism that interprets an Override and it writes nothing.
 
 **Nothing but rule files may live under `~/.claude/rules/`.** Claude Code loads
 that folder **recursively**, so any Markdown file in any subfolder of it becomes
@@ -378,11 +379,12 @@ layer that has not passed this.
 | In `~/.claude/rules/` | What you do |
 |---|---|
 | The file is not there | Copy the approved one from `<scratch>/local/` into place. |
-| The file is already there | **Stop and do not copy.** Show the user the difference between their file and the approved one, and let them merge it by hand. A half-migrated installation, or a local file they wrote themselves, is exactly the case this protects — and "the backup makes it recoverable" is not the rule. The rule is never. |
+| The file is already there | **Stop this migration and do not copy.** Show the user the difference between their file and the approved one, and let them merge it by hand. Do not run steps 2, 3, or 5: the managed text and the approved local layer must arrive as one checked change. A half-migrated installation, or a local file they wrote themselves, is exactly the case this protects — and "the backup makes it recoverable" is not the rule. The rule is never. |
 
-Then run steps 2, 3 and 5. Tell the user which of their edits became which entry,
-which ones you are holding as upstream candidates, and — if either local file was
-already there — that its merge is still outstanding and theirs to do.
+If neither local file already existed, run steps 2, 3 and 5. Tell the user which
+of their edits became which entry and which ones you are holding as upstream
+candidates. If either existed, report the migration as blocked on its owner-led
+merge; leave every managed file unchanged.
 
 ---
 
@@ -403,6 +405,14 @@ and rule, and is the fastest way for them to see what they just installed.
 ---
 
 ## Uninstalling
+
+**Preflight before any restore or deletion.** Stage the backup's managed files
+(or an empty staged rules directory when there is no backup) in scratch and run
+`sh scripts/check-local.sh ~/.claude/rules <staged-rules> <staged-CLAUDE.md>`.
+Exit 0 is required. Exit 1 means an Override would become stale; it is suspended
+until its owner rewrites it. Exit 2 is an unusable local layer. In either case,
+do not restore or delete managed files: show the owner the result and keep the
+stricter protection in force.
 
 Restore the timestamped backups from step 1 over `~/.claude/CLAUDE.md` and the
 rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or

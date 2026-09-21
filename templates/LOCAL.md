@@ -1,6 +1,6 @@
 # LOCAL · my local layer — loads every session
 
-*This file is mine, not the playbook's. The playbook never ships it, and an update never writes to, copies over or replaces it — it replaces the playbook's own files and reads this one only to check it. Section 0 ("The local layer") gives it its force: **where an entry here changes a rule, the entry wins over the playbook's wording.** Its sibling `LOCAL_dev.md` carries the entries for the source-scoped sections (1, 2, 3, 6, 8 and the roster) and loads with them.*
+*This file is mine, not the playbook's. The playbook never ships it, and an update never writes to, copies over or replaces it — it replaces the playbook's own files and reads this one only to check it. Section 0 ("The local layer") limits its force: it may fill open values, add non-authorizing guidance, or tighten a constraint; it never expands authority, removes approval, relaxes protection, changes precedence, or overrides that boundary. Its sibling `LOCAL_dev.md` carries the entries for the source-scoped sections (1, 2, 3, 6, 8 and the roster) and loads with them.*
 
 *Written against **playbook <VERSION>** — fill in the number on the `This rulebook is version` line of `CLAUDE.md`, so a later reader knows what this file was checked against.*
 
@@ -14,9 +14,10 @@ needed. If you only have a few lines of customization, this file is all you
 need — `LOCAL_dev.md` exists only so that entries about code, tests, reviews,
 workflow, subagents and the roster load when those sections do, and not before.
 
-**An entry never adds authority the approval table doesn't have** — unless it
-adds a row to that table in so many words. The local layer tailors the rules;
-it does not invent new gates.
+**An entry never adds authority or removes approval.** It never relaxes a
+safety, destructive, security, or secret-handling constraint, changes
+precedence, or overrides the paragraph that sets those limits. The local layer
+tailors rules only within that boundary.
 
 **If an entry here would be a better rule for everyone, send it upstream** and
 then delete it from this file. A local layer that grows into a second rulebook
@@ -33,10 +34,10 @@ has stopped doing its job.
 **Why an Override quotes dead words.** It is the one kind that leaves two texts
 alive for one rule, so it has to say precisely which text lost. If the playbook
 later rewrites that sentence, the quoted words are no longer there — the
-override is **stale**, it is arguing with text nobody will read, and you must be
-told before you rely on it. `scripts/check-local.sh` in the playbook repository
-checks that mechanically, and the update procedure in `INSTALL.md` runs it
-against the new text *before* anything is copied.
+override is **stale** and suspended: it has no force until its owner rewrites
+it. If its scope or freshness is unclear, use the stricter constraint and hold
+the affected action for the owner. `scripts/check-local.sh` checks that
+mechanically before an update or restore changes managed text.
 
 ## The grammar of a Dead-words line
 

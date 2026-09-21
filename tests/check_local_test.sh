@@ -1038,4 +1038,42 @@ assert_status "one file present, one missing: exit 2" 2 "$STATUS"
 assert_contains "a missing named file is not counted as a search" \
     "$OUT" "1 search(es), 0 stale, 1 error(s)"
 
+# ---------------------------------------------------------------------------
+# 34. Binary, option-shaped, and almost-Markdown inputs are refusals.
+#
+# These are all inputs a human or an editor can produce.  An exit 0 would let
+# an Override bypass the only freshness proof it has.
+# ---------------------------------------------------------------------------
+mkcase nulbyte
+printf '# LOCAL\n\n**Override — binary words.**\n**Dead words:** `prefix\000suffix` (in `A.md`)\n' \
+    >"$CASE/local/LOCAL.md"
+printf 'prefixsuffix\n' >"$CASE/rules/A.md"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "a NUL byte in a local file: exit 2" 2 "$STATUS"
+assert_contains "a NUL byte: says why" "$ERRO" "NUL"
+
+mkcase optionpath
+mkdir -- "$CASE/local/-h"
+OUT=$(cd "$CASE/local" && sh "$SCRIPT_ABS" -h "$CASE/rules" "$CASE/CLAUDE.md" 2>&1)
+STATUS=$?
+assert_status "a local directory literally named -h is a path, not help: exit 2" 2 "$STATUS"
+
+for shape in numbered blockquote heading italicbold; do
+    mkcase "unrecognized-$shape"
+    case $shape in
+        numbered)   line='1. **Override — numbered list.**' ;;
+        blockquote) line='> **Override — block quote.**' ;;
+        heading)    line='## **Override — heading.**' ;;
+        italicbold) line='***Override — italic bold.***' ;;
+    esac
+    printf '# LOCAL\n\n%s\n' "$line" >"$CASE/local/LOCAL.md"
+    run_check "$CASE/local" "$CASE/rules"
+    assert_status "an unrecognized $shape Override is refused: exit 2" 2 "$STATUS"
+done
+
+mkcase overlongprose
+xbytes $((BOUND + 1)) >"$CASE/local/LOCAL.md"
+run_check "$CASE/local" "$CASE/rules"
+assert_status "an overlong prose line is refused: exit 2" 2 "$STATUS"
+
 finish
