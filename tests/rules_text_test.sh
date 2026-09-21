@@ -79,18 +79,18 @@ assert_eq "hook 1 is absent from CLAUDE.md" \
 A=$ROOT/rules/AUTHORITY.md
 PARA=$(paragraph_with "$HOOK1" "$A")
 assert_contains "the section-0 paragraph was found at all" "$PARA" 'The local layer:'
-assert_eq "section 0's paragraph states that a local entry wins over the playbook's wording" \
-    1 "$(count_in_text 'where an entry there changes a rule, the entry wins over the playbook'"'"'s wording' "$PARA")"
+assert_eq "section 0's paragraph limits local entries to a safe boundary" \
+    1 "$(count_in_text 'A local entry may never expand authority, remove an approval, relax a safety, destructive, security, or secret-handling constraint, change precedence, or override this paragraph.' "$PARA")"
 assert_eq "section 0's paragraph defines a Fill" \
-    1 "$(count_in_text 'a **Fill** supplies a value a rule leaves open' "$PARA")"
+    1 "$(count_in_text 'A **Fill** supplies only a value a rule leaves open' "$PARA")"
 assert_eq "section 0's paragraph defines an Add and reserves the L numbers" \
-    1 "$(count_in_text 'an **Add** is a rule or note the playbook lacks, its sections numbered `L1`, `L2`, … — numbers the playbook never uses' "$PARA")"
+    1 "$(count_in_text 'non-authorizing guidance or a stricter constraint' "$PARA")"
 assert_eq "section 0's paragraph defines an Override and its stale case" \
-    1 "$(count_in_text 'the override is stale and you tell me before relying on it' "$PARA")"
+    1 "$(count_in_text 'A stale Override is **suspended**: tell me before relying on it' "$PARA")"
 assert_eq "section 0's paragraph says an absent local file means nothing is customized" \
-    1 "$(count_in_text 'A local file that is absent means nothing is customized.' "$PARA")"
+    1 "$(count_in_text 'A missing local file means nothing is customized.' "$PARA")"
 assert_eq "section 0's paragraph denies the local layer any new authority" \
-    1 "$(count_in_text 'it never adds authority the approval table doesn'"'"'t have, except by adding a row in so many words' "$PARA")"
+    1 "$(count_in_text 'Its authority comes only from this paragraph and never extends beyond it.' "$PARA")"
 
 # The claim the mechanical review corrected: the check script reads both local
 # files, so "never opens them" was never true. What the paragraph may say is
@@ -172,10 +172,10 @@ assert_eq "CLAUDE.md still reads VERSION as the source of truth" \
 
 # Hook 3's own paragraph carries the two things it exists to say.
 H3PARA=$(paragraph_with "$HOOK3" "$C")
-assert_eq "hook 3's paragraph says the playbook never ships or replaces the local files" \
-    1 "$(count_in_text 'The playbook never ships those two files, and an update never writes to, copies over or replaces them' "$H3PARA")"
-assert_eq "hook 3's paragraph says a local entry wins" \
-    1 "$(count_in_text 'where an entry there changes a rule, the entry wins' "$H3PARA")"
+assert_eq "hook 3's paragraph says the playbook never ships the local files" \
+    1 "$(count_in_text 'The playbook never ships them' "$H3PARA")"
+assert_eq "hook 3's paragraph states the local boundary" \
+    1 "$(count_in_text 'They may fill open values, add non-authorizing guidance, or tighten a constraint' "$H3PARA")"
 assert_eq "CLAUDE.md never claims the playbook does not touch the local files" \
     0 "$(count_in_file 'never ships or touches' "$C")"
 
@@ -320,7 +320,7 @@ assert_eq "the copy is file by file and never replaces the rules directory" \
 assert_eq "a template is never copied over an existing local file" \
     1 "$(count_in_file 'not copy the template over it and do not merge into it' "$I")"
 assert_eq "migration copies only a local file that is not already there" \
-    1 "$(count_in_file '**Stop and do not copy.**' "$I")"
+    1 "$(count_in_file '**Stop this migration and do not copy.**' "$I")"
 assert_eq "the uninstall restore exempts the local files" \
     1 "$(count_in_file 'and never `LOCAL.md` or' "$I")"
 for code in 1 2; do

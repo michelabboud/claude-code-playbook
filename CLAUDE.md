@@ -22,7 +22,7 @@ curl -fsSL https://raw.githubusercontent.com/michelabboud/claude-code-playbook/m
 
 *The rules live in `~/.claude/rules/`, one file per section, numbered `<section>.<rule>` so a new rule never renumbers its neighbours. Section 0 is always the first thing to read after this page.*
 
-*My own customizations live in `rules/LOCAL.md` and `rules/LOCAL_dev.md` — the local layer. They may fill open values, add non-authorizing guidance, or tighten a constraint; they never expand authority, remove approvals, relax protections, change precedence, or override section 0's local-layer boundary. A stale Override is suspended. Read `LOCAL.md` with this page; a missing file means nothing is customized.*
+*My own customizations live in `rules/LOCAL.md` and `rules/LOCAL_dev.md` — the local layer. The playbook never ships them, and an update never writes to, copies over or replaces them. They may fill open values, add non-authorizing guidance, or tighten a constraint; they never expand authority, remove approvals, relax protections, change precedence, or override section 0's local-layer boundary. A stale Override is suspended. Read `LOCAL.md` with this page; a missing file means nothing is customized.*
 
 ## The rulebook — sections, what they cover, when to open them
 
