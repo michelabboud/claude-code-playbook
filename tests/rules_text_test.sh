@@ -355,4 +355,17 @@ printf '# LOCAL\n\n  **Dead words:** `%s` (in `%s`)\n' \
 out=$(sh "$ROOT/scripts/check-local.sh" "$TMPROOT/local" "$ROOT/rules" 2>&1); st=$?
 assert_status "CLAUDE.md resolves in this repository's layout: exit 0" 0 "$st"
 
+# The guide's copyable Override must actually satisfy the current checker;
+# naming the verifier in surrounding prose is not enough.
+awk '
+    /^- \*\*Override/ { example = 1 }
+    example && /^```/ { exit }
+    example { print }
+' "$ROOT/docs/guides/local-layer.md" >"$TMPROOT/local/LOCAL.md"
+assert_eq "the guide provides a complete live Override example" 1 \
+    "$(count_in_file '**Rule digest:**' "$TMPROOT/local/LOCAL.md")"
+out=$(sh "$ROOT/scripts/check-local.sh" "$TMPROOT/local" "$ROOT/rules" 2>&1); st=$?
+assert_status "the guide Override verifies against the shipped rules" 0 "$st"
+assert_contains "the guide example checks one anchored quotation" "$out" "1 search(es), 0 stale, 0 error(s)"
+
 finish

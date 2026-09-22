@@ -1,8 +1,10 @@
 # The local layer — how to make this rulebook yours without forking it
 
 *The decision and the alternatives rejected are in
-[`../adr/0004-the-local-layer.md`](../adr/0004-the-local-layer.md). This guide is
-how to use it.*
+[`../adr/0004-the-local-layer.md`](../adr/0004-the-local-layer.md); the section
+verifier superseding its original phrase search is in
+[`../adr/0005-verifiable-local-overrides.md`](../adr/0005-verifiable-local-overrides.md).
+This guide describes the current contract.*
 
 ---
 
@@ -38,8 +40,8 @@ of entry and one check.
 | `~/.claude/rules/LOCAL_dev.md` | with the six source-scoped sections | entries about sections 1, 2, 3, 6, 8 and the roster |
 
 Start from `templates/LOCAL.md` and `templates/LOCAL_dev.md` in this repository.
-**If you have only a few lines of customization, use the first file and delete
-the second.** A local file that is absent means nothing is customized.
+**If you have only a few lines of customization, create only the first file.**
+A local file that is absent means nothing is customized.
 
 The second file exists for one reason. The playbook deliberately scopes six of
 its files — `CODE`, `TESTING`, `REVIEWS`, `WORKFLOW`, `SUBAGENTS`, `ROSTER` — to
@@ -59,19 +61,18 @@ The obvious design is "read the local file last, so it wins". It does not work.
 The harness loads every file under `rules/` with **no promised order**, and
 nothing in a Markdown file can change that.
 
-So the precedence is written down instead, once, in the one file that is always
-read. Section 0, `rules/AUTHORITY.md`, under *The local layer*:
-
-> **where an entry there changes a rule, the entry wins over the playbook's
-> wording.**
+Section 0, `rules/AUTHORITY.md`, under *The local layer*, defines the limits
+regardless of reading order: entries may fill open values, add non-authorizing
+guidance, or tighten constraints. They never expand authority, remove approval,
+relax safety or secret-handling protections, change precedence, or override the
+paragraph that sets those limits.
 
 Each of the six source-scoped files carries one line pointing back at that
-sentence, because a session may be reading one of them without section 0 in
+boundary, because a session may be reading one of them without section 0 in
 front of it.
 
-**A local entry never adds authority the approval table doesn't have** — unless
-it adds a row to that table in so many words. The layer tailors the rules; it
-does not invent new gates.
+**Adding a row to the approval table does not create an exception to that
+boundary.** The local layer has only the authority section 0 gives it.
 
 ## The three kinds of entry
 
@@ -98,7 +99,7 @@ commit is not always a source touch.
 
 ### Add — a rule the playbook does not have
 
-Also cheap: it contradicts nothing.
+It supplies non-authorizing guidance or a stricter constraint.
 
 ```markdown
 ## L1 · Housekeeping
@@ -115,52 +116,59 @@ An Add is also the right shape for provenance — *why* a rule is there for you,
 whose word it was, what incident produced it. That kind of note is worth
 keeping and is nobody else's business.
 
-### Override — change what a named rule says
+### Override — change a named rule within the local-layer boundary
 
 The only kind that leaves two texts alive for one rule, so it carries the most
 obligation. It must:
 
 1. **name the rule** it changes;
 2. **say what is different in whole sentences** — not a diff, not a patch;
-3. carry a `**Dead words:**` line quoting the playbook's exact words that no
-   longer apply, each with the file they are in;
-4. say which playbook version it was written against.
+3. carry an `**Anchor:**` naming one literal Markdown heading that occurs
+   exactly once in one managed file;
+4. carry a `**Rule digest:**` with the SHA-256 digest of that normalized section;
+5. carry a `**Dead words:**` quote of at least 16 non-whitespace bytes, occurring
+   exactly once inside that section and naming the same file;
+6. say which playbook version it was written against.
 
 ```markdown
-- **Override — rule 8.1, the top tier never runs a dev lane.** The top tier is
-  reserved for planning and review — a role rule, not an economy rule. So the
-  hard domains — security, concurrency, Rust, unsafe code — skip the low tiers
-  and start on the **Strong** tier, and the dev escalation ladder is
-  Fast → Standard → Strong and ends there. Written against 0.1.16.
-  **Dead words:** `start on the Top tier` (in `SUBAGENTS.md`)
+- **Override — rule 9.1, recheck before binding.** In addition to checking
+  availability before assigning a port, repeat the machine and registry checks
+  immediately before binding it. Written against 0.1.16.
+  **Anchor:** `# 9 · Environment & operations — rules 9.1–9.6` (in `ENVIRONMENT.md`)
+  **Rule digest:** `sha256:84a5869934f2cf92c4ed7781bd54b376b486323a91766738d20c1c4a0a184718`
+  **Dead words:** `before assigning a port, verify it's free` (in `ENVIRONMENT.md`)
 ```
 
 **Why quote dead words rather than replace the whole rule?** Because replacing a
 rule to change one clause freezes the rest of it. Rule 3.5 is twenty kilobytes
 and changed five times in a single day; an override that had copied it would
 have silently held four of those revisions out. Quoting keeps an override as
-small as the disagreement — and it is what makes the staleness check possible.
+small as the disagreement. The digest detects changes elsewhere in that same
+section even when the quoted words survive.
 
 ## The staleness check
 
-An Override is written against a sentence. If a later release rewrites that
-sentence, the override is arguing with text nobody will read. It is **stale**,
-and you must be told before you rely on it.
+An Override is bound to a section and a quotation. If either changes, it is
+**stale and suspended**. Re-read the rule before refreshing the entry; until
+then apply the stricter constraint and hold the affected action for the owner.
 
 ```sh
 sh scripts/check-local.sh <local-dir> <rules-dir> [claude-md-path]
 ```
 
-It reads every `**Dead words:**` line in your two files and searches the named
-rule file for each quoted string, as a **fixed string** — never a regular
-expression, and with the string passed as data so one beginning with a dash is
-still a string. It writes nothing.
+For each live Override, the checker extracts the section from its heading
+through the line before the next heading of equal or higher level. It
+normalizes CRLF to LF and removes trailing spaces and tabs, verifies the
+section's SHA-256 digest, and requires its substantial quote to occur exactly
+once inside that section as a fixed string. A standalone `**Dead words:**` line
+is only a non-authorizing compatibility probe against a named file; it cannot
+activate an Override. The checker never modifies local or managed text.
 
 | Exit | Meaning |
 |---|---|
-| **0** | every quoted string was found — or you have no local layer at all |
-| **1** | at least one stale override, each reported with `file:line`, the words, and the file it was sought in |
-| **2** | a usage error, a named file that does not exist, a `**Dead words:**` line that does not parse or runs past the 4,096-byte bound, **an Override with no valid `**Dead words:**` line**, the bare marker anywhere but the start of a line, a fenced code block left open, a local file that exists and cannot be read as a regular file, or a search that failed |
+| **0** | every section digest and quote is current — or there is no local layer; this does not establish that an entry is authorized |
+| **1** | at least one changed section digest or missing quote; the affected Override is suspended |
+| **2** | invalid input or an unavailable check: incomplete verifier, ambiguous heading, short or repeated quote, missing file, malformed or oversized line, unsupported entry shape, UTF-8 BOM or NUL byte, misplaced marker, unclosed fence, unreadable local file, missing hash tool, or failed search |
 
 **Exit 2 is never a pass.** A line the check cannot read is a check that stopped
 checking, and the update stops on it exactly as it stops on a stale override.
@@ -217,11 +225,11 @@ otherwise be dropped in silence, and a staleness check that silently checks
 nothing is worse than none. Prose that needs to name the marker puts it inside a
 code span, as this guide does throughout.
 
-**An Override with no `**Dead words:**` line is an error too**, reported at the
+**An Override with no complete verifier is an error too**, reported at the
 Override's own line. This is what makes a mistyped marker — `**dead words:**`,
 `**Dead words**:`, a bare `Dead words:` — a refusal instead of a silent pass:
 without it, one wrong character turns an override into a thing nothing can ever
-call stale. The check looks for the line between the Override and the next entry
+call stale. The check looks for the verifier between the Override and the next entry
 or the next heading, where an *entry* is a line that (after optional indentation
 and an optional `- ` or `* ` bullet) begins with `**Fill`, `**Add` or
 `**Override`. A Fill and an Add owe nothing: they leave no second text to go
@@ -233,9 +241,10 @@ Override.
 
 ### What the check cannot do
 
-It catches a **rewritten sentence**. It does not catch a rule whose *meaning*
-changed somewhere your override does not quote — the words you pinned are still
-there, and the paragraph around them now says something else.
+It catches changes throughout the anchored section, including unquoted text.
+It cannot judge whether an entry expands authority or relaxes protection, or
+detect a semantic dependency changed in another section. A matching digest is
+evidence of freshness, never evidence of permission.
 
 That is why `INSTALL.md`'s update procedure has a second step: list, from
 `CHANGELOG.md`, every rule the update touched that you override, and read those.
@@ -258,6 +267,9 @@ executed by an agent or a person. In short:
   published text *of the version it records*, turn each difference into a Fill,
   an Add, an Override or an upstream candidate, get the list approved, prove it
   with the check, then install.
+- **Uninstall or restore** — stop while either local path remains active under
+  `rules/`, including Fill-only and Add-only files. The owner must decide how to
+  preserve those files outside the loaded directory before removing their base.
 
 ## Keeping a local layer honest
 
@@ -279,13 +291,16 @@ every session.
 
 ## How it was proven
 
-The design was installed on the owner's own rules on 2026-09-21 — the
+The original design was installed on the owner's own rules on 2026-09-21 — the
 hand-merged fork described at the top of this guide, converted entry by entry —
 and tested in two fresh sessions started outside any project:
 
 - the always-loaded file answered with no source file touched;
 - the source-scoped file arrived only when a source file was opened;
 - where the two texts disagreed, the local entry won.
+
+Those historical checks predate the current authority boundary and section
+verifier. They do not establish runtime acceptance of the repaired contract.
 
 The check itself is covered by `tests/check_local_test.sh`, and that suite is
 covered by `tests/mutation_test.sh`, which breaks one behaviour of the script at

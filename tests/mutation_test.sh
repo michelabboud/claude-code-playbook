@@ -329,4 +329,12 @@ check_mutation "-h alone must print usage" \
     '        -h|--help) usage; exit 0 ;;' \
     '        --help) usage; exit 0 ;;'
 
+check_mutation "a BOM-prefix bypass is caught" \
+    'UTF8_BOM=$(printf '\''\357\273\277'\'')' \
+    'UTF8_BOM=not-a-byte-order-mark'
+
+check_mutation "heading normalization cannot drop CRLF support" \
+    '        { sub(/\r$/, ""); sub(/[ \t]+$/, ""); if ($0 == wanted) count++ }' \
+    '        { if ($0 == wanted) count++ }'
+
 finish

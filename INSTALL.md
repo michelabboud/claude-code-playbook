@@ -253,12 +253,13 @@ writes nothing.
 | Exit | Meaning | What you do |
 |---|---|---|
 | **0** | every quoted string and section digest is current, or the user has no local layer | Go on to step U3. |
-| **1** | at least one **stale override** — the new text no longer contains the words that override was written against | **Stop.** Show the user each reported line and ask what the override should become. Do not copy anything. |
-| **2** | a usage error, a named file that does not exist, an Anchor, Rule digest, or `**Dead words:**` line that does not parse or is longer than 4,096 bytes, an **Override** with no complete verifier, an ambiguous heading, a short or repeated quote, the bare marker anywhere but the start of a line, a fenced code block left open, a local file that exists and cannot be read as a regular file, or a search that failed | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
+| **1** | at least one **stale override** — its section digest changed or its quote disappeared | **Stop.** Show the user each reported line and ask what the override should become. Do not copy anything. |
+| **2** | a usage error, a missing file, a malformed or oversized verifier, an **Override** with no complete verifier, an ambiguous heading, a short or repeated quote, UTF-8 BOM or NUL bytes, a misplaced marker, an unclosed fence, an unreadable local file, or an unavailable check | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
 
 **Step U3 — List the rules the update touched that the user overrides.** The
-check in U2 catches a *rewritten sentence*. It cannot catch a rule whose meaning
-changed somewhere the override does not quote. So:
+check in U2 detects changes anywhere in the anchored section. It cannot judge
+whether an entry relaxes protection or whether another section changes its
+meaning. So:
 
 1. Read the user's `LOCAL.md` and `LOCAL_dev.md` and list every rule named by an
    **Override** entry.
@@ -375,13 +376,36 @@ Exit 0 means every Override still bites against the text that is about to be
 installed. Exit 1 or 2: fix the entries and run it again. Do not install a local
 layer that has not passed this.
 
-**Step M5 — Install.** Back up first (step 1). Then, for each of `LOCAL.md` and
-`LOCAL_dev.md`:
+**Step M5 — Preflight both local paths, then install.** Before copying either
+local file or changing any managed file, check **both** destinations together.
+An existing path includes a directory or dangling symlink, not only a readable
+file. Run this read-only guard; exit 2 stops the migration:
 
-| In `~/.claude/rules/` | What you do |
+```sh
+migration_local_preflight() {
+    if [ ! -d "$1" ] || [ ! -x "$1" ]; then
+        printf 'Migration blocked: cannot inspect rules directory: %s\n' "$1" >&2
+        return 2
+    fi
+    for local_path in "$1/LOCAL.md" "$1/LOCAL_dev.md"; do
+        if [ -e "$local_path" ] || [ -L "$local_path" ]; then
+            printf 'Migration blocked: local path already exists: %s\n' "$local_path" >&2
+            return 2
+        fi
+    done
+    return 0
+}
+migration_local_preflight ~/.claude/rules || exit 2
+```
+
+| Preflight result for both destinations | What you do |
 |---|---|
-| The file is not there | Copy the approved one from `<scratch>/local/` into place. |
-| The file is already there | **Stop this migration and do not copy.** Show the user the difference between their file and the approved one, and let them merge it by hand. Do not run steps 2, 3, or 5: the managed text and the approved local layer must arrive as one checked change. A half-migrated installation, or a local file they wrote themselves, is exactly the case this protects — and "the backup makes it recoverable" is not the rule. The rule is never. |
+| Neither path exists | Back up first (step 1), re-run the guard immediately before copying, then copy both approved local files from `<scratch>/local/`. If either copy fails, stop and report the partial result; do not change managed files or attempt rollback over user files. |
+| Either path exists | **Stop this migration and do not copy.** Show the user the difference between their file and the approved one, and let them merge it by hand. Do not run steps 2, 3, or 5: the managed text and the approved local layer must arrive as one checked change. |
+
+In particular, an existing `LOCAL_dev.md` must be found **before** an absent
+`LOCAL.md` is installed. A half-migrated installation is not permission to merge
+or overwrite the user's file, even when a backup exists.
 
 If neither local file already existed, run steps 2, 3 and 5. Tell the user which
 of their edits became which entry and which ones you are holding as upstream
@@ -408,13 +432,40 @@ and rule, and is the fastest way for them to see what they just installed.
 
 ## Uninstalling
 
-**Preflight before any restore or deletion.** Stage the backup's managed files
-(or an empty staged rules directory when there is no backup) in scratch and run
-`sh scripts/check-local.sh ~/.claude/rules <staged-rules> <staged-CLAUDE.md>`.
-Exit 0 is required. Exit 1 means an Override would become stale; it is suspended
-until its owner rewrites it. Exit 2 is an unusable local layer. In either case,
-do not restore or delete managed files: show the owner the result and keep the
-stricter protection in force.
+**Preflight before any restore or deletion.** Claude Code recursively loads
+local files from `rules/` even after the base rulebook is removed. An old backup
+may also lack the local-layer boundary. A successful Override check says nothing
+about a Fill or Add, so it cannot authorize leaving those files active without
+their base. Run this read-only guard before changing anything:
+
+```sh
+uninstall_local_preflight() {
+    if [ ! -d "$1" ] || [ ! -x "$1" ]; then
+        printf 'Uninstall/restore blocked: cannot inspect rules directory: %s\n' "$1" >&2
+        return 2
+    fi
+    for local_path in "$1/LOCAL.md" "$1/LOCAL_dev.md"; do
+        if [ -e "$local_path" ] || [ -L "$local_path" ]; then
+            printf 'Uninstall/restore blocked: local path remains active: %s\n' "$local_path" >&2
+            return 2
+        fi
+    done
+    return 0
+}
+uninstall_local_preflight ~/.claude/rules || exit 2
+```
+
+**If either local path exists, stop before restoring or deleting managed files.**
+This applies to Fill-only, Add-only, empty, unreadable, and dangling-link local
+files as well as Overrides. Keep the installation and local files unchanged.
+Explain that the owner must first decide how to preserve the local files outside
+the recursively loaded `rules/` directory, or adapt their installation in a
+separately approved operation. This procedure never moves, edits, or deletes
+them. Re-run the guard after the owner has resolved the active local paths.
+
+Only when both local paths are absent may the approved uninstall/restore
+continue. Re-run the guard immediately before the first mutation. No checker
+invocation with a nonexistent staged `CLAUDE.md` is needed.
 
 Restore the timestamped backups from step 1 over `~/.claude/CLAUDE.md` and the
 rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or
@@ -424,7 +475,6 @@ this design exists to prevent. If there were no backups, the user had no previou
 rulebook — delete the fourteen rule files, `~/.claude/rules/platform/`, and
 `~/.claude/CLAUDE.md`, and nothing else.
 
-**Leave `~/.claude/rules/LOCAL.md` and `~/.claude/rules/LOCAL_dev.md` where they
-are.** They are the user's own writing, not this bundle's — an uninstall neither
-restores over them nor deletes them. Say they are still there, and let them
-decide.
+If a local path appears during the operation, stop and report exactly what has
+already changed. It is the user's own writing, not this bundle's — never restore
+over it, delete it, or claim the uninstall completed safely.

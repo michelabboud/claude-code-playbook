@@ -38,7 +38,7 @@
 #      entry with no complete Anchor, Rule digest, and "**Dead words:**" verifier,
 #      a bare marker anywhere but the
 #      start of a line, an unclosed fenced code block, a local file that exists
-#      and cannot be read as a regular file, or a failed search. An error
+#      and cannot be read as a regular file, a UTF-8 BOM or NUL byte, or a failed search. An error
 #      outranks a stale finding: if both happen, the status is 2.
 #
 # The last line of stdout is always a machine-readable count:
@@ -126,6 +126,7 @@ ANCHOR_MARKER='**Anchor:**'
 DIGEST_MARKER='**Rule digest:**'
 CR=$(printf '\r')
 TAB=$(printf '\t')
+UTF8_BOM=$(printf '\357\273\277')
 
 # The longest a **Dead words:** line may be, in bytes — a bound that fails
 # closed rather than handing an unbounded quotation to grep. The longest real
@@ -386,7 +387,14 @@ parse_anchor() { # rest src ln
         return 1
     fi
 
-    _pa_count=$(grep -F -x -c -e "$PENDING_ANCHOR_HEADING" -- "$PENDING_ANCHOR_PATH")
+    printf '%s\n' "$PENDING_ANCHOR_HEADING" > "$SCRATCH_DIR/heading"
+    # Count exactly the normalized heading that extraction compares below.
+    # Counting raw bytes would reject CRLF and miss normalized duplicates.
+    _pa_count=$(awk '
+        NR == FNR { wanted = $0; next }
+        { sub(/\r$/, ""); sub(/[ \t]+$/, ""); if ($0 == wanted) count++ }
+        END { print count + 0 }
+    ' "$SCRATCH_DIR/heading" "$PENDING_ANCHOR_PATH")
     _pa_status=$?
     if [ "$_pa_status" -ne 0 ]; then
         parse_err "$_pa_src" "$_pa_ln" "could not count the anchored heading in $PENDING_ANCHOR_NAME"
@@ -398,12 +406,12 @@ parse_anchor() { # rest src ln
         return 1
     fi
 
-    printf '%s\n' "$PENDING_ANCHOR_HEADING" > "$SCRATCH_DIR/heading"
     awk '
         NR == FNR { wanted = $0; next }
         {
             line = $0
             sub(/\r$/, "", line)
+            sub(/[ \t]+$/, "", line)
             plain = line
             sub(/^[ \t]*/, "", plain)
             if (!started && line == wanted) {
@@ -720,6 +728,11 @@ check_file() {
 
     while IFS= read -r _cf_line || [ -n "$_cf_line" ]; do
         _cf_lineno=$((_cf_lineno + 1))
+        case $_cf_line in
+            *"$UTF8_BOM"*)
+                parse_err "$_cf_path" "$_cf_lineno" "UTF-8 BOM is not supported — save the local file as UTF-8 without BOM"
+                return ;;
+        esac
         _cf_line=${_cf_line%"$CR"}
         if [ "${#_cf_line}" -gt "$MAX_LINE_BYTES" ]; then
             parse_err "$_cf_path" "$_cf_lineno" \

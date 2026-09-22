@@ -4,7 +4,7 @@
 #
 #   sh tests/run.sh
 #
-# Five suites, in the order that makes a failure easiest to read:
+# Six suites, in the order that makes a failure easiest to read:
 #
 #   check_local_test         what scripts/check-local.sh does
 #   dead_words_vectors_test  the conformance vectors shared with codex-playbook,
@@ -14,8 +14,9 @@
 #   rules_text_test          the local layer's hooks, the bundle's shape,
 #                            the templates, INSTALL.md's counts
 #   rules_text_mutation_test proof that the suite above catches a broken rulebook
+#   install_preflight_test  migration and uninstall refuse active local paths
 #
-# Exits 0 only if all five pass. Each suite creates and removes its own
+# Exits 0 only if all six pass. Each suite creates and removes its own
 # temporary directory; no real home directory is read or written.
 
 set -u
@@ -23,7 +24,7 @@ set -u
 HERE=$(dirname -- "$0")
 failed=0
 
-for suite in check_local_test dead_words_vectors_test mutation_test rules_text_test rules_text_mutation_test; do
+for suite in check_local_test dead_words_vectors_test mutation_test rules_text_test rules_text_mutation_test install_preflight_test; do
     printf '\n=== %s ===\n' "$suite"
     if sh "$HERE/$suite.sh"; then
         :

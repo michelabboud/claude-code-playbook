@@ -1261,4 +1261,37 @@ run_raw_check "$CASE/local" "$CASE/rules"
 assert_status "a repeated anchored heading is refused: exit 2" 2 "$STATUS"
 assert_contains "repeated heading: says it is ambiguous" "$ERRO" "must occur exactly once"
 
+# Editor encodings must not hide an Override or change its anchored section.
+for local_name in LOCAL.md LOCAL_dev.md; do
+    mkcase "bom-$local_name"
+    printf '\357\273\277**Override — missing verifier.**\n' >"$CASE/local/$local_name"
+    run_raw_check "$CASE/local" "$CASE/rules"
+    assert_status "a BOM-prefixed $local_name is refused: exit 2" 2 "$STATUS"
+    assert_contains "BOM refusal names the encoding problem" "$ERRO" "BOM"
+    printf '# LOCAL\n  \357\273\277**Override — missing verifier.**\n' >"$CASE/local/$local_name"
+    run_raw_check "$CASE/local" "$CASE/rules"
+    assert_status "an indented BOM on a later line in $local_name is refused" 2 "$STATUS"
+    assert_contains "later BOM refusal identifies its line" "$ERRO" "$local_name:2:"
+done
+
+mkcase normalizedheading
+printf '# Normalized\n\nA uniquely quoted requirement lives here.\n' >"$CASE/normalized"
+digest=$(sha256sum "$CASE/normalized" | awk '{print $1}')
+printf '%s\n' '**Override — require additional review.**' \
+    '**Anchor:** `# Normalized` (in `NORMALIZED.md`)' \
+    "**Rule digest:** \`sha256:$digest\`" \
+    '**Dead words:** `A uniquely quoted requirement lives here.` (in `NORMALIZED.md`)' \
+    >"$CASE/local/LOCAL.md"
+awk '{ printf "%s\r\n", $0 }' "$CASE/normalized" >"$CASE/rules/NORMALIZED.md"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "CRLF managed headings use the normalized digest: exit 0" 0 "$STATUS"
+assert_contains "CRLF verifier actually checked the quote" "$OUT" "1 search(es), 0 stale, 0 error(s)"
+printf '# Normalized \t\r\n\nA uniquely quoted requirement lives here.\r\n' >"$CASE/rules/NORMALIZED.md"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "heading trailing blanks use the normalized digest: exit 0" 0 "$STATUS"
+printf '\n# Normalized\nsecond occurrence\n' >>"$CASE/rules/NORMALIZED.md"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "normalized duplicate headings are refused: exit 2" 2 "$STATUS"
+assert_contains "normalized duplicate count includes both forms" "$ERRO" "found 2"
+
 finish

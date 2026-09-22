@@ -35,6 +35,8 @@ fresh_copy() { # dest
     cp -R -- "$SRC/scripts" "$1/scripts"
     mkdir -p -- "$1/docs"
     cp -- "$SRC/docs/index.html" "$1/docs/index.html"
+    mkdir -p -- "$1/docs/guides"
+    cp -- "$SRC/docs/guides/local-layer.md" "$1/docs/guides/local-layer.md"
     cp -- "$SRC/CLAUDE.md" "$1/CLAUDE.md"
     cp -- "$SRC/INSTALL.md" "$1/INSTALL.md"
 }
@@ -239,5 +241,8 @@ check_mutation "uninstall restoring over the local files is caught" \
 
 check_mutation "INSTALL.md not saying it needs sh is caught" \
     'drop_line "$M/INSTALL.md" "it needs \`sh\` — on Windows"'
+
+check_mutation "a guide example missing its verifier is caught" \
+    'drop_line "$M/docs/guides/local-layer.md" "  **Rule digest:**"'
 
 finish

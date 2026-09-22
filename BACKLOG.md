@@ -29,11 +29,11 @@ Dated one-liners for everything deferred or spotted and not done.
   on macOS (BSD `grep`) or under `busybox ash`. The flags it relies on are all
   POSIX (`grep -F -q -e --`), but that is an argument, not a measurement.
   Source: v0.1.16.
-- **2026-09-21 · hygiene · open** — the staleness check catches a *rewritten*
-  sentence, not a rule whose meaning changed somewhere the override does not
-  quote. `INSTALL.md` step U3 covers the gap by hand, from the changelog. A
-  mechanical version would need the changelog to name rules in a parseable way,
-  which it does not. Source: ADR 0004 consequences, v0.1.16.
+- **2026-09-21 · hygiene · partly closed 2026-09-23** — ADR 0005's section
+  digest catches changes to unquoted text within the anchored section. Changes
+  to semantic dependencies in other sections still require `INSTALL.md` U3's
+  owner review; the checker cannot decide authority. Source: ADR 0004
+  consequences, v0.1.16; focused blocker repair.
 - **2026-09-21 · wording · open** — three *titles* still say the playbook "never
   touches" the local files, which the corrected wording elsewhere replaced with
   "never ships them, and an update never writes to, copies over or replaces them":

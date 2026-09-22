@@ -6,6 +6,14 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ## Unreleased
 
+- Reject UTF-8 BOM bytes anywhere in local files; normalize CRLF and trailing
+  heading blanks before checking anchor uniqueness as well as section digests.
+- Preflight both migration destinations before installing either local file.
+  Uninstall/restore now refuses any active local path, including Fill-only and
+  Add-only files, without changing user files or removing their base rulebook.
+- Correct the guide and visual map to the restricted authority and section
+  verifier contract; the guide's complete Override example is executable in
+  tests. Add regression coverage for encodings and installation preflights.
 - Harden local Overrides: every live Override now binds to one unique Markdown
   section, its normalized SHA-256 digest, and a unique quote of at least 16
   non-whitespace bytes. Ambiguous or incomplete evidence refuses installation.

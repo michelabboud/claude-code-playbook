@@ -2,7 +2,7 @@
 
 | Plan | Status | Written | Last updated |
 |---|---|---|---|
-| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — repair round two is built locally; held for focused deep re-review | 2026-09-21 | 2026-09-21 |
+| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — focused blocker repairs built locally; held for focused deep re-review | 2026-09-21 | 2026-09-23 |
 | Generalise the private rulebook into a distributable bundle | **done 2026-09-14** | 2026-09-14 | 2026-09-14 |
 
 **The local layer (0.1.16)** — approved 2026-09-21. Customizations move out of
@@ -26,6 +26,13 @@ authority boundary, parser fail-closed cases, restore preflight, and install
 guide contradictions are repaired in local commits. The remaining section
 anchor contract is now implemented and recorded in ADR 0005; all changes remain
 local pending Sol's focused re-review.
+
+**Focused blocker repair — 2026-09-23.** BOM rejection, normalized anchor
+headings, migration preflight of both local paths, refusal to uninstall/restore
+with active local files, and current-contract guide/map examples are repaired
+locally. Parser and lifecycle regressions reproduced the missing safeguards
+before the fixes. The review/publication hold remains in force; no tag, push,
+or real installation follows from this repair.
 
 **Generalise the private rulebook** — delivered: private references removed,
 section 11 repurposed as the platform section, three platform files written, the

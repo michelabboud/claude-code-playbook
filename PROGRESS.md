@@ -1,6 +1,11 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-21 (v0.1.16 — customizations moved into a local layer the playbook never ships and an update never replaces, with a script that proves an override still bites before an update copies anything)
+**Last updated:** 2026-09-23 (v0.1.16, with local unpublished repairs pending focused deep review).
+
+The focused repair covers encoding-safe Override detection, normalized heading
+uniqueness, all-destination migration preflight, uninstall/restore refusal while
+local files remain active, and the guide/map's current authority contract. The
+Linux shell fixtures test those paths without changing any real installation.
 
 The bundle is complete and installable: thirteen numbered sections across
 fourteen rule files, the model roster (`rules/ROSTER.md`, the only file that
@@ -10,8 +15,9 @@ Every rule file has been swept for private references and none remain.
 **Nothing installed needs editing.** Customizations live in a local layer —
 `rules/LOCAL.md` and `rules/LOCAL_dev.md`, two files this repository never
 ships and an update never writes to, copies over or replaces — so an update is a
-copy plus a check rather than a merge. `scripts/check-local.sh` proves every **Dead words:** quotation still
-exists in the new text before anything is copied; `templates/` holds the
+copy plus a check rather than a merge. `scripts/check-local.sh` verifies every
+live Override's anchored section digest and unique substantial quotation
+against the new text before anything is copied; `templates/` holds the
 starting points, deliberately outside `rules/`, which the harness loads
 recursively.
 
@@ -27,9 +33,9 @@ line (rule 3.5) rests on one behaviour-preserving refactor programme. Close-outs
 record how often the ceiling was reached; revise the number on that evidence.
 See `docs/guides/non-blocking-review-pipeline.md` and ADR 0001.
 
-**Verified by test, on every change:** five POSIX-`sh` suites — 480 assertions
-in total — over `scripts/check-local.sh` and over the rulebook's own text. Two
-of the five are mutation harnesses: they break one behaviour at a time in a
+**Test coverage:** six POSIX-`sh` suites cover `scripts/check-local.sh`, the
+rulebook's own text, and executable migration/uninstall preflights. Two
+are mutation harnesses: they break one behaviour at a time in a
 scratch copy and require the suite to notice, naming the assertion that caught
 it, so a green run is evidence rather than a habit. Run them with
 `sh tests/run.sh`.
