@@ -43,13 +43,14 @@ An **Override** of a scoped rule, with the verifier `scripts/check-local.sh`
 reads:
 
 ```
-- **Override — rule 8.1, the Top tier never runs a dev lane.** The Top tier is
-  reserved for planning and review, so the hard domains — security, concurrency,
-  Rust, unsafe code — start on the **Strong** tier, and the dev escalation ladder
-  is Fast → Standard → Strong and ends there. Written against 0.1.16.
+- **Override — rule 8.1, raise my multi-file implementation floor.** On my
+  projects, multi-file or integration work starts at the **Strong** tier rather
+  than Standard. Planning and the Top-tier floor for security, concurrency,
+  Rust, unsafe code, and complex architecture remain unchanged. Written against
+  0.1.16.
   **Anchor:** `# 8 · Subagents` (in `SUBAGENTS.md`)
   **Rule digest:** `sha256:0000000000000000000000000000000000000000000000000000000000000000`
-  **Dead words:** `start on the Top tier` (in `SUBAGENTS.md`)
+  **Dead words:** `Standard for multi-file or integration work` (in `SUBAGENTS.md`)
 ```
 
 ---

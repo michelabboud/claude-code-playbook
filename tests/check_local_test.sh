@@ -1125,13 +1125,16 @@ OUT=$(cd "$CASE/local" && sh "$SCRIPT_ABS" -h "$CASE/rules" "$CASE/CLAUDE.md" 2>
 STATUS=$?
 assert_status "a local directory literally named -h is a path, not help: exit 2" 2 "$STATUS"
 
-for shape in numbered blockquote heading italicbold; do
+for shape in numbered blockquote heading italicbold plusbullet splitbold unicode_lookalike; do
     mkcase "unrecognized-$shape"
     case $shape in
         numbered)   line='1. **Override — numbered list.**' ;;
         blockquote) line='> **Override — block quote.**' ;;
         heading)    line='## **Override — heading.**' ;;
         italicbold) line='***Override — italic bold.***' ;;
+        plusbullet) line='+ **Override — plus list.**' ;;
+        splitbold) line='- **Over**ride — split emphasis.' ;;
+        unicode_lookalike) line='- **Оverride — confusable first letter.**' ;;
     esac
     printf '# LOCAL\n\n%s\n' "$line" >"$CASE/local/LOCAL.md"
     run_check "$CASE/local" "$CASE/rules"

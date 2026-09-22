@@ -6,6 +6,9 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ## Unreleased
 
+- Refuse plus-bullet, split-emphasis, and Unicode-lookalike local entries that
+  could otherwise look like Overrides while receiving zero checks. Replace the
+  template's unsafe down-tier example with a stricter tier example.
 - Reject UTF-8 BOM bytes anywhere in local files; normalize CRLF and trailing
   heading blanks before checking anchor uniqueness as well as section digests.
 - Preflight both migration destinations before installing either local file.

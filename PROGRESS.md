@@ -1,11 +1,15 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-23 (v0.1.16, with local unpublished repairs pending focused deep review).
+**Last updated:** 2026-09-23 (v0.1.16, local unpublished repairs; pinned focused deep review failed).
 
 The focused repair covers encoding-safe Override detection, normalized heading
 uniqueness, all-destination migration preflight, uninstall/restore refusal while
 local files remain active, and the guide/map's current authority contract. The
 Linux shell fixtures test those paths without changing any real installation.
+The `a7e690e` deep re-review found a plus-bullet silent skip and a recursively
+loaded extra-Markdown blind spot. The first is fixed in the current local repair;
+the second awaits an owner decision on refusing extra Markdown under `rules/`.
+Neither playbook is published on the strength of passing tests alone.
 
 The bundle is complete and installable: thirteen numbered sections across
 fourteen rule files, the model roster (`rules/ROSTER.md`, the only file that

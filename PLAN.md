@@ -34,6 +34,13 @@ locally. Parser and lifecycle regressions reproduced the missing safeguards
 before the fixes. The review/publication hold remains in force; no tag, push,
 or real installation follows from this repair.
 
+The pinned `a7e690e` deep re-review failed: a plus-bullet Override was silently
+skipped, and recursively loaded Markdown outside the two named local files was
+not inspected. The plus-bullet class and an unsafe template example are being
+repaired locally. The recursive-file preflight changes the accepted layout and
+awaits the owner's trust-boundary decision. See the candidate deep and mechanical
+reports under `docs/reviews/`.
+
 **Generalise the private rulebook** — delivered: private references removed,
 section 11 repurposed as the platform section, three platform files written, the
 model roster made Claude-only with mechanical review measured onto Sonnet, and

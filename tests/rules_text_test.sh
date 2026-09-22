@@ -265,6 +265,8 @@ for t in LOCAL.md LOCAL_dev.md; do
     assert_eq "templates/$t ships no unfenced entry" \
         "" "$(unfenced_entries "$ROOT/templates/$t")"
 done
+assert_not_contains "LOCAL_dev example does not lower the Top safety floor" \
+    "$(cat "$ROOT/templates/LOCAL_dev.md")" 'unsafe code — start on the **Strong** tier'
 # The finder itself must be able to see one, or the two assertions above are
 # satisfied by a finder that never matches anything.
 TMPPROBE=${TMPDIR:-/tmp}/cclp-probe.$$

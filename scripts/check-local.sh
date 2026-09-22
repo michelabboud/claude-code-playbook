@@ -673,7 +673,29 @@ has_unrecognized_entry_marker() { # raw line
         [0-9]*.\ \*\*Override*|[0-9]*.\ \*\*Fill*|[0-9]*.\ \*\*Add*|\
         \>\ \*\*Override*|\>\ \*\*Fill*|\>\ \*\*Add*|\
         \#*\ \*\*Override*|\#*\ \*\*Fill*|\#*\ \*\*Add*|\
-        \*\*\*Override*|\*\*\*Fill*|\*\*\*Add*) return 0 ;;
+        \*\*\*Override*|\*\*\*Fill*|\*\*\*Add*|\
+        +\ \*\*Override*|+\ \*\*Fill*|+\ \*\*Add*) return 0 ;;
+    esac
+    # Reserve a bold lead-in with an em dash for canonical entries. This also
+    # catches + list bullets, split emphasis, and Unicode lookalike letters.
+    _he_candidate=$_he_out
+    _he_entry_context=0
+    case $_he_candidate in
+        '- '*|'* '*|'+ '*|'> '*) _he_entry_context=1; _he_candidate=${_he_candidate#??} ;;
+        [0-9]*'. '*) _he_entry_context=1; _he_candidate=${_he_candidate#*. } ;;
+        '#'* ) _he_entry_context=1 ;;
+    esac
+    while :; do
+        case $_he_candidate in
+            '# '*) _he_candidate=${_he_candidate#??}; break ;;
+            '#'* ) _he_candidate=${_he_candidate#?} ;;
+            *) break ;;
+        esac
+    done
+    _he_candidate=$(ltrim "$_he_candidate")
+    case $_he_candidate in
+        '**Fill'*|'**Add'*|'**Override'*) return 1 ;;
+        '**'*' — '*) [ "$_he_entry_context" -eq 1 ] && return 0 ;;
     esac
     return 1
 }
