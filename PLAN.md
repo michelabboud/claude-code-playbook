@@ -85,6 +85,10 @@ uninstall executes a staged checker before authenticating the source, local
 tags can be forged, and update/migration still accept linked roots that point
 outside the intended destination. The mechanical reviewer also reproduced a
 guard bypass using a tracked file marked `assume-unchanged`. The candidate remains local. The next
-repair would define a new source-trust boundary, so the owner must approve a
-concrete design (canonical published commit versus an expressly pinned fork)
-before that implementation begins.
+repair defines a new source-trust boundary. The owner approved canonical
+published-commit verification as the default and an expressly pinned fork as
+the only alternative on 2026-09-23; ADR 0010 records the decision. Repair tasks:
+(1) red-to-green tests for checkout provenance, literal source bytes, and
+linked destinations; (2) apply the authenticated preflight consistently to
+first install, update, migration, and uninstall; (3) run all suites and two
+independent GPT-6 Sol re-reviews before publication. No tag or push yet.

@@ -20,6 +20,38 @@
 
 ---
 
+## Approved source-trust repair, 2026-09-23
+
+The owner approved ADR 0010 after GPT-6 Sol deep and mechanical reviews found
+that the earlier uninstall guard could trust a forged or hidden-edit checkout.
+This is a focused amendment to task 4 and its publication gate, not permission
+to mutate the owner's live installation during development.
+
+1. Write and run red lifecycle tests in `tests/install_preflight_test.sh` for a
+   forged local tag, unreachable canonical ref, hidden tracked source edits,
+   staged-checker execution before authentication, an owner-pinned fork, and
+   linked destination roots. Assert refusal before the continuation marker and
+   unchanged external/installed bytes.
+2. Add an inline read-only `source_trust_preflight` to `INSTALL.md`. Resolve a
+   canonical published `checkpoint/<VERSION>` tag over HTTPS or match the full
+   commit ID explicitly supplied by the owner; verify literal source bytes
+   against authenticated Git blobs, including the checker. Call it before any
+   staged script and re-run immediately before a managed mutation.
+3. Add an inline destination-root preflight and use it for first install,
+   update, migration, and uninstall. Keep backups, local files, and reports
+   intact on every refusal. Document the fail-closed offline and fork behavior
+   in README/guide and add any needed line-ending controls for Windows.
+4. Run the focused tests, the six-suite test runner, shell syntax and lint,
+   and a pinned GPT-6 Sol mechanical and deep re-review. A passing suite alone
+   does not lift the hold. Publish Claude first, then Codex, only after review
+   findings are ruled and the publication checklist is complete.
+
+Each step starts the next once its gate is met. Disk capacity below 40 GB
+stops dispatch and mutation; no unrelated repository or evidence cleanup is
+authorized by this amendment.
+
+---
+
 ## Amendments after the batch's mechanical review, 2026-09-21
 
 The five task rows above are the plan as approved and are left as they were. Three
