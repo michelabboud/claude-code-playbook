@@ -366,7 +366,7 @@ const S=[
     ["The first tag or push in a repo that <strong>publishes</strong> — a registry, a live deploy, assets off this machine",'<span class="pill gate">Ask once</span> <span style="color:var(--ink-3)">— naming destination and effect</span>'],
     ["A new native datastore, or system / security / destructive / production-performance configuration",'<span class="pill gate">Ask</span>'],
     ["Deleting or replacing any <code>.env</code>, credential, secret, database, state file, log, backup, or file I created",'<span class="pill gate">Ask</span> <span style="color:var(--ink-3)">— naming the targets</span>'],
-    ["Unsure who owns it, what it touches, or whether it’s recoverable",'<span class="pill go">Quarantine</span> <span style="color:var(--ink-3)">— read-only checks first; needs no approval</span>']]}},
+    ["Unsure who owns it, what it touches, or whether it’s recoverable",'<span class="pill go">Leave or quarantine</span> <span style="color:var(--ink-3)">— inspect read-only first; quarantine only if it is in the way</span>']]}},
   {t:"Classify the request before touching anything",c:"Most rules are written for building. Applying the build chain to a question is its own kind of damage — it edits code that was only meant to be read, and spends a version number on an opinion.",
    table:{h:["What was asked","What it authorizes"],r:[
     ["<strong>Review · explain · diagnose</strong>","Read, run non-mutating checks, report. <strong>No</strong> edits, no <code>VERSION</code> bump, no commit, no bug-fix lane. Findings get reported, not fixed."],
@@ -461,19 +461,19 @@ const S=[
  trigger:"A plan needs a go · you’re weighing whether to ask · you found a defect · a session is ending mid-work.",
  blurb:"The plan gate, and the discipline that keeps autonomy from becoming either paralysis or freelancing.",
  rules:[
-  ["7.1","<strong>The plan gate.</strong> A plan waits for my go. Once agreed, <strong>that agreement authorizes everything the plan implies</strong> — through close-out, merge, tag, push, release. A plan can’t widen its own authority."],
+  ["7.1","<strong>The plan gate.</strong> A plan waits for my go. Once agreed, <strong>that agreement authorizes everything the plan implies</strong> — through close-out, merge, tag, push, release. A plan can’t widen its own authority. Name each task’s owner, dependencies, evidence and next task; check available agent communication before selecting it, and never mistake a message for completion evidence."],
   ["7.2","<strong>Decide by default — a stall is a defect.</strong> A question whose answer wouldn’t change the deliverable is not diligence. Three shapes to catch in yourself: asking “which one?” when context already says; asking again after I answered with a story (<em>the story is the answer</em>); and parking on “shall I proceed?” for hours."],
   ["7.3","<strong>When you do ask, educate first.</strong> State the problem and its background before the options; every option carries pros, cons and impact; leave room for my own answer; <strong>lead with your recommendation and why.</strong> Options in prose, never a rigid multiple-choice widget."],
   ["7.4","<strong>Defects: fix now or defer loudly — never silently.</strong> Simple and local → fix now in its own commit. Design-changing, multi-module, or on a security/data/concurrency path → warn now, write it to <code>BACKLOG.md</code>, and it becomes the next task. <strong>Never fix during a review.</strong>"],
   ["7.5","<strong>Stay focused.</strong> If the spec can’t be met, say so and why — never quietly ship less."],
-  ["7.6","<strong>Context hygiene after completion only</strong> — never mid-work. That is not “suggesting we stop”."],
+  ["7.6","<strong>Context hygiene after completion only</strong> — never mid-work. After the full task close-out, suggest <code>/compact</code> or <code>/clear</code> before starting the next approved task; it is not a suggestion to stop."],
   ["7.7","<strong>Write a handoff before a session ends mid-work</strong> — exact repo state, done vs in-progress, next steps in order, gotchas, anything left running. Work that isn’t written down is lost."]]},
 
 {n:8,name:"Subagents & model tiering",file:"rules/SUBAGENTS.md",auto:true,
  trigger:"Before dispatching any subagent or planning a fan-out.",
  blurb:"Right-size the model, escalate fast, and never let the planner become the coordinator.",
  rules:[
-  ["8.1","<strong>Delegate when work decomposes; do it inline when briefing costs more.</strong> Lowest capable tier for implementation, the Top tier for planning <em>always</em>. Which model fills each tier is <code>rules/ROSTER.md</code> — the one file that names any. Security, concurrency and unsafe code start at the top. Every subagent carries the <code>ESCALATE:</code> instruction, and escalation carries the baton — what the last model tried, found, and where it stuck. <strong>The planner is not the coordinator:</strong> the Top tier writes the plan and ends its turn."]],
+  ["8.1","<strong>Coordinate approved plans with scoped subagents</strong> for separable implementation and independent reviews; shared-file or dependent work stays sequential. Delegate when work decomposes; do it inline when briefing costs more. Lowest capable tier for implementation, the Top tier for planning <em>always</em>. Which model fills each tier is <code>rules/ROSTER.md</code> — the one file that names any. Security, concurrency and unsafe code start at the top. Every subagent carries the <code>ESCALATE:</code> instruction, and escalation carries the baton — what the last model tried, found, and where it stuck. <strong>The planner is not the coordinator:</strong> the Top tier writes the plan and ends its turn. Check the live harness before using direct messages, agent teams, or Herdr; the <a href='https://github.com/michelabboud/claude-code-playbook/blob/main/docs/guides/advanced-task-execution-and-communication.md'>capability guide</a> explains those modes, not new authority."]],
  features:[
   {t:"Concurrency follows measured load, not ambition",c:"Read the host before a fan-out — your platform file gives the three commands — and cap simultaneous subagents to spare capacity. Queued work still completes; only the concurrent count is bounded.",
    table:{h:["Host load (load ÷ cores)","Factor","10-core box","28-core box"],r:[
