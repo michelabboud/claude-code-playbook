@@ -22,6 +22,13 @@ both uninstall paths, checks a clean tagged release, refuses linked roots,
 and requires a fresh current snapshot. New fixtures cover these cases; a full
 suite and independent review are still owed.
 
+The deep and mechanical GPT-6 Sol reviews of `a20bca7` failed on checkout
+provenance and pre-verification script execution, plus linked-root handling in
+update and migration. The mechanical reviewer reproduced a deletion guard
+bypass using a tracked source file marked `assume-unchanged`. The six local
+suites passed, but publication is held. A
+source-trust design choice is now required; no tag or push has occurred.
+
 The focused repair covers encoding-safe Override detection, normalized heading
 uniqueness, all-destination migration preflight, uninstall/restore refusal while
 local files remain active, and the guide/map's current authority contract. The

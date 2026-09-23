@@ -79,3 +79,12 @@ recipe. Both uninstall branches now share the exact-content guard, which
 requires a clean tagged checkout of the installed version, refuses linked
 roots, and requires a fresh verified snapshot before mutation. The copy recipe
 is explicit. Run full tests and a new pinned Sol re-review before publication.
+
+The fresh GPT-6 Sol deep and mechanical reviews of `a20bca7` **failed** on checkout trust:
+uninstall executes a staged checker before authenticating the source, local
+tags can be forged, and update/migration still accept linked roots that point
+outside the intended destination. The mechanical reviewer also reproduced a
+guard bypass using a tracked file marked `assume-unchanged`. The candidate remains local. The next
+repair would define a new source-trust boundary, so the owner must approve a
+concrete design (canonical published commit versus an expressly pinned fork)
+before that implementation begins.
