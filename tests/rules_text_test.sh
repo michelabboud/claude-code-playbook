@@ -335,6 +335,17 @@ assert_eq "the procedures state what they need on the machine" \
     1 "$(count_in_file 'update, migration, restore, and uninstall needs `sh` and Git' "$I")"
 assert_eq "the Windows first-install shell is named" \
     1 "$(count_in_file 'On Windows, run the POSIX-shell guards in Git Bash or MSYS2' "$I")"
+assert_eq "the Windows example targets the configuration directory" \
+    1 "$(count_in_file 'windows_config="$(cygpath -u "$USERPROFILE")/.claude"' "$I")"
+assert_eq "quiescence applies to every install and removal procedure" \
+    1 "$(count_in_file 'Every procedure requires a quiescent source checkout and target configuration.' "$I")"
+assert_eq "quiescence is in the shared preflight, before first-install-only steps" \
+    1 "$(awk '
+        /^## Source and destination preflights/ { shared = 1; next }
+        /^## Step 0/ { shared = 0 }
+        shared && /^Every procedure requires a quiescent source checkout and target configuration[.]$/ { count++ }
+        END { print count + 0 }
+    ' "$I")"
 
 # ---------------------------------------------------------------------------
 # End to end, against the real playbook text: a fresh override and a stale one.

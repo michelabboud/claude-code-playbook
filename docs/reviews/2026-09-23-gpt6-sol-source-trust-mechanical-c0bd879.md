@@ -2,8 +2,10 @@
 
 **Verdict: FAIL — one P2 blocking conformance finding.** The previously demonstrated inherited-Git, managed hard-link, and newline-path failures did not reproduce against this candidate. The remaining finding is narrower: a clean first install can pass when the required `find -links` capability is unavailable, contrary to the guide's explicit fail-closed prerequisite.
 
-Target: `c0bd8795aaffc4d790025dab76e5d1c5bbd8da27`  
-Base and direct parent: `5441cd8542fb2ac7c90f7e0c35aea3a1ded8915f`  
+Target: `c0bd8795aaffc4d790025dab76e5d1c5bbd8da27`
+
+Base and direct parent: `5441cd8542fb2ac7c90f7e0c35aea3a1ded8915f`
+
 Scope: read-only Git-object diff plus dedicated `git archive` scratch at `/tmp/claude-final-mechanical-gpt6-sol.CR6CYf`; `INSTALL.md`, changed shell tests, and related changed text. All adversarial mutations were in that scratch. I did not inspect the live project worktree, write the repository, touch `~/.claude`, use another repository, tag, push, or clean existing material.
 
 The cold-read note at `cold-read.md` was written after reading the frozen diff and `INSTALL.md`, before opening the prior `docs/reviews/*-5441cd8.md` reports. Those reports were subsequently read to check that the previously reported faults had been covered. This child review inherited a scoped coordinating context; the cold-read order does not establish a fully blind process.

@@ -1,6 +1,17 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-23 (v0.1.16, local unpublished source-trust repair; third pinned re-review pending).
+**Last updated:** 2026-09-23 (v0.1.16, local unpublished source-trust repair; fourth pinned re-review pending).
+
+**Newest gate:** pinned `b2fd255` passed mechanical review of the hard-link
+capability probe but failed deep review on two safety-instruction gaps. The
+Windows example omitted `/.claude`, which could target the profile root, and
+the quiescence warning sat only in first-install Step 0, which update and
+migration do not run. Both are corrected with red-to-green wording tests;
+focused suites now pass at 147 wording, 40 wording-mutation, and 267 install
+preflight assertions. Raw mechanical review reports are retained as ignored local logs;
+their committed copies have only Markdown hard-break whitespace normalized so
+`git diff --check` can pass. A full suite and pinned review of the new exact
+commit remain before publication. No tag, push, or live install has occurred.
 
 **Latest review:** the mechanical GPT-6 Sol review of pinned `c0bd879`
 returned FAIL on one remaining first-install capability gap: `find -links`

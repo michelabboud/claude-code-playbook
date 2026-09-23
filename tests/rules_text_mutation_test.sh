@@ -242,6 +242,12 @@ check_mutation "uninstall restoring over the local files is caught" \
 check_mutation "INSTALL.md not saying it needs sh is caught" \
     'drop_line "$M/INSTALL.md" "update, migration, restore, and uninstall needs \`sh\` and Git"'
 
+check_mutation "Windows target-directory example missing is caught" \
+    'drop_line "$M/INSTALL.md" "windows_config="'
+
+check_mutation "quiescence moved out of shared preflight is caught" \
+    'move_to_end "$M/INSTALL.md" "Every procedure requires a quiescent source checkout and target configuration."'
+
 check_mutation "a guide example missing its verifier is caught" \
     'drop_line "$M/docs/guides/local-layer.md" "  **Rule digest:**"'
 

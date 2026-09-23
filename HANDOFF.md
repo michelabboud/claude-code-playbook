@@ -1,6 +1,18 @@
 # Handoff
 
-**Current 2026-09-23:** the mechanical review of pinned `c0bd879` failed on
+**Current 2026-09-23:** pinned `b2fd255` passed mechanical review of the
+hard-link capability repair but failed deep review on two safety-instruction
+gaps: the Windows conversion example omitted `/.claude`, and the quiescence
+warning was in first-install Step 0, not the update/migration routes. Both
+are fixed locally with red-to-green wording tests. Focused suites pass at
+147 wording, 40 wording mutations, and 267 install-preflight assertions.
+The four reports and cold-read notes for `b2fd255` and `c0bd879` are preserved
+under `docs/reviews/`; raw report bytes with Markdown hard breaks are also in
+ignored `logs/reviews/`, while the committed copies normalize those breaks so
+the whole diff check can pass. A full suite and new pinned review are owed.
+No tag, push, or live installation has occurred.
+
+Earlier, the mechanical review of pinned `c0bd879` failed on
 one first-install capability gap: with no managed file yet present, unsupported
 `find -links` passed the guard despite the documented refusal. Its report and
 cold-read note are preserved in `docs/reviews/`. A red-to-green regression now

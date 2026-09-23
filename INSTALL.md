@@ -35,8 +35,11 @@ canonical-source check also needs network access. Only an explicitly
 owner-approved full commit pin for a fork uses the documented offline path.
 On Windows, run the POSIX-shell guards in Git Bash or MSYS2; plain PowerShell
 alone cannot run them. Resolve `%USERPROFILE%\.claude` to an absolute POSIX
-path in that shell (for example, with `cygpath -u "$USERPROFILE"`) and use it
-where the steps below show `~/.claude`. WSL's `~/.claude` and `uname` refer to
+path in that shell, for example
+`windows_config="$(cygpath -u "$USERPROFILE")/.claude"`, and use that full
+path where the steps below show `~/.claude`. If `USERPROFILE` is unset or
+`cygpath` fails, stop; never substitute the shell's home by guesswork.
+WSL's `~/.claude` and `uname` refer to
 its Linux environment; do not use them to select a Windows installation or
 platform file. Fetching a version also needs `curl`
 (PowerShell's `Invoke-WebRequest -UseBasicParsing` is an alternative), and
@@ -79,6 +82,12 @@ repository sit in `templates/` and not under `rules/`.
 ---
 
 ## Source and destination preflights — run before staged code or mutation
+
+Every procedure requires a quiescent source checkout and target configuration.
+This applies to first install, update, migration, restore, and uninstall, from
+preflight through the last copy or deletion. These manual multi-file operations
+are not atomic: if another writer is changing either tree, stop rather than
+treating a successful preflight as protection against a later path swap.
 
 The checkout's own tag, `origin`, and clean-looking `git status` are not proof
 that it is a published playbook. Before running any script from a staged
@@ -357,11 +366,6 @@ destination_root_preflight() {
    script from that checkout, backup, or destination mutation. Re-run both
    immediately before the first copy. If verification cannot be completed,
    preserve the existing installation and report why.
-
-5. **Work while source and destination are quiescent.** These are manual,
-   multi-file operations, not an atomic transaction. If another writer is
-   changing the checkout or target configuration, stop rather than treating
-   a preflight as protection against a later path swap.
 
 ---
 

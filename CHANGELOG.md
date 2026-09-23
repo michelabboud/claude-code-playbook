@@ -15,7 +15,9 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   Probe hard-link inspection even on an empty first-install destination, so an
   unsupported `find -links` cannot silently bypass the documented refusal.
   Clarify that a Windows target needs its own configuration path and platform
-  file, not WSL's Linux home or `uname`, and restate the quiescence requirement.
+  file, not WSL's Linux home or `uname`; the example includes the `.claude`
+  component. State the quiescence requirement globally so update and migration
+  cannot bypass it by skipping first-install Step 0.
 - Authenticate staged playbook source against the canonical published tag, or
   an explicitly owner-pinned full fork commit, before executing its checker or
   mutating installed files. Compare each used source file's literal bytes and

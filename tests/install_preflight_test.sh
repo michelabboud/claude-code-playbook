@@ -495,5 +495,17 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
     assert_status "destination guard refuses unavailable hard-link check on first install" 2 "$?"
     [ ! -e "$find_case/continued" ] && _pass "unavailable hard-link check stops before first copy" || \
         _fail "unavailable hard-link check stops before first copy" "marker exists"
+    mkdir -p "$find_case/existing/rules" || exit 2
+    printf 'existing owner bytes\n' >"$find_case/existing/rules/AUTHORITY.md"
+    cp "$find_case/existing/rules/AUTHORITY.md" "$find_case/existing-original" || exit 2
+    PATH="$find_case/bin:$PATH" sh -c \
+        '. "$1"; destination_root_preflight "$2" || exit 2; : >"$3"' sh \
+        "$TMPROOT/$guard.sh" "$find_case/existing" "$find_case/existing-continued" \
+        >"$find_case/existing-output" 2>&1
+    assert_status "destination guard refuses unavailable hard-link check on update" 2 "$?"
+    [ ! -e "$find_case/existing-continued" ] && _pass "unavailable hard-link check stops before update" || \
+        _fail "unavailable hard-link check stops before update" "marker exists"
+    assert_files_identical "unavailable hard-link check preserves existing owner bytes" \
+        "$find_case/existing/rules/AUTHORITY.md" "$find_case/existing-original"
 fi
 finish

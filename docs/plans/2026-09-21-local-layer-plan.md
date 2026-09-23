@@ -67,6 +67,13 @@ unsupported command passed despite the installation guide's refusal contract.
 Add an empty-destination red test, probe capability without traversing the
 filesystem, rerun the full suite, and re-review the exact repaired commit.
 
+The pinned `b2fd255` mechanical lane passed that probe, but its deep lane
+failed two operator-safety instructions: a Windows path example omitted the
+`.claude` component, and quiescence appeared only in a first-install step that
+update and migration skip. Correct both with wording regressions, keep raw
+review evidence, run the full suite, and repeat pinned review before any
+publication.
+
 ---
 
 ## Amendments after the batch's mechanical review, 2026-09-21

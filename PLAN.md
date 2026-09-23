@@ -2,7 +2,7 @@
 
 | Plan | Status | Written | Last updated |
 |---|---|---|---|
-| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — source-trust repair passes local suites; held for third pinned GPT-6 Sol re-review | 2026-09-21 | 2026-09-23 |
+| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — source-trust repair held for fourth pinned GPT-6 Sol re-review | 2026-09-21 | 2026-09-23 |
 | Generalise the private rulebook into a distributable bundle | **done 2026-09-14** | 2026-09-14 | 2026-09-14 |
 
 **The local layer (0.1.16)** — approved 2026-09-21. Customizations move out of
@@ -104,3 +104,10 @@ support. A red-to-green regression and unconditional non-traversing probe now
 cover it. The current six-suite run exited 0 (207, 93, 53, 144, 38, 264).
 The exact repaired commit still needs pinned review before `main` and
 `checkpoint/0.1.16` can be published.
+
+At `b2fd255`, mechanical review passed the capability repair but deep review
+failed on a Windows example that dropped `/.claude` and a quiescence warning
+scoped only to first install. The example now names the full target directory;
+quiescence is a shared preflight instruction for every procedure. Tests were
+red before these wording repairs and the focused suites are green. The next
+exact candidate needs all suites and focused pinned review before publication.
