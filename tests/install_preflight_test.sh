@@ -275,6 +275,10 @@ if [ -s "$TMPROOT/$guard-original.sh" ]; then
         "$trust_fixture/published" "$release_version"
     run_source_trust wrong-expected-version 2 "$TMPROOT/$guard.sh" \
         "$trust_fixture/published" 9.9.9
+    newline_checkout=$trust_fixture/line$(printf '\nx')checkout
+    git clone -q "$trust_fixture/published" "$newline_checkout" || exit 2
+    run_source_trust newline-checkout-path 2 "$TMPROOT/$guard.sh" \
+        "$newline_checkout" "$release_version"
 
     # Historical releases predate the checker and local-layer templates. Use
     # a separate published tag so baseline mode still exercises provenance.
@@ -345,6 +349,21 @@ if [ -s "$TMPROOT/$guard-original.sh" ]; then
     git -C "$checkout" -c tag.gpgsign=false tag -f "checkpoint/$release_version" >/dev/null || exit 2
     fork_pin=$(git -C "$checkout" rev-parse HEAD) || exit 2
     run_source_trust forged-local-tag 2 "$TMPROOT/$guard.sh" "$checkout" "$release_version"
+    # The canonical lookup must not inherit the checkout's Git environment:
+    # its local config can rewrite even a literal remote URL to a forged repo.
+    false_remote=$trust_fixture/false-canonical.git
+    git init --bare -q "$false_remote" || exit 2
+    git -C "$checkout" push -q "$false_remote" "refs/tags/checkpoint/$release_version" || exit 2
+    git -C "$checkout" config --local "url.$false_remote.insteadOf" \
+        "$trust_fixture/remote.git" || exit 2
+    trust_marker=$TMPROOT/trust-inherited-git-dir-continued
+    GIT_DIR="$checkout/.git" GIT_WORK_TREE="$checkout" sh -c \
+        '. "$1"; source_trust_preflight "$2" "$3" || exit 2; : >"$4"' sh \
+        "$TMPROOT/$guard.sh" "$checkout" "$release_version" "$trust_marker" \
+        >"$TMPROOT/trust-inherited-git-dir-output" 2>&1
+    assert_status "source trust refuses inherited Git directory URL rewrite" 2 "$?"
+    [ ! -e "$trust_marker" ] && _pass "inherited Git directory stops before continuation" || \
+        _fail "inherited Git directory stops before continuation" "marker exists"
     run_source_trust owner-approved-full-fork-pin 0 "$TMPROOT/$guard-unreachable.sh" \
         "$checkout" "$release_version" "$fork_pin"
     short_pin=$(git -C "$checkout" rev-parse --short HEAD) || exit 2
@@ -394,7 +413,7 @@ awk -v name="$guard" '
 ' "$ROOT/INSTALL.md" >"$TMPROOT/$guard.sh"
 assert_status "destination root guard exists as an executable preflight" 0 "$?"
 if [ -s "$TMPROOT/$guard.sh" ]; then
-    for state in absent directory ancestor-link config-link rules-link platform-link claude-link managed-link config-dangling rules-dangling platform-dangling claude-dangling; do
+    for state in absent directory ancestor-link config-link rules-link platform-link claude-link managed-link claude-hardlink managed-hardlink newline-root config-dangling rules-dangling platform-dangling claude-dangling; do
         case_dir=$TMPROOT/destination-$state
         config_dir=$case_dir/config
         mkdir -p "$case_dir/external/rules/platform" || exit 2
@@ -422,6 +441,15 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
             managed-link)
                 mkdir -p "$config_dir/rules"
                 ln -s "$case_dir/external/rules/owner.txt" "$config_dir/rules/AUTHORITY.md" ;;
+            claude-hardlink)
+                mkdir -p "$config_dir"
+                ln "$case_dir/external/owner.txt" "$config_dir/CLAUDE.md" ;;
+            managed-hardlink)
+                mkdir -p "$config_dir/rules"
+                ln "$case_dir/external/rules/owner.txt" "$config_dir/rules/AUTHORITY.md" ;;
+            newline-root)
+                config_dir=$case_dir/line$(printf '\nx')break
+                mkdir -p "$config_dir/rules/platform" ;;
             config-dangling) ln -s "$case_dir/missing" "$config_dir" ;;
             rules-dangling)
                 mkdir -p "$config_dir"

@@ -1,15 +1,17 @@
 # Handoff
 
-**Current 2026-09-23:** the source-trust repair approved by the owner is built
-locally and the six-suite run passed (207, 93, 53, 143, 38, 243 assertions;
-exit 0). The candidate is not tagged or pushed. GPT-6 Sol mechanical and deep
-re-reviews of the pinned commit are next. `INSTALL.md` now requires a canonical
-published tag or an owner-provided full fork pin before staged code or managed
-mutation, checks literal source bytes, and refuses linked destination roots or
-managed files. No live installation, uninstall, backup, or other repository was
-changed. ADR 0010 and the source-trust review in `docs/reviews/` carry the
-decision and the previous FAIL findings. The historical seam tape below
-describes the earlier local-layer stage; its old test counts are not current.
+**Current 2026-09-23:** the GPT-6 Sol mechanical and deep reviews of pinned
+`5441cd8` both returned FAIL. They independently reproduced a forged canonical
+tag lookup through inherited `GIT_DIR`; the deep review reproduced an external
+overwrite through a hard-linked managed destination. Mechanical review also
+found a newline-path skip and false first-install prerequisites. Their exact
+reports and cold-read notes are preserved under `docs/reviews/`. Local repairs
+now isolate Git environment, refuse managed hard links, reject newline paths,
+and correct the prerequisite text. The full six-suite rerun passed (207, 93,
+53, 144, 38, 262 assertions; direct exit 0). A pinned re-review is still owed.
+The candidate remains local: no tag, push, live
+install/uninstall/backup, or other-repository change. ADR 0010 records the
+approved trust design; the historical seam tape below is not current status.
 
 ---
 

@@ -50,6 +50,17 @@ Each step starts the next once its gate is met. Disk capacity below 40 GB
 stops dispatch and mutation; no unrelated repository or evidence cleanup is
 authorized by this amendment.
 
+### Review-found repair, 2026-09-23
+
+The pinned `5441cd8` reviews failed on two independent source/destination
+trust blockers: inherited Git repository state redirected the canonical URL,
+and a hard-linked managed destination let a normal copy overwrite an external
+file. Mechanical review also found newline-bearing paths accepted and missing
+first-install prerequisites. Preserve both raw reports, add red regressions,
+repair all four, run the full suite, then repeat pinned GPT-6 Sol review of the
+affected trust boundary before any tag or push. The original publication order
+remains Claude first, Codex second.
+
 ---
 
 ## Amendments after the batch's mechanical review, 2026-09-21

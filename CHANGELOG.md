@@ -6,6 +6,12 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ## Unreleased
 
+- Refuse managed destination hard links before any install, update, or restore
+  copy, preventing a regular-looking installed file from overwriting another
+  name for the same inode outside the installation. Isolate all source-trust Git
+  commands from inherited repository/configuration selectors so a local URL
+  rewrite cannot impersonate the canonical published tag. Reject newline paths
+  and state the Git, shell, and default network prerequisites for first install.
 - Authenticate staged playbook source against the canonical published tag, or
   an explicitly owner-pinned full fork commit, before executing its checker or
   mutating installed files. Compare each used source file's literal bytes and

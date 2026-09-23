@@ -240,7 +240,7 @@ check_mutation "uninstall restoring over the local files is caught" \
     'replace_in_file "$M/INSTALL.md" "and never \`LOCAL.md\` or" "including"'
 
 check_mutation "INSTALL.md not saying it needs sh is caught" \
-    'drop_line "$M/INSTALL.md" "it needs \`sh\` — on Windows"'
+    'drop_line "$M/INSTALL.md" "update, migration, restore, and uninstall needs \`sh\` and Git"'
 
 check_mutation "a guide example missing its verifier is caught" \
     'drop_line "$M/docs/guides/local-layer.md" "  **Rule digest:**"'

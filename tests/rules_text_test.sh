@@ -332,7 +332,9 @@ for code in 1 2; do
     assert_not_contains "exit $code from the check never says carry on" "$row" 'Continue'
 done
 assert_eq "the procedures state what they need on the machine" \
-    1 "$(count_in_file 'it needs `sh` — on Windows' "$I")"
+    1 "$(count_in_file 'update, migration, restore, and uninstall needs `sh` and Git' "$I")"
+assert_eq "the Windows first-install shell is named" \
+    1 "$(count_in_file 'On Windows, run the POSIX-shell guards in Git Bash, WSL, or MSYS2' "$I")"
 
 # ---------------------------------------------------------------------------
 # End to end, against the real playbook text: a fresh override and a stale one.

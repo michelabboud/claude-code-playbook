@@ -29,16 +29,19 @@ configuration directory. Installing it means copying two things:
 
 On Windows the configuration directory is `%USERPROFILE%\.claude\`.
 
-**What the procedures below need on the machine.** Copying files needs nothing
-special. Two steps do: the version fetch needs `curl` (PowerShell's
-`Invoke-WebRequest -UseBasicParsing` is the equivalent), and the staleness check
-`scripts/check-local.sh` is a POSIX shell script, so it needs `sh` — on Windows
-that means Git Bash, WSL, or MSYS2, all of which ship one. A live Override also
-needs `sha256sum`, `shasum -a 256`, or `openssl` for its section digest. **If you
-cannot run the required check on this machine, say so and stop before the update
-or migration procedure** rather than skipping it: an update that skips the check
-is the merge this design exists to avoid. A first install needs neither, because
-there is no local layer to check yet.
+**What the procedures below need on the machine.** Every installation,
+update, migration, restore, and uninstall needs `sh` and Git; the default
+canonical-source check also needs network access. Only an explicitly
+owner-approved full commit pin for a fork uses the documented offline path.
+On Windows, run the POSIX-shell guards in Git Bash, WSL, or MSYS2; plain
+PowerShell alone cannot run them. Fetching a version also needs `curl`
+(PowerShell's `Invoke-WebRequest -UseBasicParsing` is an alternative), and
+checking a live Override needs `sha256sum`, `shasum -a 256`, or `openssl` for
+its section digest. The destination guard uses `find -links` to reject managed
+hard links; an environment without that check must refuse the operation.
+**If you cannot run a required check, say so and stop before any backup or
+copy.** A first install has no local-layer staleness check, but it still needs
+the source and destination trust checks.
 
 **Touch nothing else in that directory.** `~/.claude/` also holds the user's
 settings, their own skills, their own slash commands, and their session history.
@@ -97,20 +100,40 @@ source_trust_preflight() {
         printf 'Source trust blocked: invalid verification mode.\n' >&2
         return 2
     fi
+    trust_newline='
+'
     if printf '%s' "$trust_checkout$trust_version$trust_pin" | LC_ALL=C grep -q '[[:cntrl:]]' ||
+       case $trust_checkout$trust_version$trust_pin in *"$trust_newline"*) true ;; *) false ;; esac ||
        [ -L "$trust_checkout" ]; then
         printf 'Source trust blocked: ambiguous or linked checkout path.\n' >&2
-        return 2
-    fi
-    trust_ref=refs/tags/checkpoint/$trust_version
-    if ! git check-ref-format "$trust_ref" >/dev/null 2>&1; then
-        printf 'Source trust blocked: invalid release version.\n' >&2
         return 2
     fi
     trust_root=$(CDPATH='' cd -P "$trust_checkout" && pwd -P) || {
         printf 'Source trust blocked: checkout directory unavailable.\n' >&2
         return 2
     }
+    (
+    # Git -C alone does not cancel inherited repository, object, or config
+    # selectors. Keep their removal inside this subshell so callers retain
+    # their environment, while every Git command below sees the same isolation.
+    unset GIT_DIR GIT_WORK_TREE GIT_COMMON_DIR GIT_INDEX_FILE GIT_NAMESPACE \
+        GIT_OBJECT_DIRECTORY GIT_ALTERNATE_OBJECT_DIRECTORIES \
+        GIT_CONFIG_PARAMETERS GIT_CONFIG GIT_EXEC_PATH || {
+        printf 'Source trust blocked: cannot clear inherited Git environment.\n' >&2
+        return 2
+    }
+    export GIT_NO_REPLACE_OBJECTS=1 GIT_NO_LAZY_FETCH=1 GIT_OPTIONAL_LOCKS=0 \
+        GIT_CONFIG_NOSYSTEM=1 \
+        GIT_CONFIG_GLOBAL=/dev/null GIT_CONFIG_SYSTEM=/dev/null \
+        GIT_CONFIG_COUNT=0 GIT_SSL_NO_VERIFY=0 GIT_TERMINAL_PROMPT=0 || {
+        printf 'Source trust blocked: cannot isolate Git configuration.\n' >&2
+        return 2
+    }
+    trust_ref=refs/tags/checkpoint/$trust_version
+    if ! git check-ref-format "$trust_ref" >/dev/null 2>&1; then
+        printf 'Source trust blocked: invalid release version.\n' >&2
+        return 2
+    fi
     trust_git_root=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" rev-parse --show-toplevel 2>/dev/null) || {
         printf 'Source trust blocked: checkout is not a Git repository.\n' >&2
         return 2
@@ -149,14 +172,12 @@ source_trust_preflight() {
             printf 'Source trust blocked: checkout is not at the release tag.\n' >&2
             return 2
         fi
-        trust_remote_tag=$(
-            unset GIT_CONFIG_PARAMETERS GIT_EXEC_PATH
-            GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null \
-            GIT_CONFIG_SYSTEM=/dev/null GIT_CONFIG_COUNT=0 \
-            GIT_SSL_NO_VERIFY=0 GIT_TERMINAL_PROMPT=0 \
-                git -C / ls-remote --exit-code --refs \
-                https://github.com/michelabboud/claude-code-playbook.git "$trust_ref" 2>/dev/null
-        ) || {
+        if [ -e /.git ] || [ -L /.git ]; then
+            printf 'Source trust blocked: cannot isolate canonical Git lookup from root repository.\n' >&2
+            return 2
+        fi
+        trust_remote_tag=$(git -C / ls-remote --exit-code --refs \
+            https://github.com/michelabboud/claude-code-playbook.git "$trust_ref" 2>/dev/null) || {
             printf 'Source trust blocked: canonical published tag unavailable.\n' >&2
             return 2
         }
@@ -217,6 +238,7 @@ source_trust_preflight() {
         fi
     fi
     return 0
+    )
 }
 ```
 
@@ -228,10 +250,10 @@ On success, the function leaves `trust_root` set to the checkout's physical
 path; use that path for the staged checker and every source-file copy, rather
 than a caller-supplied path whose ancestor may be a link.
 
-Before any backup, copy, restore, or deletion, also refuse links at the
-destination roots and at any managed destination file. This is a read-only
-check; a linked dotfile-manager root or managed file needs a separate owner
-decision, not an automatic traversal into its target.
+Before any backup, copy, restore, or deletion, also refuse symbolic links at
+the destination roots and symbolic or hard links at any managed destination
+file. This is a read-only check; a linked dotfile-manager root or managed file
+needs a separate owner decision, not an automatic traversal into its target.
 
 ```sh
 destination_root_preflight() {
@@ -239,7 +261,10 @@ destination_root_preflight() {
         printf 'Destination blocked: expected configuration directory.\n' >&2
         return 2
     fi
-    if printf '%s' "$1" | LC_ALL=C grep -q '[[:cntrl:]]'; then
+    destination_newline='
+'
+    if printf '%s' "$1" | LC_ALL=C grep -q '[[:cntrl:]]' ||
+       case $1 in *"$destination_newline"*) true ;; *) false ;; esac; then
         printf 'Destination blocked: ambiguous path encoding.\n' >&2
         return 2
     fi
@@ -282,6 +307,16 @@ destination_root_preflight() {
            { [ -e "$destination_file" ] && [ ! -f "$destination_file" ]; }; then
             printf 'Destination blocked: linked or non-file managed path: %s\n' "$destination_file" >&2
             return 2
+        fi
+        if [ -e "$destination_file" ]; then
+            destination_hardlinks=$(find "$destination_file" -links +1 -print 2>/dev/null) || {
+                printf 'Destination blocked: cannot inspect managed hard links: %s\n' "$destination_file" >&2
+                return 2
+            }
+            if [ -n "$destination_hardlinks" ]; then
+                printf 'Destination blocked: hard-linked managed file: %s\n' "$destination_file" >&2
+                return 2
+            fi
         fi
     done
     return 0

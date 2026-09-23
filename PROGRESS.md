@@ -1,6 +1,16 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-23 (v0.1.16, local unpublished source-trust repair; pinned re-review pending).
+**Last updated:** 2026-09-23 (v0.1.16, local unpublished source-trust repair; second pinned re-review pending).
+
+**Latest gate:** two pinned reviews of `5441cd8` failed despite all six suites
+passing. Both independently reproduced an inherited-`GIT_DIR` bypass of the
+canonical tag lookup; the deep review also reproduced an external overwrite
+through a hard-linked managed file. The mechanical review found a newline-path
+acceptance and false first-install prerequisite text. All four findings now
+have local repairs and disposable regressions. The full six-suite rerun passed
+with 207, 93, 53, 144, 38, and 262 assertions, direct exit 0. A focused
+review of the repaired exact commit is still owed. No tag, push, or live
+installation has occurred.
 
 **Current hold:** the independent review of `2606360` also failed on three
 recursive preflight/uninstall safety gaps. All are repaired in the current
