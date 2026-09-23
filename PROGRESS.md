@@ -1,6 +1,15 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-23 (v0.1.16, local unpublished source-trust repair; second pinned re-review pending).
+**Last updated:** 2026-09-23 (v0.1.16, local unpublished source-trust repair; third pinned re-review pending).
+
+**Latest review:** the mechanical GPT-6 Sol review of pinned `c0bd879`
+returned FAIL on one remaining first-install capability gap: `find -links`
+was tested only when a managed destination file already existed. A disposable
+regression failed first and now passes after an unconditional non-traversing
+capability probe. The deep review of `c0bd879` passed its focused security
+checks, but cannot override the mechanical FAIL. The next full suite passed
+with 207, 93, 53, 144, 38, and 264 assertions (direct exit 0). A fresh pinned
+review of this candidate is still owed before publication.
 
 **Latest gate:** two pinned reviews of `5441cd8` failed despite all six suites
 passing. Both independently reproduced an inherited-`GIT_DIR` bypass of the

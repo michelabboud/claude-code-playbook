@@ -1,6 +1,15 @@
 # Handoff
 
-**Current 2026-09-23:** the GPT-6 Sol mechanical and deep reviews of pinned
+**Current 2026-09-23:** the mechanical review of pinned `c0bd879` failed on
+one first-install capability gap: with no managed file yet present, unsupported
+`find -links` passed the guard despite the documented refusal. Its report and
+cold-read note are preserved in `docs/reviews/`. A red-to-green regression now
+covers the case. The deep review of `c0bd879` passed its focused security
+checks; it does not override the mechanical FAIL. The next full six-suite run
+passed (207, 93, 53, 144, 38, 264 assertions; direct exit 0). A fresh pinned
+review of this candidate is still owed. No tag or push.
+
+The preceding GPT-6 Sol mechanical and deep reviews of pinned
 `5441cd8` both returned FAIL. They independently reproduced a forged canonical
 tag lookup through inherited `GIT_DIR`; the deep review reproduced an external
 overwrite through a hard-linked managed destination. Mechanical review also

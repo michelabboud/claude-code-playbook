@@ -33,8 +33,12 @@ On Windows the configuration directory is `%USERPROFILE%\.claude\`.
 update, migration, restore, and uninstall needs `sh` and Git; the default
 canonical-source check also needs network access. Only an explicitly
 owner-approved full commit pin for a fork uses the documented offline path.
-On Windows, run the POSIX-shell guards in Git Bash, WSL, or MSYS2; plain
-PowerShell alone cannot run them. Fetching a version also needs `curl`
+On Windows, run the POSIX-shell guards in Git Bash or MSYS2; plain PowerShell
+alone cannot run them. Resolve `%USERPROFILE%\.claude` to an absolute POSIX
+path in that shell (for example, with `cygpath -u "$USERPROFILE"`) and use it
+where the steps below show `~/.claude`. WSL's `~/.claude` and `uname` refer to
+its Linux environment; do not use them to select a Windows installation or
+platform file. Fetching a version also needs `curl`
 (PowerShell's `Invoke-WebRequest -UseBasicParsing` is an alternative), and
 checking a live Override needs `sha256sum`, `shasum -a 256`, or `openssl` for
 its section digest. The destination guard uses `find -links` to reject managed
@@ -268,6 +272,12 @@ destination_root_preflight() {
         printf 'Destination blocked: ambiguous path encoding.\n' >&2
         return 2
     fi
+    # -prune prevents walking the root; the probe verifies -links support
+    # even when no managed destination exists yet on a first install.
+    if ! find / -prune -links +1 -print >/dev/null 2>&1; then
+        printf 'Destination blocked: hard-link inspection is unavailable.\n' >&2
+        return 2
+    fi
     case $1 in
         /*) destination_remaining=${1#/}; destination_prefix= ;;
         *) printf 'Destination blocked: expected an absolute path.\n' >&2; return 2 ;;
@@ -330,8 +340,9 @@ destination_root_preflight() {
    **stop and say so plainly** rather than working around it by fetching files
    one at a time; a partial rulebook is worse than none.
 
-2. **Identify the operating system.** You will need it in step 3, and getting it
-   wrong installs a file of commands that do not exist on the user's machine.
+2. **Identify the target operating system, not just the shell's `uname`.** You
+   will need it in step 3, and getting it wrong installs a file of commands
+   that do not exist on the target machine.
 
 3. **Look before you write.** Check whether `~/.claude/CLAUDE.md` and
    `~/.claude/rules/` already exist, and whether `~/.claude/rules/LOCAL.md` or
@@ -346,6 +357,11 @@ destination_root_preflight() {
    script from that checkout, backup, or destination mutation. Re-run both
    immediately before the first copy. If verification cannot be completed,
    preserve the existing installation and report why.
+
+5. **Work while source and destination are quiescent.** These are manual,
+   multi-file operations, not an atomic transaction. If another writer is
+   changing the checkout or target configuration, stop rather than treating
+   a preflight as protection against a later path swap.
 
 ---
 

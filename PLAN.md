@@ -2,7 +2,7 @@
 
 | Plan | Status | Written | Last updated |
 |---|---|---|---|
-| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — source-trust repair passes local suites; held for pinned GPT-6 Sol re-review | 2026-09-21 | 2026-09-23 |
+| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — source-trust repair passes local suites; held for third pinned GPT-6 Sol re-review | 2026-09-21 | 2026-09-23 |
 | Generalise the private rulebook into a distributable bundle | **done 2026-09-14** | 2026-09-14 | 2026-09-14 |
 
 **The local layer (0.1.16)** — approved 2026-09-21. Customizations move out of
@@ -94,3 +94,13 @@ first install, update, migration, and uninstall; (3) run all suites and two
 independent GPT-6 Sol re-reviews before publication. No tag or push yet.
 The six-suite local run exited 0 with counts 207, 93, 53, 143, 38, and 243.
 The re-reviews, not the green suite alone, decide whether the hold can lift.
+
+The later pinned `5441cd8` re-reviews both failed on inherited Git state and
+hard-linked destination data loss; the mechanical lane additionally found
+newline-path and first-install-prerequisite gaps. Those were repaired at
+`c0bd879` and its focused deep re-review passed, but the mechanical lane found
+one more fail-closed gap: an empty destination did not probe `find -links`
+support. A red-to-green regression and unconditional non-traversing probe now
+cover it. The current six-suite run exited 0 (207, 93, 53, 144, 38, 264).
+The exact repaired commit still needs pinned review before `main` and
+`checkpoint/0.1.16` can be published.

@@ -12,6 +12,10 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   commands from inherited repository/configuration selectors so a local URL
   rewrite cannot impersonate the canonical published tag. Reject newline paths
   and state the Git, shell, and default network prerequisites for first install.
+  Probe hard-link inspection even on an empty first-install destination, so an
+  unsupported `find -links` cannot silently bypass the documented refusal.
+  Clarify that a Windows target needs its own configuration path and platform
+  file, not WSL's Linux home or `uname`, and restate the quiescence requirement.
 - Authenticate staged playbook source against the canonical published tag, or
   an explicitly owner-pinned full fork commit, before executing its checker or
   mutating installed files. Compare each used source file's literal bytes and

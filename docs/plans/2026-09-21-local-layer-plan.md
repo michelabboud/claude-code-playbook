@@ -61,6 +61,12 @@ repair all four, run the full suite, then repeat pinned GPT-6 Sol review of the
 affected trust boundary before any tag or push. The original publication order
 remains Claude first, Codex second.
 
+The pinned `c0bd879` mechanical re-review found a further fail-closed gap:
+an empty first-install destination did not exercise `find -links`, so an
+unsupported command passed despite the installation guide's refusal contract.
+Add an empty-destination red test, probe capability without traversing the
+filesystem, rerun the full suite, and re-review the exact repaired commit.
+
 ---
 
 ## Amendments after the batch's mechanical review, 2026-09-21

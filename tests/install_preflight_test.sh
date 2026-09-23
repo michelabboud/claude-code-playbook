@@ -479,5 +479,21 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
                 "$case_dir/external/$relative" "$case_dir/original-owner"
         done
     done
+    # The documented hard-link check is required even on a fresh install
+    # where no managed destination file exists yet.
+    find_case=$TMPROOT/destination-unsupported-find
+    mkdir -p "$find_case/bin" || exit 2
+    real_find=$(command -v find) || exit 2
+    printf '%s\n' '#!/bin/sh' \
+        'case " $* " in *" -links "*) exit 1 ;; esac' \
+        "exec \"$real_find\" \"\$@\"" >"$find_case/bin/find"
+    chmod +x "$find_case/bin/find" || exit 2
+    PATH="$find_case/bin:$PATH" sh -c \
+        '. "$1"; destination_root_preflight "$2" || exit 2; : >"$3"' sh \
+        "$TMPROOT/$guard.sh" "$find_case/new-config" "$find_case/continued" \
+        >"$find_case/output" 2>&1
+    assert_status "destination guard refuses unavailable hard-link check on first install" 2 "$?"
+    [ ! -e "$find_case/continued" ] && _pass "unavailable hard-link check stops before first copy" || \
+        _fail "unavailable hard-link check stops before first copy" "marker exists"
 fi
 finish
