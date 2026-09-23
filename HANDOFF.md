@@ -1,6 +1,15 @@
 # Handoff
 
-**Current 2026-09-23:** pinned `b2fd255` passed mechanical review of the
+**Review closeout, 2026-09-23:** pinned `34013e3` passed focused mechanical
+and deep GPT-6 Sol reviews with no blocker. Its committed-tree six-suite run
+passed (207, 93, 53, 147, 40, 267; direct exit 0), and its full diff check
+passed. Only review records and status documents may enter the final
+administrative commit; compare the reviewed source-file tree with the tag
+before publishing. Then verify remote `main` and `checkpoint/0.1.16` directly.
+This handoff records review readiness, not a claim that a push or live
+installation occurred.
+
+**Prior review stage:** pinned `b2fd255` passed mechanical review of the
 hard-link capability repair but failed deep review on two safety-instruction
 gaps: the Windows conversion example omitted `/.claude`, and the quiescence
 warning was in first-install Step 0, not the update/migration routes. Both
@@ -9,8 +18,8 @@ are fixed locally with red-to-green wording tests. Focused suites pass at
 The four reports and cold-read notes for `b2fd255` and `c0bd879` are preserved
 under `docs/reviews/`; raw report bytes with Markdown hard breaks are also in
 ignored `logs/reviews/`, while the committed copies normalize those breaks so
-the whole diff check can pass. A full suite and new pinned review are owed.
-No tag, push, or live installation has occurred.
+the whole diff check can pass. Its then-owed full suite and pinned reviews are
+now complete at `34013e3`.
 
 Earlier, the mechanical review of pinned `c0bd879` failed on
 one first-install capability gap: with no managed file yet present, unsupported

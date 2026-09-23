@@ -2,7 +2,7 @@
 
 | Plan | Status | Written | Last updated |
 |---|---|---|---|
-| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — source-trust repair held for fourth pinned GPT-6 Sol re-review | 2026-09-21 | 2026-09-23 |
+| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — source-trust review passed; publication refs to verify | 2026-09-21 | 2026-09-23 |
 | Generalise the private rulebook into a distributable bundle | **done 2026-09-14** | 2026-09-14 | 2026-09-14 |
 
 **The local layer (0.1.16)** — approved 2026-09-21. Customizations move out of
@@ -111,3 +111,10 @@ scoped only to first install. The example now names the full target directory;
 quiescence is a shared preflight instruction for every procedure. Tests were
 red before these wording repairs and the focused suites are green. The next
 exact candidate needs all suites and focused pinned review before publication.
+
+At `34013e3`, both focused GPT-6 Sol reviews passed and the committed-tree
+six-suite run exited 0 (207, 93, 53, 147, 40, 267). The next administrative
+commit may contain only review records and status text; compare the source-file
+tree to `34013e3`, then publish `main` and `checkpoint/0.1.16` and verify both
+remote refs. This review clearance does not claim native Windows/macOS or live
+installation acceptance.

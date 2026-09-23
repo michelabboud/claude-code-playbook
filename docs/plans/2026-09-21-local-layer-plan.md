@@ -74,6 +74,14 @@ update and migration skip. Correct both with wording regressions, keep raw
 review evidence, run the full suite, and repeat pinned review before any
 publication.
 
+Pinned `34013e3` passed the focused mechanical and deep reviews. Its exact
+source tree passed all six suites and the whole diff check. The publication
+closeout may add review reports and status documents, but no installer,
+rulebook, test, template, version, or changelog changes; verify that equivalence
+before tagging. Source publication is `main` plus `checkpoint/0.1.16`, with
+remote refs checked afterward. Native Windows/macOS and the owner's live
+installation remain separate acceptance states.
+
 ---
 
 ## Amendments after the batch's mechanical review, 2026-09-21

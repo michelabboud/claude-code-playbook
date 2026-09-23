@@ -1,8 +1,18 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-23 (v0.1.16, local unpublished source-trust repair; fourth pinned re-review pending).
+**Last updated:** 2026-09-23 (v0.1.16, source-trust repair reviewed; check remote refs for publication).
 
-**Newest gate:** pinned `b2fd255` passed mechanical review of the hard-link
+**Review gate cleared:** pinned `34013e3` received focused mechanical and deep
+PASS verdicts, with no new blocker. Its committed-tree six-suite run passed
+(207, 93, 53, 147, 40, 267 assertions; direct exit 0), as did the full diff
+check, shell syntax, and focused guard lint. A final administrative closeout
+commit may add only review records and status docs; the installer, rules,
+scripts, templates, version, and changelog must remain byte-identical to
+reviewed `34013e3`. Verify published remote refs before calling source
+publication complete. Native Windows/macOS and live installation are separate
+acceptance states.
+
+**Previous gate:** pinned `b2fd255` passed mechanical review of the hard-link
 capability probe but failed deep review on two safety-instruction gaps. The
 Windows example omitted `/.claude`, which could target the profile root, and
 the quiescence warning sat only in first-install Step 0, which update and
@@ -11,7 +21,7 @@ focused suites now pass at 147 wording, 40 wording-mutation, and 267 install
 preflight assertions. Raw mechanical review reports are retained as ignored local logs;
 their committed copies have only Markdown hard-break whitespace normalized so
 `git diff --check` can pass. A full suite and pinned review of the new exact
-commit remain before publication. No tag, push, or live install has occurred.
+commit were completed at `34013e3` before publication.
 
 **Latest review:** the mechanical GPT-6 Sol review of pinned `c0bd879`
 returned FAIL on one remaining first-install capability gap: `find -links`
