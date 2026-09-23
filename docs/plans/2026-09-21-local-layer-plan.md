@@ -1,6 +1,6 @@
 # Plan — the local layer (0.1.16)
 
-- **Status:** approved 2026-09-21 (the owner's word in conversation). Decision record: [`docs/adr/0004-the-local-layer.md`](../adr/0004-the-local-layer.md).
+- **Status:** source published 2026-09-23 as `checkpoint/0.1.16`; private installation acceptance remains separate and was not performed under the two-playbook scope. Approved 2026-09-21 (the owner's word in conversation). Decision record: [`docs/adr/0004-the-local-layer.md`](../adr/0004-the-local-layer.md).
 - **Goal:** a user installs and updates these rules from this repository *and* keeps their customizations, with no merge. Proven on the owner's own installation before this plan was written.
 - **One batch, five tasks.** Task 2 is the risk-class one (a script that decides whether an update may proceed): deep review at task grain. The batch closes with a deep review on the Strong tier from the second model family; nothing is pushed before it is ruled.
 

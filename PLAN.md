@@ -2,7 +2,7 @@
 
 | Plan | Status | Written | Last updated |
 |---|---|---|---|
-| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — source-trust review passed; publication refs to verify | 2026-09-21 | 2026-09-23 |
+| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **source published** — `checkpoint/0.1.16` verified; private installation acceptance separate | 2026-09-21 | 2026-09-23 |
 | Generalise the private rulebook into a distributable bundle | **done 2026-09-14** | 2026-09-14 | 2026-09-14 |
 
 **The local layer (0.1.16)** — approved 2026-09-21. Customizations move out of

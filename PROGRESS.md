@@ -1,5 +1,13 @@
 # Progress & current standing
 
+**Source publication verified, 2026-09-23:** remote `main` and peeled
+`checkpoint/0.1.16` resolve to `97938d0`. The tagged tree passed all six suites
+with direct exit 0. The source-publication receipt is
+`docs/reports/2026-09-23-local-layer-publication-receipt.md`. A live owner
+installation and native Windows/macOS acceptance remain unverified and were
+outside this two-playbook publication scope. Older gate notes below are
+historical.
+
 **Last updated:** 2026-09-23 (v0.1.16, source-trust repair reviewed; check remote refs for publication).
 
 **Review gate cleared:** pinned `34013e3` received focused mechanical and deep

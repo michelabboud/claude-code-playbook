@@ -1,5 +1,17 @@
 # Handoff
 
+**Published source, 2026-09-23:** remote `main` and the peeled annotated
+`checkpoint/0.1.16` tag both resolve to `97938d0c874b651a7ab1b44b002b289c5c378caa`.
+The exact tagged tree passed all six suites (207, 93, 53, 147, 40, 267;
+direct exit 0). The reviewed source remained unchanged from `34013e3` through
+the tag. This is source publication only: no live installation, private-rule
+sync, native Windows/macOS acceptance, cleanup of evidence, or other-repository
+change was performed. See
+`docs/reports/2026-09-23-local-layer-publication-receipt.md`. The remaining
+text is historical review and pre-publication handoff material.
+
+---
+
 **Review closeout, 2026-09-23:** pinned `34013e3` passed focused mechanical
 and deep GPT-6 Sol reviews with no blocker. Its committed-tree six-suite run
 passed (207, 93, 53, 147, 40, 267; direct exit 0), and its full diff check
