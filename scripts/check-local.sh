@@ -102,7 +102,7 @@
 # globals SCAN_WORDS, ITEM_FILES and SCAN_REST.
 #
 # External utilities used: grep (-F, -q, -e, --), cat (for the usage heredoc),
-# cmp, tr, awk, wc, find, mktemp, rm, and sha256sum, shasum, or openssl. Everything
+# cmp, tr, awk, wc, find, uname, mktemp, rm, and sha256sum, shasum, or openssl. Everything
 # else is a shell builtin.
 
 set -u
@@ -936,19 +936,34 @@ fi
 # A symlink anywhere else may hide a subtree from find, so refuse it too.
 # -exec passes each pathname as an argument, including spaces and newlines;
 # parsing a line-oriented find listing here would fail open on unusual names.
+host_os=$(uname -s) || host_os=unknown
+case $host_os in
+    Linux) host_platform=LINUX.md ;;
+    Darwin) host_platform=MACOS.md ;;
+    MINGW*|MSYS*|CYGWIN*) host_platform=WINDOWS.md ;;
+    *) host_platform=unsupported; err "$PROG: cannot determine a supported platform from uname: $host_os" ;;
+esac
 unexpected_tree_entries=$(
-    find "$local_dir" -mindepth 1 \( -name '*.[mM][dD]' -o -type l \) \
+    find -H "$local_dir" -mindepth 1 \( -name '*.[mM][dD]' -o -type l \) \
         -exec sh -c '
-            staged=$1; installed=$2; shift 2
+            staged=$1; installed=$2; host_platform=$3; shift 3
             for path do
                 relative=${path#"$installed"/}
                 case $relative in LOCAL.md|LOCAL_dev.md) continue ;; esac
+                case $relative in
+                    platform/*)
+                        if [ "$relative" != "platform/$host_platform" ]; then
+                            printf "unexpected active platform rule: %s\n" "$path"
+                            continue
+                        fi
+                        ;;
+                esac
                 if [ -L "$path" ] || [ ! -f "$path" ] ||
                    [ ! -f "$staged/$relative" ] || [ -L "$staged/$relative" ]; then
                     printf "unexpected active Markdown or symlink: %s\n" "$path"
                 fi
             done
-        ' sh "$rules_dir" "$local_dir" {} + 2>&1
+        ' sh "$rules_dir" "$local_dir" "$host_platform" {} + 2>&1
 )
 tree_scan_status=$?
 if [ "$tree_scan_status" -ne 0 ]; then

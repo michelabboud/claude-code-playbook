@@ -127,9 +127,9 @@ that one file. This table is a copy of it for readers, not a second source:
 
 | Tier | Claude model | Optional second family | Trusted with |
 |---|---|---|---|
-| **Top** | Claude Fable | Astra 6 | Planning, design, architecture, and **high deep** review — milestones and releases. Never down-tiered. |
-| **Strong** | Claude Opus | GPT-6 Sol, highest available effort | **Deep** review, per batch. The escalation step between Standard and Top. |
-| **Standard** | Claude Sonnet | — | Implementation, and every **mechanical** review. |
+| **Top** | Claude Fable | GPT-6 Astra | Planning, design, architecture, and **high deep** review — milestones and releases. Never down-tiered. |
+| **Strong** | Claude Opus 5.5 | GPT-6 Sol, high or maximum available effort | **Deep** review, per batch. The escalation step between Standard and Top. |
+| **Standard** | Claude Sonnet | GPT-6 Sol, medium effort when validated | Implementation, and every **mechanical** review. |
 | **Fast** | Claude Haiku | GPT-6 Luna, after a task-specific trial | Mechanical work that is not review — renames, formatting, single-file edits to spec. |
 
 The Claude column is sufficient on its own. The second-family column is optional
@@ -141,6 +141,10 @@ The 2026-09-23 [roster note](rules/ROSTER.md) compares the new GPT-6 options and
 their listed API prices. Luna is a low-cost candidate for bounded work, not a
 measured replacement for Standard mechanical review; Sol is the stronger
 second-family deep-review option when available.
+Opus 5.5 is the current Strong Claude choice; Opus 5 is not the default.
+
+For plan execution, agent/team communication, and Herdr when it hosts the
+session, see the [capability guide](docs/guides/advanced-task-execution-and-communication.md).
 
 **Mechanical review is deliberately Sonnet and not Haiku, and that was
 measured.** Given an identical brief over a file with nine real defects, Haiku

@@ -6,6 +6,16 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ## Unreleased
 
+- Route approved plans through scoped subagents where available, record task
+  ownership and communication, and automatically begin the next admitted task.
+  Add source-backed Claude, Codex, and conditional Herdr communication guidance.
+- Select Opus 5.5 as the current Strong Claude model: Anthropic lists it as a
+  higher-performing, cheaper successor to Opus 5. Clarify the GPT-6
+  Astra/Sol/Luna tiers without calling Sol weak or inventing GPT-6 Terra.
+- Repair review-found recursive preflight gaps: scan a symlinked rules root,
+  reject wrong-OS platform Markdown, and make no-backup uninstall delete exact
+  managed paths while preserving other platform-directory contents.
+- Ignore rotated and compressed `*.log.*` files as well as active `*.log` files.
 - Run a safe hygiene checkpoint after tasks, phases, and plans: measure disk and
   resources, verify worktree/feature-branch and generated-debug provenance
   before cleanup, and preserve logs, reports, and documents. Rotate and

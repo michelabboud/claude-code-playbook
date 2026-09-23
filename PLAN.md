@@ -54,3 +54,13 @@ while the local-layer batch remains held. The hygiene checkpoint preserves logs
 outside Git by default and commits reports, documents, and guides; Sol and Luna
 are dated roster options, without lowering the mechanical-review floor. These
 edits join the unpublished candidate and need its review before publication.
+
+**Candidate review and repair, 2026-09-23.** Independent review of local commit
+`2606360` failed despite a green suite: a symlinked rules root escaped the scan,
+wrong-OS platform Markdown was admitted, and no-backup uninstall could remove
+user-created non-Markdown content with the platform directory. The checker now
+scans a linked root and checks the host platform; uninstall names exact managed
+files and removes the directory only when empty. The owner's updated plan-mode,
+agent communication, Herdr, Opus 5.5, and GPT-6 routing requests join this
+held candidate. Re-run all suites, then focused independent re-review before
+tagging or pushing.

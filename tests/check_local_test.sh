@@ -1323,9 +1323,30 @@ ln -s "$CASE/elsewhere" "$CASE/local/linked"
 run_raw_check "$CASE/local" "$CASE/rules"
 assert_status "an uninspected linked rules directory is refused: exit 2" 2 "$STATUS"
 
+mkcase linkedrootrule
+mv "$CASE/local" "$CASE/actual-rules"
+mkdir -p "$CASE/actual-rules/backup"
+printf '%s\n' '# Hidden active rule' > "$CASE/actual-rules/backup/note.md"
+ln -s "$CASE/actual-rules" "$CASE/local"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a symlinked rules root is still scanned recursively: exit 2" 2 "$STATUS"
+assert_contains "symlinked-root refusal names the active file" "$ERRO" 'backup/note.md'
+
 mkcase knownrule
 cp "$CASE/rules/ENVIRONMENT.md" "$CASE/local/ENVIRONMENT.md"
 run_raw_check "$CASE/local" "$CASE/rules"
 assert_status "a known staged managed rule remains allowed: exit 0" 0 "$STATUS"
+
+mkcase wrongplatform
+mkdir -p "$CASE/local/platform" "$CASE/rules/platform"
+case "$(uname -s)" in
+    Linux) wrong_platform=MACOS.md ;;
+    Darwin) wrong_platform=LINUX.md ;;
+    *) wrong_platform=LINUX.md ;;
+esac
+printf '%s\n' '# Platform rule' > "$CASE/rules/platform/$wrong_platform"
+cp "$CASE/rules/platform/$wrong_platform" "$CASE/local/platform/$wrong_platform"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a staged but wrong-OS platform rule is refused: exit 2" 2 "$STATUS"
 
 finish

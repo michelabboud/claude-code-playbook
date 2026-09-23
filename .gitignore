@@ -1,3 +1,4 @@
 docs/reports/*.local.md
 .DS_Store
 *.log
+*.log.*

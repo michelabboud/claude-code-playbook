@@ -24,6 +24,8 @@ curl -fsSL https://raw.githubusercontent.com/michelabboud/claude-code-playbook/m
 
 *My own customizations live in `rules/LOCAL.md` and `rules/LOCAL_dev.md` — the local layer. The playbook never ships them, and an update never writes to, copies over or replaces them. They may fill open values, add non-authorizing guidance, or tighten a constraint; they never expand authority, remove approvals, relax protections, change precedence, or override section 0's local-layer boundary. An Override binds its change to one unique Markdown section, that section's normalized SHA-256 digest, and a unique quote of at least 16 non-whitespace bytes. A stale Override is suspended. Read `LOCAL.md` with this page; a missing file means nothing is customized.*
 
+**Execution mode for approved plans:** act as coordinator and use scoped subagents for separable plan work and independent reviews, subject to rule 8.1's ownership and resource checks. A task close-out starts the next approved task; do not stop at a status report or checkpoint. Keep dependent or shared-file work sequential, and honor genuine gates and blockers without silently skipping work.
+
 ## The rulebook — sections, what they cover, when to open them
 
 Sections marked **auto** carry a `paths:` scope: they enter context on their own when you touch source, a manifest, `VERSION` or `CHANGELOG.md`, and otherwise you read them by path when their trigger fires. Everything else loads every session.

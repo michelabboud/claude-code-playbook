@@ -486,8 +486,11 @@ rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or
 `LOCAL_dev.md`.** Restoring a whole backup directory over `rules/` would put back
 an old copy of a local file the user has changed since, and that is the one loss
 this design exists to prevent. If there were no backups, the user had no previous
-rulebook — delete the fourteen rule files, `~/.claude/rules/platform/`, and
-`~/.claude/CLAUDE.md`, and nothing else.
+rulebook — delete only the fourteen named managed rule files and the single
+installed managed platform `.md` file, each by its exact path, then
+`~/.claude/CLAUDE.md`. Remove `~/.claude/rules/platform/` with `rmdir` only
+if it is empty. If any other content remains, preserve it and report it;
+never recursively delete that directory or the rules directory.
 
 If a local path appears during the operation, stop and report exactly what has
 already changed. It is the user's own writing, not this bundle's — never restore

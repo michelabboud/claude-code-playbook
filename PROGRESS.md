@@ -2,6 +2,13 @@
 
 **Last updated:** 2026-09-23 (v0.1.16, local unpublished repairs; pinned focused deep review failed).
 
+**Current hold:** the independent review of `2606360` also failed on three
+recursive preflight/uninstall safety gaps. All are repaired in the current
+unpublished worktree, with symlinked-root and wrong-platform regressions. New
+plan execution, communication, model, and log-ignore guidance is included.
+Nothing is published until the repaired candidate passes its suites and
+focused independent reviews.
+
 The focused repair covers encoding-safe Override detection, normalized heading
 uniqueness, all-destination migration preflight, uninstall/restore refusal while
 local files remain active, and the guide/map's current authority contract. The

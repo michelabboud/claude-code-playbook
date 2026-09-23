@@ -415,10 +415,10 @@ const S=[
            ["release","the phase’s last task — high deep, the best review available; development waits","v&lt;VERSION&gt;",1]]},
   {t:"The model roster",c:"Four tiers, defined in rules/ROSTER.md — the one file that names a model. The names are configuration; the tiers are the design. The second family is optional, for setups that can reach one.",
    table:{h:["Tier","Claude model","Optional second family","Trusted with"],r:[
-    ['<span class="tier deep">Top</span>',"<strong>Fable</strong>","Astra 6","Planning, design, architecture, and <strong>high deep</strong> review. Never down-tiered."],
-    ['<span class="tier strong">Strong</span>',"<strong>Opus</strong>","Sol, highest effort","<strong>Deep</strong> review, per batch. The escalation step between Standard and Top."],
-    ['<span class="tier std">Standard</span>',"<strong>Sonnet</strong>","—","Implementation — and <strong>every mechanical review</strong>."],
-    ['<span class="tier fast">Fast</span>',"<strong>Haiku</strong>","—","Mechanical work that is <em>not</em> review: renames, formatting, single-file edits to spec."]]},
+    ['<span class="tier deep">Top</span>',"<strong>Fable</strong>","GPT-6 Astra","Planning, design, architecture, and <strong>high deep</strong> review. Never down-tiered."],
+    ['<span class="tier strong">Strong</span>',"<strong>Opus 5.5</strong>","GPT-6 Sol, high/max effort","<strong>Deep</strong> review, per batch. The escalation step between Standard and Top."],
+    ['<span class="tier std">Standard</span>',"<strong>Sonnet</strong>","GPT-6 Sol, validated medium effort","Implementation — and <strong>every mechanical review</strong>."],
+    ['<span class="tier fast">Fast</span>',"<strong>Haiku</strong>","GPT-6 Luna, after trial","Mechanical work that is <em>not</em> review: renames, formatting, single-file edits to spec."]]},
    note:{cls:"measured",html:"<b>Why mechanical review is Sonnet and not the fast tier — measured, not assumed.</b> Given an identical brief over one file containing nine real defects, Haiku found <b>five</b> with zero false positives; Sonnet found <b>all nine</b>, a strict superset. What Haiku missed was not exotic — a declared-but-never-enforced input limit, and a doc-says-X-code-does-Y mismatch — both squarely inside the classes the brief named. Haiku is precise but not thorough, and thoroughness is the entire job of the review that is supposed to be the safety net. <b>Re-measure before changing this.</b>"}}]},
 
 {n:4,name:"Documentation & ADRs",file:"rules/DOCS.md",auto:false,
