@@ -15,6 +15,8 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 - Repair review-found recursive preflight gaps: scan a symlinked rules root,
   reject wrong-OS platform Markdown, and make no-backup uninstall delete exact
   managed paths while preserving other platform-directory contents.
+- Require byte-for-byte proof against the installed release before no-backup
+  uninstall deletes a named managed file; preserve owner edits when it differs.
 - Ignore rotated and compressed `*.log.*` files as well as active `*.log` files.
 - Run a safe hygiene checkpoint after tasks, phases, and plans: measure disk and
   resources, verify worktree/feature-branch and generated-debug provenance

@@ -64,3 +64,10 @@ files and removes the directory only when empty. The owner's updated plan-mode,
 agent communication, Herdr, Opus 5.5, and GPT-6 routing requests join this
 held candidate. Re-run all suites, then focused independent re-review before
 tagging or pushing.
+
+Both GPT-6 Sol reviewers of `ab05129` found a remaining no-backup uninstall
+data-loss case: a user-edited managed file could pass the path-only checker.
+The separate content guard now compares every deletion target with the exact
+installed release and refuses mismatches. The mechanical reviewer also found
+README platform/offline contradictions; both were corrected. The new candidate
+needs full tests and a focused GPT-6 Sol re-review before publication.

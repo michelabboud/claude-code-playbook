@@ -98,4 +98,52 @@ for guard in migration_local_preflight uninstall_local_preflight; do
     assert_files_identical "$guard preserves the nested user file" \
         "$case_dir/rules/backup/LOCAL.md" "$case_dir/original-nested"
 done
+
+# A no-backup uninstall must not delete user edits merely because a pathname
+# matches the managed inventory. Extract its separate content guard verbatim.
+guard=uninstall_managed_file_preflight
+awk -v name="$guard" '
+    $0 == name "() {" { copying = 1 }
+    copying { print }
+    copying && $0 == "}" { found = 1; exit }
+    END { if (!found) exit 1 }
+' "$ROOT/INSTALL.md" >"$TMPROOT/$guard.sh"
+assert_status "no-backup content guard exists" 0 "$?"
+if [ -s "$TMPROOT/$guard.sh" ]; then
+    case $(uname -s) in
+        Linux) platform=LINUX.md ;;
+        Darwin) platform=MACOS.md ;;
+        MINGW*|MSYS*|CYGWIN*) platform=WINDOWS.md ;;
+        *) platform=unsupported ;;
+    esac
+    installed=$TMPROOT/no-backup-install
+    mkdir -p "$installed/rules/platform"
+    cp "$ROOT/CLAUDE.md" "$installed/CLAUDE.md"
+    for managed in AUTHORITY CODE COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT QUARANTINE REPO REVIEWS ROSTER SUBAGENTS TESTING WORKFLOW WRITING; do
+        cp "$ROOT/rules/$managed.md" "$installed/rules/$managed.md"
+    done
+    cp "$ROOT/rules/platform/$platform" "$installed/rules/platform/$platform"
+    sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
+        "$TMPROOT/$guard.sh" "$installed" "$ROOT" "$TMPROOT/clean-continued" \
+        >"$TMPROOT/content-output" 2>&1
+    assert_status "unchanged managed files may continue" 0 "$?"
+    [ -f "$TMPROOT/clean-continued" ] && _pass "clean continuation reached" || _fail "clean continuation reached" "missing marker"
+
+    printf '\nowner edit\n' >>"$installed/rules/AUTHORITY.md"
+    cp "$installed/rules/AUTHORITY.md" "$TMPROOT/owner-edit-original"
+    sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
+        "$TMPROOT/$guard.sh" "$installed" "$ROOT" "$TMPROOT/edited-continued" \
+        >"$TMPROOT/content-output" 2>&1
+    assert_status "edited managed filename refuses before deletion" 2 "$?"
+    [ ! -e "$TMPROOT/edited-continued" ] && _pass "edited continuation unreachable" || _fail "edited continuation unreachable" "marker exists"
+    assert_files_identical "edited managed bytes preserved" "$installed/rules/AUTHORITY.md" "$TMPROOT/owner-edit-original"
+    cp "$ROOT/rules/AUTHORITY.md" "$installed/rules/AUTHORITY.md"
+
+    printf '\nowner platform edit\n' >>"$installed/rules/platform/$platform"
+    sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
+        "$TMPROOT/$guard.sh" "$installed" "$ROOT" "$TMPROOT/platform-continued" \
+        >"$TMPROOT/content-output" 2>&1
+    assert_status "edited platform file refuses before deletion" 2 "$?"
+    [ ! -e "$TMPROOT/platform-continued" ] && _pass "platform continuation unreachable" || _fail "platform continuation unreachable" "marker exists"
+fi
 finish

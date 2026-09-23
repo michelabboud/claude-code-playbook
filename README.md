@@ -61,9 +61,10 @@ section to see its trigger and its rules, plus the tables that carry the real
 structure — the approval table, the review ladder, the model roster, the close-out
 chain, and the three-way platform matrix.
 
-It ships in this repo as [`docs/index.html`](docs/index.html) — one
-self-contained file, no server, no network, no build step. The link above is the
-same file served by GitHub Pages.
+It ships in this repo as [`docs/index.html`](docs/index.html) — one HTML file,
+no server or build step. The page works offline with fallback fonts; its
+optional Google Fonts styling needs network access. The link above is the same
+file served by GitHub Pages.
 
 ## Install
 
@@ -112,11 +113,13 @@ ports, measuring host capacity before a fan-out, hashing a file, creating a
 directory only you can read, inspecting and stopping a process, moving a file
 atomically.
 
-**Keep the one you are on. Delete the others, or keep all three if you work
-across machines** — the rules refer to "your platform file" and never inline a
-command that only works on one OS. Never carry a command from one file to
-another: a command that exists on Linux is frequently absent or subtly different
-on macOS, and Windows usually does the job a different way entirely.
+**Install only the file for this machine.** Keep all three in the source
+repository; on another machine, install its matching file separately. The
+preflight rejects extra installed platform Markdown. The rules refer to "your
+platform file" and never inline a command that only works on one OS. Never
+carry a command from one file to another: a command that exists on Linux is
+frequently absent or subtly different on macOS, and Windows usually does the
+job a different way entirely.
 
 ## The model roster
 

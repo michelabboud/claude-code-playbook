@@ -115,7 +115,8 @@ Do this as its own step, and evaluate its result, before any copying begins.
 ## Step 2 — Copy the two things
 
 1. `CLAUDE.md` → `~/.claude/CLAUDE.md`
-2. Every `.md` file in `rules/` → `~/.claude/rules/`
+2. Every top-level `.md` file directly in `rules/` (the fourteen managed
+   subject files, not `rules/platform/`) → `~/.claude/rules/`
 
 Create `~/.claude/rules/` if it does not exist.
 
@@ -141,8 +142,8 @@ file you did not install.
 The other two are deliberately left behind. A command that works on one system is
 frequently absent or subtly different on another, and a rulebook carrying three
 contradictory answers invites exactly the mistake the split exists to prevent. If
-the user works across several machines, say so and let them decide — do not copy
-all three on your own judgement.
+the user works across several machines, install the matching single platform
+file separately on each machine. Do not copy all three into one installation.
 
 ---
 
@@ -467,6 +468,46 @@ uninstall_local_preflight() {
 uninstall_local_preflight ~/.claude/rules . || exit 2
 ```
 
+For a no-backup uninstall only, also verify every path scheduled for deletion
+against a **trusted, clean checkout of the exact installed playbook version**.
+If that checkout is unavailable, its version cannot be established, or any
+installed bytes differ, do not delete the file or proceed with this path:
+preserve the installation and ask the owner how to retain the changes. A
+managed filename alone is not proof that its current content belongs to the
+playbook. Run this read-only guard before the first deletion:
+
+```sh
+uninstall_managed_file_preflight() {
+    if [ ! -d "$1/rules" ] || [ ! -f "$2/VERSION" ]; then
+        printf 'No-backup uninstall blocked: installed rules or matching source unavailable.\n' >&2
+        return 2
+    fi
+    case $(uname -s) in
+        Linux) platform=LINUX.md ;;
+        Darwin) platform=MACOS.md ;;
+        MINGW*|MSYS*|CYGWIN*) platform=WINDOWS.md ;;
+        *) printf 'No-backup uninstall blocked: unsupported host platform.\n' >&2; return 2 ;;
+    esac
+    for relative in CLAUDE.md \
+        rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
+        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
+        rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
+        rules/WRITING.md "rules/platform/$platform"; do
+        installed=$1/$relative
+        source=$2/$relative
+        if [ -L "$installed" ] || [ -L "$source" ] ||
+           [ ! -f "$installed" ] || [ ! -f "$source" ] ||
+           ! cmp -s "$installed" "$source"; then
+            printf 'No-backup uninstall blocked: not proven unchanged: %s\n' "$installed" >&2
+            return 2
+        fi
+    done
+    return 0
+}
+uninstall_managed_file_preflight ~/.claude /path/to/exact-installed-release-checkout || exit 2
+```
+
 **If either local path or unaccounted Markdown or a symlink exists, stop before
 restoring or deleting managed files.**
 This applies to Fill-only, Add-only, empty, unreadable, and dangling-link local
@@ -486,7 +527,8 @@ rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or
 `LOCAL_dev.md`.** Restoring a whole backup directory over `rules/` would put back
 an old copy of a local file the user has changed since, and that is the one loss
 this design exists to prevent. If there were no backups, the user had no previous
-rulebook — delete only the fourteen named managed rule files and the single
+rulebook — **only after the separate exact-content no-backup preflight passes**,
+delete only the fourteen named managed rule files and the single
 installed managed platform `.md` file, each by its exact path, then
 `~/.claude/CLAUDE.md`. Remove `~/.claude/rules/platform/` with `rmdir` only
 if it is empty. If any other content remains, preserve it and report it;

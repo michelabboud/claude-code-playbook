@@ -12,3 +12,4 @@ never edited or deleted — it is superseded by a later one.
 | [0005](0005-verifiable-local-overrides.md) | A live Override binds to one unique Markdown section, its normalized SHA-256 digest, and a unique quote of at least 16 non-whitespace bytes; ambiguous or incomplete evidence refuses | accepted 2026-09-21 |
 | [0006](0006-recursive-rules-preflight.md) | Refuse unaccounted Markdown and symlinks anywhere under recursively loaded rules before mutation; preserve files for an owner decision | accepted 2026-09-23 |
 | [0007](0007-platform-rule-preservation.md) | Admit only the host platform rule, scan a symlinked rules root, and preserve non-managed platform contents on uninstall | accepted 2026-09-23 |
+| [0008](0008-no-backup-uninstall-proves-content.md) | Prove each managed file is unchanged before no-backup uninstall; preserve edited bytes | accepted 2026-09-23 |

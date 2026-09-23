@@ -9,6 +9,12 @@ plan execution, communication, model, and log-ignore guidance is included.
 Nothing is published until the repaired candidate passes its suites and
 focused independent reviews.
 
+Both GPT-6 Sol reviews of `ab05129` failed on the no-backup uninstall of an
+owner-edited managed file. A separate content preflight, exercised against
+clean, edited subject-rule, and edited platform fixtures, now refuses
+unproven deletion. Documentation contradictions are repaired. This is still
+unpublished and needs a focused re-review.
+
 The focused repair covers encoding-safe Override detection, normalized heading
 uniqueness, all-destination migration preflight, uninstall/restore refusal while
 local files remain active, and the guide/map's current authority contract. The
