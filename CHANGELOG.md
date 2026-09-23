@@ -6,6 +6,16 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ## Unreleased
 
+- Run a safe hygiene checkpoint after tasks, phases, and plans: measure disk and
+  resources, verify worktree/feature-branch and generated-debug provenance
+  before cleanup, and preserve logs, reports, and documents. Rotate and
+  compress only inactive logs; deletion requires explicit consent. Logs are
+  gitignored by default, while reports, documents, and guides are committed.
+- Add GPT-6 Sol as the optional Strong second-family model and GPT-6 Luna as a
+  Fast bounded-work candidate. The listed API prices are recorded in the
+  roster; the Standard mechanical-review floor remains unchanged.
+- Refuse unexpected Markdown or symlinks anywhere under the recursively loaded
+  installed rules tree before update, migration, uninstall, or restore.
 - Refuse plus-bullet, split-emphasis, and Unicode-lookalike local entries that
   could otherwise look like Overrides while receiving zero checks. Replace the
   template's unsafe down-tier example with a stricter tier example.

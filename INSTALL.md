@@ -254,7 +254,7 @@ writes nothing.
 |---|---|---|
 | **0** | every quoted string and section digest is current, or the user has no local layer | Go on to step U3. |
 | **1** | at least one **stale override** — its section digest changed or its quote disappeared | **Stop.** Show the user each reported line and ask what the override should become. Do not copy anything. |
-| **2** | a usage error, a missing file, a malformed or oversized verifier, an **Override** with no complete verifier, an ambiguous heading, a short or repeated quote, UTF-8 BOM or NUL bytes, a misplaced marker, an unclosed fence, an unreadable local file, or an unavailable check | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
+| **2** | a usage error, unexpected Markdown or symlink anywhere in the recursively loaded rules tree, a missing file, a malformed or oversized verifier, an **Override** with no complete verifier, an ambiguous heading, a short or repeated quote, UTF-8 BOM or NUL bytes, a misplaced marker, an unclosed fence, an unreadable local file, or an unavailable check | **Stop.** Report exactly what the script said. An unreadable check is not a passed check, and a skipped entry is not a checked one. |
 
 **Step U3 — List the rules the update touched that the user overrides.** The
 check in U2 detects changes anywhere in the anchored section. It cannot judge
@@ -379,7 +379,9 @@ layer that has not passed this.
 **Step M5 — Preflight both local paths, then install.** Before copying either
 local file or changing any managed file, check **both** destinations together.
 An existing path includes a directory or dangling symlink, not only a readable
-file. Run this read-only guard; exit 2 stops the migration:
+file. The guard also refuses any other Markdown or symlink under the recursively
+loaded rules directory that the new managed tree does not account for. Run this
+read-only guard; exit 2 stops the migration:
 
 ```sh
 migration_local_preflight() {
@@ -393,9 +395,13 @@ migration_local_preflight() {
             return 2
         fi
     done
+    if ! sh "$2/scripts/check-local.sh" "$1" "$2/rules" "$2/CLAUDE.md"; then
+        printf 'Migration blocked: the recursively loaded rules tree is not accounted for.\n' >&2
+        return 2
+    fi
     return 0
 }
-migration_local_preflight ~/.claude/rules || exit 2
+migration_local_preflight ~/.claude/rules <scratch>/new || exit 2
 ```
 
 | Preflight result for both destinations | What you do |
@@ -432,11 +438,13 @@ and rule, and is the fastest way for them to see what they just installed.
 
 ## Uninstalling
 
-**Preflight before any restore or deletion.** Claude Code recursively loads
+**Preflight before any restore or deletion.** From this repository's checkout
+root, run the guard below. Claude Code recursively loads
 local files from `rules/` even after the base rulebook is removed. An old backup
 may also lack the local-layer boundary. A successful Override check says nothing
 about a Fill or Add, so it cannot authorize leaving those files active without
-their base. Run this read-only guard before changing anything:
+their base. The guard also refuses unaccounted nested or extra Markdown or
+symlinks, without moving or deleting them. Run it before changing anything:
 
 ```sh
 uninstall_local_preflight() {
@@ -450,12 +458,17 @@ uninstall_local_preflight() {
             return 2
         fi
     done
+    if ! sh "$2/scripts/check-local.sh" "$1" "$2/rules" "$2/CLAUDE.md"; then
+        printf 'Uninstall/restore blocked: the recursively loaded rules tree is not accounted for.\n' >&2
+        return 2
+    fi
     return 0
 }
-uninstall_local_preflight ~/.claude/rules || exit 2
+uninstall_local_preflight ~/.claude/rules . || exit 2
 ```
 
-**If either local path exists, stop before restoring or deleting managed files.**
+**If either local path or unaccounted Markdown or a symlink exists, stop before
+restoring or deleting managed files.**
 This applies to Fill-only, Add-only, empty, unreadable, and dangling-link local
 files as well as Overrides. Keep the installation and local files unchanged.
 Explain that the owner must first decide how to preserve the local files outside
@@ -463,9 +476,10 @@ the recursively loaded `rules/` directory, or adapt their installation in a
 separately approved operation. This procedure never moves, edits, or deletes
 them. Re-run the guard after the owner has resolved the active local paths.
 
-Only when both local paths are absent may the approved uninstall/restore
-continue. Re-run the guard immediately before the first mutation. No checker
-invocation with a nonexistent staged `CLAUDE.md` is needed.
+Only when both local paths are absent and the tree check passes may the approved uninstall/restore
+continue. Re-run the guard immediately before the first mutation, using a real
+checkout of the version being restored as the staged rule source. Never treat a
+missing staged `CLAUDE.md` as a passed preflight.
 
 Restore the timestamped backups from step 1 over `~/.claude/CLAUDE.md` and the
 rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or

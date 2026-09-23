@@ -135,7 +135,7 @@ obligation. It must:
   availability before assigning a port, repeat the machine and registry checks
   immediately before binding it. Written against 0.1.16.
   **Anchor:** `# 9 · Environment & operations — rules 9.1–9.6` (in `ENVIRONMENT.md`)
-  **Rule digest:** `sha256:84a5869934f2cf92c4ed7781bd54b376b486323a91766738d20c1c4a0a184718`
+  **Rule digest:** `sha256:0232a6206b272940e7e214a977c0f53b156fafce29ced313d626c69464f508da`
   **Dead words:** `before assigning a port, verify it's free` (in `ENVIRONMENT.md`)
 ```
 

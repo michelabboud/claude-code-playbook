@@ -19,8 +19,8 @@ for guard in migration_local_preflight uninstall_local_preflight; do
     status=$?
     assert_status "$guard exists as an executable preflight" 0 "$status"
     [ "$status" -eq 0 ] || continue
-    sh -c '. "$1"; "$2" "$3"' sh "$TMPROOT/$guard.sh" "$guard" \
-        "$TMPROOT/missing-rules" >"$TMPROOT/output" 2>&1
+    sh -c '. "$1"; "$2" "$3" "$4"' sh "$TMPROOT/$guard.sh" "$guard" \
+        "$TMPROOT/missing-rules" "$ROOT" >"$TMPROOT/output" 2>&1
     assert_status "$guard refuses an unavailable rules directory" 2 "$?"
     for state in absent fill add empty directory dangling; do
         for local_name in LOCAL.md LOCAL_dev.md; do
@@ -40,8 +40,8 @@ for guard in migration_local_preflight uninstall_local_preflight; do
             if [ -f "$local_path" ]; then cp "$local_path" "$case_dir/original-local"; fi
             # The continuation marker stands for the first mutation in the
             # procedure; refusal must make that line unreachable.
-            sh -c '. "$1"; "$2" "$3" || exit 2; : >"$4"' sh \
-                "$TMPROOT/$guard.sh" "$guard" "$case_dir/rules" "$case_dir/continued" \
+            sh -c '. "$1"; "$2" "$3" "$4" || exit 2; : >"$5"' sh \
+                "$TMPROOT/$guard.sh" "$guard" "$case_dir/rules" "$ROOT" "$case_dir/continued" \
                 >"$case_dir/output" 2>&1
             status=$?
             if [ "$state" = absent ]; then
@@ -80,5 +80,22 @@ for guard in migration_local_preflight uninstall_local_preflight; do
             assert_files_identical "managed rules are preserved" "$case_dir/rules/AUTHORITY.md" "$case_dir/original-managed"
         done
     done
+
+    case_dir=$TMPROOT/$guard-nested-markdown
+    mkdir -p "$case_dir/rules/backup"
+    printf 'managed rules stay intact\n' > "$case_dir/rules/AUTHORITY.md"
+    printf '%s\n' '**Override — nested and unchecked.**' > "$case_dir/rules/backup/LOCAL.md"
+    cp "$case_dir/rules/backup/LOCAL.md" "$case_dir/original-nested"
+    sh -c '. "$1"; "$2" "$3" "$4" || exit 2; : >"$5"' sh \
+        "$TMPROOT/$guard.sh" "$guard" "$case_dir/rules" "$ROOT" "$case_dir/continued" \
+        >"$case_dir/output" 2>&1
+    assert_status "$guard refuses nested active Markdown before mutation" 2 "$?"
+    if [ ! -e "$case_dir/continued" ]; then
+        _pass "$guard leaves mutation unreachable for nested Markdown"
+    else
+        _fail "$guard leaves mutation unreachable for nested Markdown" "continuation reached"
+    fi
+    assert_files_identical "$guard preserves the nested user file" \
+        "$case_dir/rules/backup/LOCAL.md" "$case_dir/original-nested"
 done
 finish

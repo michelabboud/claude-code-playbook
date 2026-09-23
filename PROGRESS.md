@@ -7,8 +7,8 @@ uniqueness, all-destination migration preflight, uninstall/restore refusal while
 local files remain active, and the guide/map's current authority contract. The
 Linux shell fixtures test those paths without changing any real installation.
 The `a7e690e` deep re-review found a plus-bullet silent skip and a recursively
-loaded extra-Markdown blind spot. The first is fixed in the current local repair;
-the second awaits an owner decision on refusing extra Markdown under `rules/`.
+loaded extra-Markdown blind spot. Both are fixed in the current local repair;
+the owner approved refusing extra Markdown under `rules/` on 2026-09-23.
 Neither playbook is published on the strength of passing tests alone.
 
 The bundle is complete and installable: thirteen numbered sections across

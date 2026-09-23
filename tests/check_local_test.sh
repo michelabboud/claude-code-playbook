@@ -1297,4 +1297,35 @@ run_raw_check "$CASE/local" "$CASE/rules"
 assert_status "normalized duplicate headings are refused: exit 2" 2 "$STATUS"
 assert_contains "normalized duplicate count includes both forms" "$ERRO" "found 2"
 
+# Claude loads this directory recursively. A file outside the managed names
+# and two local names cannot be silently declared "no local layer".
+mkcase nestedrule
+mkdir -p "$CASE/local/backup"
+printf '%s\n' '**Override — hidden nested rule.**' > "$CASE/local/backup/LOCAL.md"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "nested Markdown outside the staged rule tree is refused: exit 2" 2 "$STATUS"
+assert_contains "nested Markdown refusal names the active path" "$ERRO" 'backup/LOCAL.md'
+
+mkcase unknownrule
+printf '%s\n' '# A user-created active rule' > "$CASE/local/notes.md"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "an extra top-level Markdown rule is refused: exit 2" 2 "$STATUS"
+
+mkcase uppercaseunknownrule
+printf '%s\n' '# A user-created active rule' > "$CASE/local/NOTES.MD"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "an extra uppercase Markdown rule is refused: exit 2" 2 "$STATUS"
+
+mkcase linkedrule
+mkdir -p "$CASE/elsewhere"
+printf '%s\n' '# Hidden active rule' > "$CASE/elsewhere/note.md"
+ln -s "$CASE/elsewhere" "$CASE/local/linked"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "an uninspected linked rules directory is refused: exit 2" 2 "$STATUS"
+
+mkcase knownrule
+cp "$CASE/rules/ENVIRONMENT.md" "$CASE/local/ENVIRONMENT.md"
+run_raw_check "$CASE/local" "$CASE/rules"
+assert_status "a known staged managed rule remains allowed: exit 0" 0 "$STATUS"
+
 finish

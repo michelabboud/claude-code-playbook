@@ -36,10 +36,11 @@ or real installation follows from this repair.
 
 The pinned `a7e690e` deep re-review failed: a plus-bullet Override was silently
 skipped, and recursively loaded Markdown outside the two named local files was
-not inspected. The plus-bullet class and an unsafe template example are being
-repaired locally. The recursive-file preflight changes the accepted layout and
-awaits the owner's trust-boundary decision. See the candidate deep and mechanical
-reports under `docs/reviews/`.
+not inspected. The plus-bullet class and unsafe template example are repaired
+locally. The owner approved fail-closed recursive-file preflight on 2026-09-23;
+the checker and migration/uninstall guards now refuse unaccounted Markdown
+before mutation. Focused re-review is still owed. See the candidate deep and
+mechanical reports under `docs/reviews/`.
 
 **Generalise the private rulebook** — delivered: private references removed,
 section 11 repurposed as the platform section, three platform files written, the
@@ -47,3 +48,9 @@ model roster made Claude-only with mechanical review measured onto Sonnet, and
 two broken cross-references fixed.
 
 The open items are in `BACKLOG.md`.
+
+**Hygiene and GPT-6 routing, 2026-09-23.** The owner requested both additions
+while the local-layer batch remains held. The hygiene checkpoint preserves logs
+outside Git by default and commits reports, documents, and guides; Sol and Luna
+are dated roster options, without lowering the mechanical-review floor. These
+edits join the unpublished candidate and need its review before publication.

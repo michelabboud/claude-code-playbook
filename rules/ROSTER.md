@@ -17,16 +17,16 @@ paths:
 
 *Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*
 
-**Last revised:** 2026-09-20. If that date is more than a few months old, check the names below against what your harness actually offers before trusting them.
+**Last revised:** 2026-09-23. If that date is more than a few months old, check the names below against what your harness actually offers before trusting them.
 
 ## Tiers — which model fills each
 
 | Tier | Claude model | Optional second family — only if your setup has it |
 |---|---|---|
 | **Top** | **Claude Fable** | Astra 6 |
-| **Strong** | **Claude Opus** | Sol, at its highest reasoning effort |
+| **Strong** | **Claude Opus** | GPT-6 Sol, at its highest available reasoning effort |
 | **Standard** | **Claude Sonnet** | — |
-| **Fast** | **Claude Haiku** | — |
+| **Fast** | **Claude Haiku** | GPT-6 Luna, for bounded mechanical work after a task-specific trial |
 
 What each tier is trusted with is rule 8.1; which review each tier runs is rule 3.1.
 
@@ -37,6 +37,8 @@ What each tier is trusted with is rule 8.1; which review each tier runs is rule 
 ## Measurements behind this roster
 
 **Why mechanical review is Standard and not Fast — measured September 2026, not assumed.** Claude Haiku and Claude Sonnet were given an identical mechanical-review brief over one file containing nine real defects. Haiku found five, with zero false positives; Sonnet found all nine, a strict superset. What Haiku missed was not exotic: a declared-but-never-enforced input limit, and a doc-says-X-code-does-Y mismatch — both squarely inside the classes the brief named. Haiku is precise but not thorough, and thoroughness is the entire job of the review that is supposed to be the safety net. It keeps mechanical *work*; it does not get mechanical *review*.
+
+**GPT-6 options, checked 2026-09-23.** OpenAI lists GPT-6 Sol for complex coding and agentic work at $2 input / $10 output per million Standard text tokens; GPT-6 Luna for focused high-volume work at $0.10 / $0.50. That is a 20× token-price difference, not a 20× end-to-end saving: retries, reasoning tokens, orchestration, and review failures matter. Sol has produced useful deep-review findings in this playbook's local-layer batch; Luna has not yet passed the nine-defect mechanical-review comparison. Keep the Standard mechanical-review floor and treat Luna as a Fast implementation candidate only until measured on the exact work. The model pages are [Sol](https://developers.openai.com/api/docs/models/gpt-6-sol) and [Luna](https://developers.openai.com/api/docs/models/gpt-6-luna); recheck price and availability before dispatch.
 
 **A measurement belongs to the models it was taken on.** When you change the model in a row, the measurement for that row is stale: re-measure before you move a review down a tier, and record the new result here with its date.
 

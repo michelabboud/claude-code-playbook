@@ -102,7 +102,7 @@
 # globals SCAN_WORDS, ITEM_FILES and SCAN_REST.
 #
 # External utilities used: grep (-F, -q, -e, --), cat (for the usage heredoc),
-# cmp, tr, awk, wc, mktemp, rm, and sha256sum, shasum, or openssl. Everything
+# cmp, tr, awk, wc, find, mktemp, rm, and sha256sum, shasum, or openssl. Everything
 # else is a shell builtin.
 
 set -u
@@ -929,6 +929,32 @@ counts() {
 # permission problem into a clean bill of health.
 if [ ! -x "$local_dir" ]; then
     err "$PROG: cannot search $local_dir — a local file inside it could not be seen, so this is not a pass"
+fi
+
+# Claude loads Markdown recursively. Only the two named local files and files
+# present in the staged managed tree are accounted for by this check/update.
+# A symlink anywhere else may hide a subtree from find, so refuse it too.
+# -exec passes each pathname as an argument, including spaces and newlines;
+# parsing a line-oriented find listing here would fail open on unusual names.
+unexpected_tree_entries=$(
+    find "$local_dir" -mindepth 1 \( -name '*.[mM][dD]' -o -type l \) \
+        -exec sh -c '
+            staged=$1; installed=$2; shift 2
+            for path do
+                relative=${path#"$installed"/}
+                case $relative in LOCAL.md|LOCAL_dev.md) continue ;; esac
+                if [ -L "$path" ] || [ ! -f "$path" ] ||
+                   [ ! -f "$staged/$relative" ] || [ -L "$staged/$relative" ]; then
+                    printf "unexpected active Markdown or symlink: %s\n" "$path"
+                fi
+            done
+        ' sh "$rules_dir" "$local_dir" {} + 2>&1
+)
+tree_scan_status=$?
+if [ "$tree_scan_status" -ne 0 ]; then
+    err "$PROG: cannot enumerate the recursively loaded rules tree: $unexpected_tree_entries"
+elif [ -n "$unexpected_tree_entries" ]; then
+    err "$PROG: refusing unaccounted content in the recursively loaded rules tree: $unexpected_tree_entries"
 fi
 
 present=''
