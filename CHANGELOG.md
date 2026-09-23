@@ -17,6 +17,9 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
   managed paths while preserving other platform-directory contents.
 - Require byte-for-byte proof against the installed release before no-backup
   uninstall deletes a named managed file; preserve owner edits when it differs.
+- Apply that proof to backup restoration too; verify a clean tagged reference,
+  refuse linked configuration roots, and snapshot the current installation
+  before any uninstall mutation.
 - Ignore rotated and compressed `*.log.*` files as well as active `*.log` files.
 - Run a safe hygiene checkpoint after tasks, phases, and plans: measure disk and
   resources, verify worktree/feature-branch and generated-debug provenance

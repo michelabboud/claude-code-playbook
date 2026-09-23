@@ -71,3 +71,11 @@ The separate content guard now compares every deletion target with the exact
 installed release and refuses mismatches. The mechanical reviewer also found
 README platform/offline contradictions; both were corrected. The new candidate
 needs full tests and a focused GPT-6 Sol re-review before publication.
+
+The focused GPT-6 Sol review of `03fcf9b` failed on backup restoration losing
+post-install edits, linked rules roots redirecting deletion, and unverified
+source provenance; mechanical re-check also found an ambiguous README copy
+recipe. Both uninstall branches now share the exact-content guard, which
+requires a clean tagged checkout of the installed version, refuses linked
+roots, and requires a fresh verified snapshot before mutation. The copy recipe
+is explicit. Run full tests and a new pinned Sol re-review before publication.

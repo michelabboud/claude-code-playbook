@@ -13,3 +13,4 @@ never edited or deleted — it is superseded by a later one.
 | [0006](0006-recursive-rules-preflight.md) | Refuse unaccounted Markdown and symlinks anywhere under recursively loaded rules before mutation; preserve files for an owner decision | accepted 2026-09-23 |
 | [0007](0007-platform-rule-preservation.md) | Admit only the host platform rule, scan a symlinked rules root, and preserve non-managed platform contents on uninstall | accepted 2026-09-23 |
 | [0008](0008-no-backup-uninstall-proves-content.md) | Prove each managed file is unchanged before no-backup uninstall; preserve edited bytes | accepted 2026-09-23 |
+| [0009](0009-uninstall-preserves-current-installation.md) | Prove source and current content on both uninstall paths, refuse linked roots, and snapshot current destinations before mutation | accepted 2026-09-23 |

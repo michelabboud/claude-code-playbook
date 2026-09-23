@@ -73,17 +73,20 @@ full procedure — preconditions, backup-first, platform selection, verification
 and the conditions under which it must refuse — is in
 **[`INSTALL.md`](INSTALL.md)**. It is written to be executed, not just read.
 
-To do it by hand, copy two things into your Claude Code configuration directory:
+To do it by hand, copy the top-level managed rules and one matching platform
+file into your Claude Code configuration directory:
 
 ```
-CLAUDE.md   →  ~/.claude/CLAUDE.md
-rules/      →  ~/.claude/rules/
+CLAUDE.md                  →  ~/.claude/CLAUDE.md
+rules/*.md (top level)      →  ~/.claude/rules/
+rules/platform/<your-os>.md →  ~/.claude/rules/platform/
 ```
 
 On Windows that directory is `%USERPROFILE%\.claude\`.
 
-If you already have a `~/.claude/CLAUDE.md`, **back it up first** — this replaces
-it. (Rule 10.2, in this very bundle, says the same thing about any file you did
+If either destination already exists, **back it up first** and follow the
+complete preflight in `INSTALL.md`; do not replace the whole rules directory.
+(Rule 10.2, in this very bundle, says the same thing about any file you did
 not create.)
 
 There is a third thing you may want, and it is optional:

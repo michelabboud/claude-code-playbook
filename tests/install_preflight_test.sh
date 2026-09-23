@@ -99,6 +99,30 @@ for guard in migration_local_preflight uninstall_local_preflight; do
         "$case_dir/rules/backup/LOCAL.md" "$case_dir/original-nested"
 done
 
+# A linked rules root or configuration parent may point outside the intended
+# deletion scope. Uninstall must refuse before even considering exact files.
+linked_case=$TMPROOT/linked-uninstall
+mkdir -p "$linked_case/external/rules" "$linked_case/config"
+printf 'external owner content\n' >"$linked_case/external/rules/notes.txt"
+ln -s "$linked_case/external/rules" "$linked_case/config/rules"
+sh -c '. "$1"; uninstall_local_preflight "$2" "$3" || exit 2; : > "$4"' sh \
+    "$TMPROOT/uninstall_local_preflight.sh" "$linked_case/config/rules" "$ROOT" "$linked_case/continued" \
+    >"$linked_case/output" 2>&1
+assert_status "uninstall refuses a linked rules root" 2 "$?"
+[ ! -e "$linked_case/continued" ] && _pass "linked-root continuation unreachable" || _fail "linked-root continuation unreachable" "marker exists"
+[ -f "$linked_case/external/rules/notes.txt" ] && _pass "linked-root external bytes preserved" || _fail "linked-root external bytes preserved" "missing file"
+
+parent_case=$TMPROOT/linked-parent-uninstall
+mkdir -p "$parent_case/external/rules"
+printf 'external owner content\n' >"$parent_case/external/rules/notes.txt"
+ln -s "$parent_case/external" "$parent_case/config"
+sh -c '. "$1"; uninstall_local_preflight "$2" "$3" || exit 2; : > "$4"' sh \
+    "$TMPROOT/uninstall_local_preflight.sh" "$parent_case/config/rules" "$ROOT" "$parent_case/continued" \
+    >"$parent_case/output" 2>&1
+assert_status "uninstall refuses a linked configuration parent" 2 "$?"
+[ ! -e "$parent_case/continued" ] && _pass "linked-parent continuation unreachable" || _fail "linked-parent continuation unreachable" "marker exists"
+[ -f "$parent_case/external/rules/notes.txt" ] && _pass "linked-parent external bytes preserved" || _fail "linked-parent external bytes preserved" "missing file"
+
 # A no-backup uninstall must not delete user edits merely because a pathname
 # matches the managed inventory. Extract its separate content guard verbatim.
 guard=uninstall_managed_file_preflight
@@ -116,6 +140,17 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
         MINGW*|MSYS*|CYGWIN*) platform=WINDOWS.md ;;
         *) platform=unsupported ;;
     esac
+    source_checkout=$TMPROOT/exact-release-source
+    mkdir -p "$source_checkout/rules/platform"
+    cp "$ROOT/CLAUDE.md" "$ROOT/VERSION" "$source_checkout/"
+    for managed in AUTHORITY CODE COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT QUARANTINE REPO REVIEWS ROSTER SUBAGENTS TESTING WORKFLOW WRITING; do
+        cp "$ROOT/rules/$managed.md" "$source_checkout/rules/$managed.md"
+    done
+    cp "$ROOT/rules/platform/$platform" "$source_checkout/rules/platform/$platform"
+    git -C "$source_checkout" init -q
+    git -C "$source_checkout" add -- .
+    git -C "$source_checkout" -c user.name=Fixture -c user.email=fixture@example.invalid commit -qm 'fixture release'
+    git -C "$source_checkout" tag "checkpoint/$(sed -n '1p' "$ROOT/VERSION")"
     installed=$TMPROOT/no-backup-install
     mkdir -p "$installed/rules/platform"
     cp "$ROOT/CLAUDE.md" "$installed/CLAUDE.md"
@@ -124,7 +159,7 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
     done
     cp "$ROOT/rules/platform/$platform" "$installed/rules/platform/$platform"
     sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
-        "$TMPROOT/$guard.sh" "$installed" "$ROOT" "$TMPROOT/clean-continued" \
+        "$TMPROOT/$guard.sh" "$installed" "$source_checkout" "$TMPROOT/clean-continued" \
         >"$TMPROOT/content-output" 2>&1
     assert_status "unchanged managed files may continue" 0 "$?"
     [ -f "$TMPROOT/clean-continued" ] && _pass "clean continuation reached" || _fail "clean continuation reached" "missing marker"
@@ -132,7 +167,7 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
     printf '\nowner edit\n' >>"$installed/rules/AUTHORITY.md"
     cp "$installed/rules/AUTHORITY.md" "$TMPROOT/owner-edit-original"
     sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
-        "$TMPROOT/$guard.sh" "$installed" "$ROOT" "$TMPROOT/edited-continued" \
+        "$TMPROOT/$guard.sh" "$installed" "$source_checkout" "$TMPROOT/edited-continued" \
         >"$TMPROOT/content-output" 2>&1
     assert_status "edited managed filename refuses before deletion" 2 "$?"
     [ ! -e "$TMPROOT/edited-continued" ] && _pass "edited continuation unreachable" || _fail "edited continuation unreachable" "marker exists"
@@ -141,9 +176,26 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
 
     printf '\nowner platform edit\n' >>"$installed/rules/platform/$platform"
     sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
-        "$TMPROOT/$guard.sh" "$installed" "$ROOT" "$TMPROOT/platform-continued" \
+        "$TMPROOT/$guard.sh" "$installed" "$source_checkout" "$TMPROOT/platform-continued" \
         >"$TMPROOT/content-output" 2>&1
     assert_status "edited platform file refuses before deletion" 2 "$?"
     [ ! -e "$TMPROOT/platform-continued" ] && _pass "platform continuation unreachable" || _fail "platform continuation unreachable" "marker exists"
+
+    cp "$ROOT/rules/platform/$platform" "$installed/rules/platform/$platform"
+    printf '9.9.9\n' >"$source_checkout/VERSION"
+    sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
+        "$TMPROOT/$guard.sh" "$installed" "$source_checkout" "$TMPROOT/wrong-version-continued" \
+        >"$TMPROOT/content-output" 2>&1
+    assert_status "wrong source VERSION refuses before deletion" 2 "$?"
+    [ ! -e "$TMPROOT/wrong-version-continued" ] && _pass "wrong-version continuation unreachable" || _fail "wrong-version continuation unreachable" "marker exists"
+    cp "$ROOT/VERSION" "$source_checkout/VERSION"
+
+    printf '\nowner matched edit\n' >>"$source_checkout/rules/AUTHORITY.md"
+    printf '\nowner matched edit\n' >>"$installed/rules/AUTHORITY.md"
+    sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
+        "$TMPROOT/$guard.sh" "$installed" "$source_checkout" "$TMPROOT/dirty-source-continued" \
+        >"$TMPROOT/content-output" 2>&1
+    assert_status "dirty matching source refuses before deletion" 2 "$?"
+    [ ! -e "$TMPROOT/dirty-source-continued" ] && _pass "dirty-source continuation unreachable" || _fail "dirty-source continuation unreachable" "marker exists"
 fi
 finish

@@ -15,6 +15,13 @@ clean, edited subject-rule, and edited platform fixtures, now refuses
 unproven deletion. Documentation contradictions are repaired. This is still
 unpublished and needs a focused re-review.
 
+The GPT-6 Sol focused review of `03fcf9b` failed: backup restore could lose
+later edits, linked roots could redirect deletion, and source provenance was
+only asserted in prose. The current worktree extends fail-closed preflight to
+both uninstall paths, checks a clean tagged release, refuses linked roots,
+and requires a fresh current snapshot. New fixtures cover these cases; a full
+suite and independent review are still owed.
+
 The focused repair covers encoding-safe Override detection, normalized heading
 uniqueness, all-destination migration preflight, uninstall/restore refusal while
 local files remain active, and the guide/map's current authority contract. The

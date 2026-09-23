@@ -449,6 +449,10 @@ symlinks, without moving or deleting them. Run it before changing anything:
 
 ```sh
 uninstall_local_preflight() {
+    if [ -L "$1" ] || [ -L "${1%/*}" ] || [ -L "$1/platform" ]; then
+        printf 'Uninstall/restore blocked: a configuration or rules directory is a symlink: %s\n' "$1" >&2
+        return 2
+    fi
     if [ ! -d "$1" ] || [ ! -x "$1" ]; then
         printf 'Uninstall/restore blocked: cannot inspect rules directory: %s\n' "$1" >&2
         return 2
@@ -465,28 +469,45 @@ uninstall_local_preflight() {
     fi
     return 0
 }
-uninstall_local_preflight ~/.claude/rules . || exit 2
+uninstall_local_preflight ~/.claude/rules /path/to/exact-installed-release-checkout || exit 2
 ```
 
-For a no-backup uninstall only, also verify every path scheduled for deletion
+For **both** restore-from-backup and no-backup uninstall, verify every current
+managed path that would be overwritten or deleted
 against a **trusted, clean checkout of the exact installed playbook version**.
 If that checkout is unavailable, its version cannot be established, or any
-installed bytes differ, do not delete the file or proceed with this path:
+installed bytes differ, do not overwrite or delete the file:
 preserve the installation and ask the owner how to retain the changes. A
 managed filename alone is not proof that its current content belongs to the
-playbook. Run this read-only guard before the first deletion:
+playbook. Run this read-only guard before the first mutation:
 
 ```sh
 uninstall_managed_file_preflight() {
     if [ ! -d "$1/rules" ] || [ ! -f "$2/VERSION" ]; then
-        printf 'No-backup uninstall blocked: installed rules or matching source unavailable.\n' >&2
+        printf 'Uninstall/restore blocked: installed rules or matching source unavailable.\n' >&2
+        return 2
+    fi
+    if printf '%s' "$1$2" | LC_ALL=C grep -q '[[:cntrl:]]'; then
+        printf 'Uninstall/restore blocked: ambiguous path encoding.\n' >&2
+        return 2
+    fi
+    source_root=$(CDPATH='' cd -P "$2" && pwd -P) || return 2
+    git_root=$(git -C "$2" rev-parse --show-toplevel 2>/dev/null) || return 2
+    source_status=$(git -C "$2" status --porcelain --untracked-files=all 2>/dev/null) || return 2
+    release_version=$(sed -n '1p' "$2/VERSION")
+    if [ "$source_root" != "$git_root" ] || [ -n "$source_status" ] ||
+       [ -z "$release_version" ] ||
+       [ "$(wc -l < "$2/VERSION")" -ne 1 ] ||
+       ! grep -Fq "**This rulebook is version $release_version**" "$1/CLAUDE.md" ||
+       ! git -C "$2" tag --points-at HEAD | grep -Fxq "checkpoint/$release_version"; then
+        printf 'Uninstall/restore blocked: source is not a clean tagged checkout of the installed version.\n' >&2
         return 2
     fi
     case $(uname -s) in
         Linux) platform=LINUX.md ;;
         Darwin) platform=MACOS.md ;;
         MINGW*|MSYS*|CYGWIN*) platform=WINDOWS.md ;;
-        *) printf 'No-backup uninstall blocked: unsupported host platform.\n' >&2; return 2 ;;
+        *) printf 'Uninstall/restore blocked: unsupported host platform.\n' >&2; return 2 ;;
     esac
     for relative in CLAUDE.md \
         rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
@@ -499,7 +520,7 @@ uninstall_managed_file_preflight() {
         if [ -L "$installed" ] || [ -L "$source" ] ||
            [ ! -f "$installed" ] || [ ! -f "$source" ] ||
            ! cmp -s "$installed" "$source"; then
-            printf 'No-backup uninstall blocked: not proven unchanged: %s\n' "$installed" >&2
+            printf 'Uninstall/restore blocked: not proven unchanged: %s\n' "$installed" >&2
             return 2
         fi
     done
@@ -517,17 +538,29 @@ the recursively loaded `rules/` directory, or adapt their installation in a
 separately approved operation. This procedure never moves, edits, or deletes
 them. Re-run the guard after the owner has resolved the active local paths.
 
-Only when both local paths are absent and the tree check passes may the approved uninstall/restore
-continue. Re-run the guard immediately before the first mutation, using a real
-checkout of the version being restored as the staged rule source. Never treat a
-missing staged `CLAUDE.md` as a passed preflight.
+Only when both local paths are absent, the tree check passes, and every current
+managed file is proven unchanged may the approved uninstall/restore continue.
+Before overwriting or deleting any managed destination, take a **fresh,
+verified snapshot of the current** `~/.claude/CLAUDE.md` and `~/.claude/rules/`
+at unique timestamped sibling paths. This is separate from step 1's old
+pre-install backups: those cannot contain changes made since installation.
+Never place the snapshot under the recursively loaded rules directory or
+overwrite an existing backup. Read it back and verify it is complete; if
+copying or verification fails, stop with the current installation untouched.
+Re-run **both** read-only guards immediately before the first mutation, using
+the same exact installed release checkout as the source for both. Never treat a missing staged
+`CLAUDE.md` as a passed preflight.
+This manual procedure is not atomic: if another process is writing these
+paths, stop until it is quiescent. Re-check the exact file against the
+installed-release source immediately before overwriting or deleting that file;
+if it changed after the earlier guard, preserve it and stop.
 
 Restore the timestamped backups from step 1 over `~/.claude/CLAUDE.md` and the
 rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or
 `LOCAL_dev.md`.** Restoring a whole backup directory over `rules/` would put back
 an old copy of a local file the user has changed since, and that is the one loss
 this design exists to prevent. If there were no backups, the user had no previous
-rulebook — **only after the separate exact-content no-backup preflight passes**,
+rulebook — **only after the exact-content and fresh-snapshot preflights pass**,
 delete only the fourteen named managed rule files and the single
 installed managed platform `.md` file, each by its exact path, then
 `~/.claude/CLAUDE.md`. Remove `~/.claude/rules/platform/` with `rmdir` only
