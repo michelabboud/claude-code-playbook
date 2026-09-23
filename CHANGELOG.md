@@ -6,6 +6,15 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ## Unreleased
 
+- Authenticate staged playbook source against the canonical published tag, or
+  an explicitly owner-pinned full fork commit, before executing its checker or
+  mutating installed files. Compare each used source file's literal bytes and
+  committed regular-file mode; refuse forged tags, hidden index edits,
+  unexpected staged rules, linked destination ancestors or managed files, and
+  unavailable verification. Keep the current installation and backups on
+  refusal.
+- Pin Markdown, shell, and `VERSION` checkout line endings to LF so literal
+  source-byte verification is portable across Git configurations.
 - Route approved plans through scoped subagents where available, record task
   ownership and communication, and automatically begin the next admitted task.
   Add source-backed Claude, Codex, and conditional Herdr communication guidance.

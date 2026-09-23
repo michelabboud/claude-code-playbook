@@ -2,7 +2,7 @@
 
 | Plan | Status | Written | Last updated |
 |---|---|---|---|
-| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — focused blocker repairs built locally; held for focused deep re-review | 2026-09-21 | 2026-09-23 |
+| [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **running** — source-trust repair passes local suites; held for pinned GPT-6 Sol re-review | 2026-09-21 | 2026-09-23 |
 | Generalise the private rulebook into a distributable bundle | **done 2026-09-14** | 2026-09-14 | 2026-09-14 |
 
 **The local layer (0.1.16)** — approved 2026-09-21. Customizations move out of
@@ -92,3 +92,5 @@ the only alternative on 2026-09-23; ADR 0010 records the decision. Repair tasks:
 linked destinations; (2) apply the authenticated preflight consistently to
 first install, update, migration, and uninstall; (3) run all suites and two
 independent GPT-6 Sol re-reviews before publication. No tag or push yet.
+The six-suite local run exited 0 with counts 207, 93, 53, 143, 38, and 243.
+The re-reviews, not the green suite alone, decide whether the hold can lift.

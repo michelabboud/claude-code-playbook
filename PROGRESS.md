@@ -1,6 +1,6 @@
 # Progress & current standing
 
-**Last updated:** 2026-09-23 (v0.1.16, local unpublished repairs; pinned focused deep review failed).
+**Last updated:** 2026-09-23 (v0.1.16, local unpublished source-trust repair; pinned re-review pending).
 
 **Current hold:** the independent review of `2606360` also failed on three
 recursive preflight/uninstall safety gaps. All are repaired in the current
@@ -26,8 +26,13 @@ The deep and mechanical GPT-6 Sol reviews of `a20bca7` failed on checkout
 provenance and pre-verification script execution, plus linked-root handling in
 update and migration. The mechanical reviewer reproduced a deletion guard
 bypass using a tracked source file marked `assume-unchanged`. The six local
-suites passed, but publication is held. A
-source-trust design choice is now required; no tag or push has occurred.
+suites passed, but publication is held. The owner approved canonical published
+source verification with explicit full fork pins as the only alternative;
+ADR 0010 records it. The current local candidate adds a source guard, linked
+destination and managed-file guards, and red-to-green lifecycle regressions.
+The six-suite run exited 0 (207, 93, 53, 143, 38, and 243 assertions); pinned
+independent GPT-6 Sol re-reviews remain the publication gate. No tag or push
+has occurred.
 
 The focused repair covers encoding-safe Override detection, normalized heading
 uniqueness, all-destination migration preflight, uninstall/restore refusal while

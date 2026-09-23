@@ -1,5 +1,18 @@
 # Handoff
 
+**Current 2026-09-23:** the source-trust repair approved by the owner is built
+locally and the six-suite run passed (207, 93, 53, 143, 38, 243 assertions;
+exit 0). The candidate is not tagged or pushed. GPT-6 Sol mechanical and deep
+re-reviews of the pinned commit are next. `INSTALL.md` now requires a canonical
+published tag or an owner-provided full fork pin before staged code or managed
+mutation, checks literal source bytes, and refuses linked destination roots or
+managed files. No live installation, uninstall, backup, or other repository was
+changed. ADR 0010 and the source-trust review in `docs/reviews/` carry the
+decision and the previous FAIL findings. The historical seam tape below
+describes the earlier local-layer stage; its old test counts are not current.
+
+---
+
 **Current:** v0.1.16 is **built, repaired and held**. The five tasks of the
 local-layer plan are complete, the mechanical review's four blocking findings and
 its eight minor ones are fixed, and the tests pass; nothing is published until the

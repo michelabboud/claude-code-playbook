@@ -151,6 +151,8 @@ section even when the quoted words survive.
 An Override is bound to a section and a quotation. If either changes, it is
 **stale and suspended**. Re-read the rule before refreshing the entry; until
 then apply the stricter constraint and hold the affected action for the owner.
+Run a checkout's copy of the checker only after `INSTALL.md`'s source-trust
+preflight has authenticated that checkout and its script bytes.
 
 ```sh
 sh scripts/check-local.sh <local-dir> <rules-dir> [claude-md-path]
@@ -178,8 +180,11 @@ customized": the difference between "no override went stale" and "no override wa
 looked at" is the whole value of the check.
 
 The second argument is the point of the design: **point it at the staged new
-text**, before anything is copied. `INSTALL.md`'s update procedure does exactly
-that, so an update fails *before* it can surprise you rather than after.
+text**, before anything is copied. `INSTALL.md` first authenticates that
+checkout against the canonical published tag, or a full fork commit pin the
+owner explicitly supplied, before it executes the staged checker. Offline or
+unverifiable source refuses. The update then fails *before* it can surprise
+you rather than after.
 
 ### The grammar, because a script reads it
 
@@ -255,16 +260,19 @@ The two steps answer different questions; running one is not running both.
 All three procedures are in [`../../INSTALL.md`](../../INSTALL.md), written to be
 executed by an agent or a person. In short:
 
-- **Install** — copy `CLAUDE.md` and `rules/*.md`, one platform file, and offer
+- **Install** — authenticate the published checkout and real destination
+  roots, then copy `CLAUDE.md` and `rules/*.md`, one platform file, and offer
   the two templates. Nothing installed needs editing.
-- **Update** — stage the new text, run the check against it, stop on 1 or 2,
+- **Update** — stage and authenticate the new text, run the check against it,
+  stop on 1 or 2,
   list the overridden rules the changelog touched, back up to a *sibling* of
   `rules/`, then copy file by file. The playbook never ships your two files, and
   an update never writes to them, copies over them, or replaces them — the check
   reads them, and only to check them. The update asks you before it copies
   anything.
-- **Migrate** — for an installation tailored the old way: diff it against the
-  published text *of the version it records*, turn each difference into a Fill,
+- **Migrate** — for an installation tailored the old way: authenticate both
+  staged checkouts, then diff it against the published text *of the version it
+  records*, turn each difference into a Fill,
   an Add, an Override or an upstream candidate, get the list approved, prove it
   with the check, then install.
 - **Uninstall or restore** — stop while either local path remains active under

@@ -71,6 +71,20 @@ staleness mechanically checkable: `scripts/check-local.sh` searches the new text
 for each quoted string before an update copies anything, and a string that is
 gone means the override is arguing with text nobody will read.
 
+## Why installation authenticates the staged checkout
+
+An update runs a checker from the checkout and copies rule files out of it; an
+uninstall may use those same bytes as the baseline for deletion. A local tag
+and a clean-looking Git status cannot establish that those bytes were
+published. `INSTALL.md` therefore resolves the canonical release tag over
+HTTPS (or uses a full fork commit ID explicitly supplied by the owner), checks
+the staged working files against authenticated Git blobs, and refuses any
+unverified source before a staged script or managed mutation. It also refuses
+linked destination roots or managed paths and extra files in the staged rules
+tree. Offline
+verification is a refusal, not a fallback to the local tag. ADR 0010 records
+the trust boundary and its limitations.
+
 ## Why `rules/` holds nothing but rule files
 
 Claude Code loads `rules/` **recursively** — measured: a platform file in a

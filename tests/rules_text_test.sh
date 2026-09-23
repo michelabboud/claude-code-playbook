@@ -304,7 +304,7 @@ assert_eq "the map's entry says what an update actually does" \
 # ---------------------------------------------------------------------------
 I=$ROOT/INSTALL.md
 assert_eq "the update checks the local layer against the STAGED rules, not the installed ones" \
-    1 "$(count_in_file 'sh scripts/check-local.sh ~/.claude/rules ./rules' "$I")"
+    1 "$(count_in_file 'sh "$trust_root/scripts/check-local.sh" ~/.claude/rules "$trust_root/rules"' "$I")"
 assert_eq "the update says which argument is the staged one" \
     1 "$(count_in_file 'second is the **staged** rules, not the installed ones' "$I")"
 assert_eq "the update stages the new text before anything is copied" \
@@ -312,7 +312,7 @@ assert_eq "the update stages the new text before anything is copied" \
 assert_eq "the migration stages the new version too, and names the directory" \
     1 "$(count_in_file '**Step M1b — Stage the new version too.**' "$I")"
 assert_eq "the migration check runs from the new checkout" \
-    1 "$(count_in_file 'cd <scratch>/new && sh scripts/check-local.sh <scratch>/local ./rules' "$I")"
+    1 "$(count_in_file 'sh "$trust_root/scripts/check-local.sh" <scratch>/local "$trust_root/rules"' "$I")"
 assert_eq "the update asks before it copies" \
     1 "$(count_in_file '**ask whether to proceed, and stop until they answer.**' "$I")"
 assert_eq "the backup comes before the copy" \

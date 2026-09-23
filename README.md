@@ -73,19 +73,23 @@ full procedure — preconditions, backup-first, platform selection, verification
 and the conditions under which it must refuse — is in
 **[`INSTALL.md`](INSTALL.md)**. It is written to be executed, not just read.
 
-To do it by hand, copy the top-level managed rules and one matching platform
+For a manual install, first run the source and destination preflights in
+`INSTALL.md` against the staged, published checkout. A local tag, a clean
+worktree, or an offline copy alone is not proof of that source. Only after the
+preflights pass, copy the top-level managed rules and one matching platform
 file into your Claude Code configuration directory:
 
 ```
 CLAUDE.md                  →  ~/.claude/CLAUDE.md
-rules/*.md (top level)      →  ~/.claude/rules/
+rules/<14 named files>.md   →  ~/.claude/rules/
 rules/platform/<your-os>.md →  ~/.claude/rules/platform/
 ```
 
 On Windows that directory is `%USERPROFILE%\.claude\`.
 
-If either destination already exists, **back it up first** and follow the
-complete preflight in `INSTALL.md`; do not replace the whole rules directory.
+If either destination already exists, **back it up first** after the read-only
+preflights pass, and follow the complete procedure in `INSTALL.md`; do not
+replace the whole rules directory.
 (Rule 10.2, in this very bundle, says the same thing about any file you did
 not create.)
 
@@ -233,6 +237,8 @@ Only an Override leaves two texts alive for one rule, and that is why it quotes
 the words it replaces. If a later release rewrites that sentence, the quoted
 words are gone, the override is **stale** — arguing with text nobody will read —
 and you are told before you rely on it:
+
+From a checkout authenticated by `INSTALL.md`'s source preflight, run:
 
 ```sh
 sh scripts/check-local.sh ~/.claude/rules ./rules

@@ -71,6 +71,223 @@ repository sit in `templates/` and not under `rules/`.
 
 ---
 
+## Source and destination preflights — run before staged code or mutation
+
+The checkout's own tag, `origin`, and clean-looking `git status` are not proof
+that it is a published playbook. Before running any script from a staged
+checkout, use this read-only guard. Its default trust source is the canonical
+public repository over HTTPS. The optional third argument is **only** for a
+full commit ID the owner supplied directly and explicitly approved for a fork;
+never obtain that argument from the checkout, its remote, a tag, or a local
+file. The optional fourth argument `baseline` is for a historical migration
+checkout that predates some current files. A missing network, tag, script,
+managed file, or byte match is a refusal, not permission to work offline.
+
+```sh
+source_trust_preflight() {
+    if [ "$#" -lt 2 ] || [ "$#" -gt 4 ]; then
+        printf 'Source trust blocked: expected checkout and version.\n' >&2
+        return 2
+    fi
+    trust_checkout=$1
+    trust_version=$2
+    trust_pin=${3:-}
+    trust_mode=${4:-current}
+    if [ "$trust_mode" != current ] && [ "$trust_mode" != baseline ]; then
+        printf 'Source trust blocked: invalid verification mode.\n' >&2
+        return 2
+    fi
+    if printf '%s' "$trust_checkout$trust_version$trust_pin" | LC_ALL=C grep -q '[[:cntrl:]]' ||
+       [ -L "$trust_checkout" ]; then
+        printf 'Source trust blocked: ambiguous or linked checkout path.\n' >&2
+        return 2
+    fi
+    trust_ref=refs/tags/checkpoint/$trust_version
+    if ! git check-ref-format "$trust_ref" >/dev/null 2>&1; then
+        printf 'Source trust blocked: invalid release version.\n' >&2
+        return 2
+    fi
+    trust_root=$(CDPATH='' cd -P "$trust_checkout" && pwd -P) || {
+        printf 'Source trust blocked: checkout directory unavailable.\n' >&2
+        return 2
+    }
+    trust_git_root=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" rev-parse --show-toplevel 2>/dev/null) || {
+        printf 'Source trust blocked: checkout is not a Git repository.\n' >&2
+        return 2
+    }
+    if [ "$trust_root" != "$trust_git_root" ] || [ ! -f "$trust_root/VERSION" ] ||
+       [ -L "$trust_root/VERSION" ] ||
+       [ "$(wc -l < "$trust_root/VERSION")" -ne 1 ] ||
+       [ "$(sed -n '1p' "$trust_root/VERSION")" != "$trust_version" ] ||
+       [ ! -f "$trust_root/CLAUDE.md" ] ||
+       ! grep -Fq "**This rulebook is version $trust_version**" "$trust_root/CLAUDE.md"; then
+        printf 'Source trust blocked: checkout/version mismatch.\n' >&2
+        return 2
+    fi
+    trust_head=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" rev-parse --verify 'HEAD^{commit}' 2>/dev/null) || {
+        printf 'Source trust blocked: commit unavailable.\n' >&2
+        return 2
+    }
+    if [ -n "$trust_pin" ]; then
+        case $trust_pin in
+            *[!0-9a-f]*) printf 'Source trust blocked: owner pin must be a full commit ID.\n' >&2; return 2 ;;
+        esac
+        if [ "${#trust_pin}" -ne "${#trust_head}" ] || [ "$trust_pin" != "$trust_head" ]; then
+            printf 'Source trust blocked: checkout does not match the owner-approved commit.\n' >&2
+            return 2
+        fi
+    else
+        trust_local_tag=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" rev-parse --verify "$trust_ref^{object}" 2>/dev/null) || {
+            printf 'Source trust blocked: local release tag unavailable.\n' >&2
+            return 2
+        }
+        trust_tag_commit=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" rev-parse --verify "$trust_ref^{commit}" 2>/dev/null) || {
+            printf 'Source trust blocked: release tag does not resolve to a commit.\n' >&2
+            return 2
+        }
+        if [ "$trust_tag_commit" != "$trust_head" ]; then
+            printf 'Source trust blocked: checkout is not at the release tag.\n' >&2
+            return 2
+        fi
+        trust_remote_tag=$(
+            unset GIT_CONFIG_PARAMETERS GIT_EXEC_PATH
+            GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null \
+            GIT_CONFIG_SYSTEM=/dev/null GIT_CONFIG_COUNT=0 \
+            GIT_SSL_NO_VERIFY=0 GIT_TERMINAL_PROMPT=0 \
+                git -C / ls-remote --exit-code --refs \
+                https://github.com/michelabboud/claude-code-playbook.git "$trust_ref" 2>/dev/null
+        ) || {
+            printf 'Source trust blocked: canonical published tag unavailable.\n' >&2
+            return 2
+        }
+        if [ "$trust_remote_tag" != "$trust_local_tag$(printf '\t')$trust_ref" ]; then
+            printf 'Source trust blocked: local tag differs from the canonical published tag.\n' >&2
+            return 2
+        fi
+    fi
+    for trust_relative in VERSION CLAUDE.md INSTALL.md CHANGELOG.md \
+        scripts/check-local.sh templates/LOCAL.md templates/LOCAL_dev.md \
+        rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
+        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
+        rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
+        rules/WRITING.md rules/platform/LINUX.md rules/platform/MACOS.md \
+        rules/platform/WINDOWS.md; do
+        trust_path=$trust_root/$trust_relative
+        trust_blob=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" rev-parse --verify "HEAD:$trust_relative" 2>/dev/null) || trust_blob=
+        if [ -z "$trust_blob" ] && [ "$trust_mode" = baseline ] &&
+           [ ! -e "$trust_path" ] && [ ! -L "$trust_path" ]; then
+            continue
+        fi
+        if [ -z "$trust_blob" ] || [ -L "$trust_path" ] || [ ! -f "$trust_path" ] ||
+           [ -L "$trust_root/rules" ] || [ -L "$trust_root/rules/platform" ] ||
+           [ -L "$trust_root/scripts" ] || [ -L "$trust_root/templates" ]; then
+            printf 'Source trust blocked: missing or linked source file: %s\n' "$trust_relative" >&2
+            return 2
+        fi
+        trust_tree_entry=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" ls-tree HEAD -- "$trust_relative" 2>/dev/null) || {
+            printf 'Source trust blocked: cannot inspect committed mode: %s\n' "$trust_relative" >&2
+            return 2
+        }
+        trust_tab=$(printf '\t')
+        case $trust_tree_entry in
+            "100644 blob $trust_blob$trust_tab$trust_relative"|"100755 blob $trust_blob$trust_tab$trust_relative") ;;
+            *) printf 'Source trust blocked: committed file is not a regular blob: %s\n' "$trust_relative" >&2; return 2 ;;
+        esac
+        trust_actual=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" hash-object --no-filters -- "$trust_path" 2>/dev/null) || {
+            printf 'Source trust blocked: cannot hash source file: %s\n' "$trust_relative" >&2
+            return 2
+        }
+        if [ "$trust_actual" != "$trust_blob" ]; then
+            printf 'Source trust blocked: source bytes differ from the published commit: %s\n' "$trust_relative" >&2
+            return 2
+        fi
+    done
+    if [ "$trust_mode" = current ]; then
+        # Root + fourteen managed files + platform directory + three platform files.
+        trust_expected_rule_entries=19
+        trust_rule_listing=$(find "$trust_root/rules" -print 2>/dev/null) || {
+            printf 'Source trust blocked: cannot inspect staged rules tree.\n' >&2
+            return 2
+        }
+        trust_rule_entries=$(printf '%s\n' "$trust_rule_listing" | wc -l)
+        if [ "$trust_rule_entries" -ne "$trust_expected_rule_entries" ]; then
+            printf 'Source trust blocked: unexpected file or directory in staged rules.\n' >&2
+            return 2
+        fi
+    fi
+    return 0
+}
+```
+
+The owner-pinned fork path avoids the network but does **not** infer authority
+from a local tag; the owner must supply the full pin independently. A default
+operation that cannot verify the canonical tag stops. The guide trusts the
+canonical repository and HTTPS transport, not a signature on every release.
+On success, the function leaves `trust_root` set to the checkout's physical
+path; use that path for the staged checker and every source-file copy, rather
+than a caller-supplied path whose ancestor may be a link.
+
+Before any backup, copy, restore, or deletion, also refuse links at the
+destination roots and at any managed destination file. This is a read-only
+check; a linked dotfile-manager root or managed file needs a separate owner
+decision, not an automatic traversal into its target.
+
+```sh
+destination_root_preflight() {
+    if [ "$#" -ne 1 ]; then
+        printf 'Destination blocked: expected configuration directory.\n' >&2
+        return 2
+    fi
+    if printf '%s' "$1" | LC_ALL=C grep -q '[[:cntrl:]]'; then
+        printf 'Destination blocked: ambiguous path encoding.\n' >&2
+        return 2
+    fi
+    case $1 in
+        /*) destination_remaining=${1#/}; destination_prefix= ;;
+        *) printf 'Destination blocked: expected an absolute path.\n' >&2; return 2 ;;
+    esac
+    while [ -n "$destination_remaining" ]; do
+        destination_component=${destination_remaining%%/*}
+        case $destination_component in
+            ''|.|..) printf 'Destination blocked: ambiguous path component.\n' >&2; return 2 ;;
+        esac
+        destination_prefix=$destination_prefix/$destination_component
+        if [ -L "$destination_prefix" ] ||
+           { [ -e "$destination_prefix" ] && [ ! -d "$destination_prefix" ]; }; then
+            printf 'Destination blocked: linked or non-directory ancestor: %s\n' "$destination_prefix" >&2
+            return 2
+        fi
+        if [ "$destination_component" = "$destination_remaining" ]; then
+            break
+        fi
+        destination_remaining=${destination_remaining#*/}
+    done
+    for destination_path in "$1" "$1/rules" "$1/rules/platform"; do
+        if [ -L "$destination_path" ] ||
+           { [ -e "$destination_path" ] && [ ! -d "$destination_path" ]; }; then
+            printf 'Destination blocked: linked or non-directory root: %s\n' "$destination_path" >&2
+            return 2
+        fi
+    done
+    for destination_relative in CLAUDE.md \
+        rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
+        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
+        rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
+        rules/WRITING.md rules/platform/LINUX.md rules/platform/MACOS.md \
+        rules/platform/WINDOWS.md; do
+        destination_file=$1/$destination_relative
+        if [ -L "$destination_file" ] ||
+           { [ -e "$destination_file" ] && [ ! -f "$destination_file" ]; }; then
+            printf 'Destination blocked: linked or non-file managed path: %s\n' "$destination_file" >&2
+            return 2
+        fi
+    done
+    return 0
+}
+```
+
 ## Step 0 — Preconditions, checked before you change anything
 
 1. **Confirm you can read the repo.** It is public, so no authentication is
@@ -87,6 +304,14 @@ repository sit in `templates/` and not under `rules/`.
    proceeding. If `~/.claude/rules/` exists, you are updating or migrating, not
    first-installing — read the matching section below before step 1.
 
+4. **Authenticate the staged release and destination.** With the published
+   version read from the checkout's `VERSION` file (read-only), run
+   `source_trust_preflight /path/to/checkout <version> || exit 2` and
+   `destination_root_preflight ~/.claude || exit 2`. This happens before any
+   script from that checkout, backup, or destination mutation. Re-run both
+   immediately before the first copy. If verification cannot be completed,
+   preserve the existing installation and report why.
+
 ---
 
 ## Step 1 — Back up first, and prove the backup exists
@@ -96,10 +321,16 @@ before writing anything.** These are files the user created or previously
 installed. Overwriting them without a recoverable copy is exactly the class of
 action this rulebook forbids.
 
+The source and destination preflights above must already have passed. If
+either has become unverifiable, do not start a backup or a copy.
+
 - Copy each existing item to a timestamped **sibling**, e.g.
   `~/.claude/CLAUDE.md.backup-YYYY-MM-DD-HHMMSS` and
   `~/.claude/rules.backup-YYYY-MM-DD-HHMMSS/`. **Never inside `~/.claude/rules/`**
   — a backup there would load as law in every session.
+- Choose new backup names and refuse any existing file, directory, or symlink
+  at either target. A timestamp collision is not permission to overwrite an
+  older backup. If no unique target is available, stop before copying.
 - The backup of `rules/` must include `LOCAL.md` and `LOCAL_dev.md` if they are
   there. Copying the whole directory does that; copying file by file may not.
 - **Read the backup back and confirm it is there and non-empty.**
@@ -115,14 +346,19 @@ Do this as its own step, and evaluate its result, before any copying begins.
 ## Step 2 — Copy the two things
 
 1. `CLAUDE.md` → `~/.claude/CLAUDE.md`
-2. Every top-level `.md` file directly in `rules/` (the fourteen managed
-   subject files, not `rules/platform/`) → `~/.claude/rules/`
+2. Exactly the fourteen named managed subject files listed in step 5,
+   individually, from `rules/` → `~/.claude/rules/`. Do not use a wildcard
+   copy: a newly added or untracked Markdown file would become a recursively
+   loaded rule without having been authenticated.
 
 Create `~/.claude/rules/` if it does not exist.
 
 **Copy file by file. Never replace the whole directory** — not with a recursive
 copy that clears the destination first, not with a sync that deletes extras.
 `LOCAL.md` and `LOCAL_dev.md` live there and are not yours to remove.
+Re-run the source and destination preflights immediately before this first
+managed copy; copy from the verified physical `trust_root`, not from the
+original checkout spelling. A first install is not an offline exception.
 
 ---
 
@@ -237,13 +473,23 @@ between the two and **tell the user the gap in plain words** before going on.
 **Step U1 — Stage the new text.** Clone or fetch this repository to a scratch
 directory. **Do not copy anything into `~/.claude/` yet.** Everything below runs
 against the staged text, so that a problem is found before it is installed.
+Read its `VERSION` without executing anything, then run
+`source_trust_preflight <scratch>/new <staged-version> || exit 2` and
+`destination_root_preflight ~/.claude || exit 2`. A local tag or configured
+`origin` is not a substitute for the canonical published tag. For an
+owner-approved fork, pass the owner's full commit pin as the third argument.
 
 **Step U2 — Check the local layer against the staged text.** From the staged
 repository:
 
 ```sh
-sh scripts/check-local.sh ~/.claude/rules ./rules
+source_trust_preflight . "$(sed -n '1p' VERSION)" || exit 2
+sh "$trust_root/scripts/check-local.sh" ~/.claude/rules "$trust_root/rules"
 ```
+
+For an owner-approved fork, supply the same owner-provided full commit ID as
+the third argument to this source preflight and every later one; never read a
+pin from the staged checkout.
 
 The first argument is where the user's `LOCAL.md` and `LOCAL_dev.md` live; the
 second is the **staged** rules, not the installed ones. The script reads a live
@@ -283,6 +529,10 @@ when nothing goes wrong.
 (back up, sibling of `rules/`, verified), then **step 2** (copy file by file,
 never replacing the directory), then **step 3** (one platform file — the same OS
 as before), then **step 5** (verify and report).
+Re-run `source_trust_preflight`, `destination_root_preflight`, and the staged
+`check-local.sh` immediately before the first copy; if any fails, keep the
+backup and leave the current installation untouched. For an owner-pinned fork,
+use the same approved pin on every invocation.
 
 `LOCAL.md` and `LOCAL_dev.md` are not copied over, not moved, and not written to
 at any point.
@@ -311,6 +561,12 @@ so and ask before going further.
 tag from this repository into a scratch directory. It is the only honest
 baseline: comparing a tailored installation against the *newest* text mixes the
 user's edits with three releases of upstream changes.
+Before using this old checkout, run
+`source_trust_preflight <scratch>/published <installed-version> '' baseline || exit 2`.
+The baseline mode allows files that did not exist in that historical version,
+but authenticates every listed file that does exist. Compare any additional
+historical file from its authenticated Git blob, not an unverified worktree
+copy. A fork baseline needs its own separately owner-approved full pin.
 
 Two checkouts are needed before the end, so name them now and use the names
 literally in every command below:
@@ -327,6 +583,9 @@ anything into `~/.claude/` yet.** Step M4's check must run against the *new*
 text: pointing it at the old checkout makes it pass by construction, because the
 entries were written from that text. The old checkout also has no
 `scripts/check-local.sh` at all if it predates 0.1.16.
+Run `source_trust_preflight <scratch>/new <new-version> || exit 2` before
+reading its templates or running its checker, and
+`destination_root_preflight ~/.claude || exit 2` before any backup or copy.
 
 **Step M2 — Compare, file by file.** Diff each installed file against its
 counterpart in `<scratch>/published/`. Do it read-only, into a scratch
@@ -370,8 +629,12 @@ the check **from the new checkout** so that both the script and the rules are th
 new ones:
 
 ```sh
-cd <scratch>/new && sh scripts/check-local.sh <scratch>/local ./rules
+cd <scratch>/new && source_trust_preflight . "$(sed -n '1p' VERSION)" &&
+    sh "$trust_root/scripts/check-local.sh" <scratch>/local "$trust_root/rules"
 ```
+
+For an approved fork, add its owner-provided full commit ID as the third
+argument to `source_trust_preflight` here and to both migration guards.
 
 Exit 0 means every Override still bites against the text that is about to be
 installed. Exit 1 or 2: fix the entries and run it again. Do not install a local
@@ -386,6 +649,16 @@ read-only guard; exit 2 stops the migration:
 
 ```sh
 migration_local_preflight() {
+    if [ ! -f "$2/VERSION" ]; then
+        printf 'Migration blocked: staged version unavailable.\n' >&2
+        return 2
+    fi
+    migration_version=$(sed -n '1p' "$2/VERSION")
+    if ! source_trust_preflight "$2" "$migration_version" "${3:-}" ||
+       ! destination_root_preflight "${1%/*}"; then
+        printf 'Migration blocked: source or destination trust preflight failed.\n' >&2
+        return 2
+    fi
     if [ ! -d "$1" ] || [ ! -x "$1" ]; then
         printf 'Migration blocked: cannot inspect rules directory: %s\n' "$1" >&2
         return 2
@@ -396,7 +669,7 @@ migration_local_preflight() {
             return 2
         fi
     done
-    if ! sh "$2/scripts/check-local.sh" "$1" "$2/rules" "$2/CLAUDE.md"; then
+    if ! sh "$trust_root/scripts/check-local.sh" "$1" "$trust_root/rules" "$trust_root/CLAUDE.md"; then
         printf 'Migration blocked: the recursively loaded rules tree is not accounted for.\n' >&2
         return 2
     fi
@@ -418,6 +691,9 @@ If neither local file already existed, run steps 2, 3 and 5. Tell the user which
 of their edits became which entry and which ones you are holding as upstream
 candidates. If either existed, report the migration as blocked on its owner-led
 merge; leave every managed file unchanged.
+Use the same owner-approved pin on every source preflight if migrating from a
+fork. Re-run the source and destination guards before the first local or managed
+copy, and stop if they no longer pass.
 
 ---
 
@@ -449,6 +725,16 @@ symlinks, without moving or deleting them. Run it before changing anything:
 
 ```sh
 uninstall_local_preflight() {
+    if [ ! -f "$2/VERSION" ]; then
+        printf 'Uninstall/restore blocked: staged version unavailable.\n' >&2
+        return 2
+    fi
+    uninstall_version=$(sed -n '1p' "$2/VERSION")
+    if ! source_trust_preflight "$2" "$uninstall_version" "${3:-}" ||
+       ! destination_root_preflight "${1%/*}"; then
+        printf 'Uninstall/restore blocked: source or destination trust preflight failed.\n' >&2
+        return 2
+    fi
     if [ -L "$1" ] || [ -L "${1%/*}" ] || [ -L "$1/platform" ]; then
         printf 'Uninstall/restore blocked: a configuration or rules directory is a symlink: %s\n' "$1" >&2
         return 2
@@ -463,7 +749,7 @@ uninstall_local_preflight() {
             return 2
         fi
     done
-    if ! sh "$2/scripts/check-local.sh" "$1" "$2/rules" "$2/CLAUDE.md"; then
+    if ! sh "$trust_root/scripts/check-local.sh" "$1" "$trust_root/rules" "$trust_root/CLAUDE.md"; then
         printf 'Uninstall/restore blocked: the recursively loaded rules tree is not accounted for.\n' >&2
         return 2
     fi
@@ -474,7 +760,7 @@ uninstall_local_preflight ~/.claude/rules /path/to/exact-installed-release-check
 
 For **both** restore-from-backup and no-backup uninstall, verify every current
 managed path that would be overwritten or deleted
-against a **trusted, clean checkout of the exact installed playbook version**.
+against an **authenticated checkout of the exact installed playbook version**.
 If that checkout is unavailable, its version cannot be established, or any
 installed bytes differ, do not overwrite or delete the file:
 preserve the installation and ask the owner how to retain the changes. A
@@ -491,16 +777,11 @@ uninstall_managed_file_preflight() {
         printf 'Uninstall/restore blocked: ambiguous path encoding.\n' >&2
         return 2
     fi
-    source_root=$(CDPATH='' cd -P "$2" && pwd -P) || return 2
-    git_root=$(git -C "$2" rev-parse --show-toplevel 2>/dev/null) || return 2
-    source_status=$(git -C "$2" status --porcelain --untracked-files=all 2>/dev/null) || return 2
     release_version=$(sed -n '1p' "$2/VERSION")
-    if [ "$source_root" != "$git_root" ] || [ -n "$source_status" ] ||
-       [ -z "$release_version" ] ||
-       [ "$(wc -l < "$2/VERSION")" -ne 1 ] ||
-       ! grep -Fq "**This rulebook is version $release_version**" "$1/CLAUDE.md" ||
-       ! git -C "$2" tag --points-at HEAD | grep -Fxq "checkpoint/$release_version"; then
-        printf 'Uninstall/restore blocked: source is not a clean tagged checkout of the installed version.\n' >&2
+    if ! source_trust_preflight "$2" "$release_version" "${3:-}" ||
+       ! destination_root_preflight "$1" ||
+       ! grep -Fq "**This rulebook is version $release_version**" "$1/CLAUDE.md"; then
+        printf 'Uninstall/restore blocked: source is not an authenticated copy of the installed version.\n' >&2
         return 2
     fi
     case $(uname -s) in
@@ -516,7 +797,7 @@ uninstall_managed_file_preflight() {
         rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
         rules/WRITING.md "rules/platform/$platform"; do
         installed=$1/$relative
-        source=$2/$relative
+        source=$trust_root/$relative
         if [ -L "$installed" ] || [ -L "$source" ] ||
            [ ! -f "$installed" ] || [ ! -f "$source" ] ||
            ! cmp -s "$installed" "$source"; then

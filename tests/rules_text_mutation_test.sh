@@ -210,7 +210,7 @@ check_mutation "the git-identity Fill shipped live again is caught" \
 # the design requires, and nothing noticed.
 
 check_mutation "the update checking installed rules against installed rules is caught" \
-    'replace_in_file "$M/INSTALL.md" "sh scripts/check-local.sh ~/.claude/rules ./rules" "sh scripts/check-local.sh ~/.claude/rules ~/.claude/rules"'
+    'replace_in_file "$M/INSTALL.md" "sh \"\$trust_root/scripts/check-local.sh\" ~/.claude/rules \"\$trust_root/rules\"" "sh \"\$trust_root/scripts/check-local.sh\" ~/.claude/rules ~/.claude/rules"'
 
 check_mutation "the update dropping its ask-before-copy is caught" \
     'drop_line "$M/INSTALL.md" "ask whether to proceed, and stop until they answer."'
@@ -234,7 +234,7 @@ check_mutation "migration not staging the new version is caught" \
     'drop_line "$M/INSTALL.md" "**Step M1b — Stage the new version too.**"'
 
 check_mutation "migration checking against the old checkout is caught" \
-    'replace_in_file "$M/INSTALL.md" "cd <scratch>/new && sh scripts/check-local.sh <scratch>/local ./rules" "sh scripts/check-local.sh <scratch-dir> ./rules"'
+    'replace_in_file "$M/INSTALL.md" "sh \"\$trust_root/scripts/check-local.sh\" <scratch>/local \"\$trust_root/rules\"" "sh \"\$trust_root/scripts/check-local.sh\" <scratch>/local <scratch>/published/rules"'
 
 check_mutation "uninstall restoring over the local files is caught" \
     'replace_in_file "$M/INSTALL.md" "and never \`LOCAL.md\` or" "including"'
