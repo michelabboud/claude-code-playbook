@@ -1,5 +1,8 @@
 # Progress & current standing
 
+**0.1.19, 2026-09-26 — economy mode:** owner-switched economy mode seats the
+Top tier's code-review seats on Opus 5.5 and GPT-6 Sol at `xhigh`. ADR 0013.
+
 **0.1.18, 2026-09-26 — loading measured:** a `paths:` scope never loads for a
 file outside the session's project (0/2, installed dev rules included); section
 0 now makes reading the dev rules by path a duty for such code. Skills are

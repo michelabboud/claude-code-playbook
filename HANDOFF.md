@@ -1,5 +1,6 @@
 # Handoff
 
+**0.1.19, 2026-09-26:** economy mode for code review (ADR 0013).
 **0.1.18, 2026-09-26:** loading measured and the out-of-project gap closed
 (ADR 0012, `docs/reports/2026-09-26-loading-measurements.md`); the tip before it,
 0.1.17, is the context-budget change (ADR 0011).

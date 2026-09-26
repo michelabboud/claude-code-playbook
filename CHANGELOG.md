@@ -4,6 +4,18 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.19 — 2026-09-26
+
+- **Economy mode for code review** (ADR 0013). On the owner's word only, for a
+  project or a session, the Top tier's review seats — high deep reviews and
+  Top-tier validation — run on Claude Opus 5.5 at `xhigh` effort and GPT-6 Sol
+  at `xhigh` effort instead of Claude Fable and GPT-6 Astra. Code review only;
+  planning stays on the Top tier. The pair stays dual-blind and cross-family,
+  and every review it runs, the release gate included, records *economy mode*.
+  The models live in `ROSTER.md`; `REVIEWS.md` names none.
+- `tests/rules_text_test.sh` 182 → 192; `tests/rules_text_mutation_test.sh`
+  57 → 64.
+
 ## 0.1.18 — 2026-09-26
 
 Measured how rules reach context instead of assuming it

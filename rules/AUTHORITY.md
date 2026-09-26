@@ -86,7 +86,7 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 
 | # | The law in one line |
 |---|---|
-| 3.1 | **Mechanical review per task, deep per batch, high deep at each milestone and release** — on the Standard (never Fast), Strong and Top tiers respectively; the high deep review is dual-blind and a **gate**. Small plans collapse levels; the tier never drops. |
+| 3.1 | **Mechanical review per task, deep per batch, high deep at each milestone and release** — on the Standard (never Fast), Strong and Top tiers respectively; the high deep review is dual-blind and a **gate**. Small plans collapse levels; the tier never drops — except in **economy mode**, on my word only, which seats the Top-tier review seats on the roster's economy configuration and is recorded in every review it runs. |
 | 3.2 | **A batch closes** when the next task would build on unreviewed work it can't cheaply undo, the diff outgrows one reviewer, or the planner's cap is hit. **Risk overrides cadence:** security, concurrency, data, unsafe code and public API get deep review per task, always. |
 | 3.3 | **A review's input is a commit, never a working tree.** Pipelined, never fire-and-forget: every finding pins a commit, a blocker **stops the line**, an exited reviewer is not an accepted review, and in-process subagents and forks do not count as blind. |
 | 3.4 | **The release gate gets the best review, regardless of task count** — no `v*` tag before it. |

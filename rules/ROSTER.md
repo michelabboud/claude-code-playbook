@@ -17,7 +17,7 @@ paths:
 
 *Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*
 
-**Last revised:** 2026-09-23. If that date is more than a few months old, check the names below against what your harness actually offers before trusting them.
+**Last revised:** 2026-09-26. If that date is more than a few months old, check the names below against what your harness actually offers before trusting them.
 
 ## Tiers — which model fills each
 
@@ -33,6 +33,17 @@ What each tier is trusted with is rule 8.1; which review each tier runs is rule 
 **Escalation ladder:** Fast → Standard → Strong → Top, one tier at a time (rule 8.1).
 
 **The Claude column is the default and is sufficient on its own.** The second-family column is optional: use an entry only when that model is genuinely reachable from your setup — through another coding CLI or a dispatcher — and leave it out otherwise. Its purpose is decorrelation: it is the second reviewer of a dual-blind pair, because two instances of one model share the same blind spots (REVIEWS.md, "Dual review"). A model reached through another CLI is also a separate process by construction, which is what blind review requires (rule 3.3). With no second family, the pair is two **separate sessions** of the Claude model, and the review header says so: *same-family pair*.
+
+## Economy mode — code review only (rule 3.1)
+
+When the owner switches economy mode on, the Top tier's **review** seats are filled like this; its planning seat is not affected.
+
+| Review seat | Normal | Economy |
+|---|---|---|
+| **Top**, Claude | **Claude Fable** | **Claude Opus 5.5 at `xhigh` effort** |
+| **Top**, second family | GPT-6 Astra | **GPT-6 Sol at `xhigh` effort** |
+
+A configuration is a model **and** an effort: Opus 5.5 or Sol at its default effort is not the economy configuration. Claude Code offers `xhigh` (`--effort xhigh` for a headless session, or `effort:` in an agent definition). The economy reviewers are fresh sessions, never the deep reviewers of the same batch.
 
 ## Measurements behind this roster
 

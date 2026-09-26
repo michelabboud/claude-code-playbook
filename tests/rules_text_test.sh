@@ -279,6 +279,31 @@ assert_eq "section 0's header makes CODE.md and TESTING.md a read-by-path duty o
 assert_eq "CLAUDE.md states the project boundary of path scopes" \
     1 "$(count_in_file "A \`paths:\` scope only matches files inside the session's project, so for code outside it" "$ROOT/CLAUDE.md")"
 
+# Economy mode: switched on by the owner only, code review only, recorded, and
+# its models named only in the roster.
+R=$ROOT/rules/REVIEWS.md
+ECO=$(paragraph_with '**Economy mode — on my word only.**' "$R")
+assert_contains "REVIEWS.md carries the economy-mode rule" "$ECO" 'Economy mode'
+assert_eq "economy mode is never switched on by the agent to save cost" \
+    1 "$(count_in_text 'you never switch it on yourself to save cost' "$ECO")"
+assert_eq "economy mode covers code review only; planning stays on Top" \
+    1 "$(count_in_text 'planning and design stay on the Top tier' "$ECO")"
+assert_eq "economy mode keeps the pair dual-blind and cross-family" \
+    1 "$(count_in_text 'the pair stays dual-blind and cross-family' "$ECO")"
+assert_eq "economy mode is recorded in every review it runs" \
+    1 "$(count_in_text 'every review it runs says *economy mode* in its header' "$ECO")"
+assert_eq "the release gate says so in economy mode" \
+    1 "$(count_in_file 'In economy mode (rule 3.1) it runs on the economy configuration, and its record says so.' "$R")"
+RO=$ROOT/rules/ROSTER.md
+assert_eq "the roster seats economy's Claude reviewer on Opus 5.5 at xhigh" \
+    1 "$(count_in_file '| **Top**, Claude | **Claude Fable** | **Claude Opus 5.5 at `xhigh` effort** |' "$RO")"
+assert_eq "the roster seats economy's second-family reviewer on GPT-6 Sol at xhigh" \
+    1 "$(count_in_file '| **Top**, second family | GPT-6 Astra | **GPT-6 Sol at `xhigh` effort** |' "$RO")"
+assert_eq "REVIEWS.md names no model for economy mode — the roster does" \
+    0 "$(grep -c 'Opus 5.5\|GPT-6 Sol' "$R")"
+assert_eq "section 0's review summary mentions economy mode" \
+    1 "$(count_in_file 'except in **economy mode**, on my word only' "$A")"
+
 # The statements that once lived only in a summary now live in their files.
 assert_eq "COLLABORATION.md: a question seen once and moved past is answered" \
     1 "$(count_in_file 'a question I saw once and moved past is answered' "$ROOT/rules/COLLABORATION.md")"

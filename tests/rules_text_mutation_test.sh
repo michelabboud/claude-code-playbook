@@ -211,6 +211,27 @@ check_mutation "the boundary moving out of section 0's header is caught" \
 check_mutation "CLAUDE.md losing the project boundary is caught" \
     'drop_line "$M/CLAUDE.md" "A \`paths:\` scope only matches files inside the session'"'"'s project, so for code outside it"'
 
+check_mutation "economy mode losing the owner-only switch is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "you never switch it on yourself to save cost" "switch it on when cost matters"'
+
+check_mutation "economy mode spreading to planning is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "planning and design stay on the Top tier" "planning and design follow it"'
+
+check_mutation "economy mode losing its record is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "every review it runs says *economy mode* in its header" "reviews run normally"'
+
+check_mutation "economy mode dropping dual-blind is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "the pair stays dual-blind and cross-family" "one reviewer is enough"'
+
+check_mutation "the release gate hiding economy mode is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" ", and its record says so." "."'
+
+check_mutation "the roster's economy seat changing model is caught" \
+    'replace_in_file "$M/rules/ROSTER.md" "**Claude Opus 5.5 at \`xhigh\` effort**" "**Claude Sonnet at \`high\` effort**"'
+
+check_mutation "a model named in REVIEWS.md is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "the roster'"'"'s economy configuration instead" "Opus 5.5 instead"'
+
 # --- INSTALL.md and the visual map -----------------------------------------
 
 check_mutation "INSTALL.md stating the wrong file count is caught" \
