@@ -43,7 +43,7 @@ When the owner switches economy mode on, the Top tier's **review** seats are fil
 | **Top**, Claude | **Claude Fable** | **Claude Opus 5.5 at `xhigh` effort** |
 | **Top**, second family | GPT-6 Astra | **GPT-6 Sol at `xhigh` effort** |
 
-A configuration is a model **and** an effort: Opus 5.5 or Sol at its default effort is not the economy configuration. Claude Code offers `xhigh` (`--effort xhigh` for a headless session, or `effort:` in an agent definition). The economy reviewers are fresh sessions, never the deep reviewers of the same batch.
+A configuration is a model **and** an effort: Opus 5.5 or Sol at its default effort is not the economy configuration. `xhigh` is an effort level Claude Code offers. The economy reviewers are fresh sessions, never the deep reviewers of the same batch.
 
 ## Measurements behind this roster
 
