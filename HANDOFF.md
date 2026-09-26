@@ -1,7 +1,8 @@
 # Handoff
 
-**0.1.17, 2026-09-26:** the context-budget change (ADR 0011) is the current
-tip; see `CHANGELOG.md` 0.1.17 and `docs/reviews/2026-09-26-context-budget-review.md`.
+**0.1.18, 2026-09-26:** loading measured and the out-of-project gap closed
+(ADR 0012, `docs/reports/2026-09-26-loading-measurements.md`); the tip before it,
+0.1.17, is the context-budget change (ADR 0011).
 Next open item: the owner's live installation is at 0.1.15 and its local layer
 fails 0.1.16's check (10 errors) — it needs the migration in `INSTALL.md`, with
 the owner's go, before any update.

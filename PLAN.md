@@ -3,6 +3,7 @@
 | Plan | Status | Written | Last updated |
 |---|---|---|---|
 | [The local layer](docs/plans/2026-09-21-local-layer-plan.md) | **source published** — `checkpoint/0.1.16` verified; private installation acceptance separate | 2026-09-21 | 2026-09-23 |
+| Measure rule loading; close the out-of-project gap (ADR 0012) | **done 2026-09-26** — owner approved 2026-09-26 | 2026-09-26 | 2026-09-26 |
 | Context budget — shrink the always-loaded rules (ADR 0011) | **done 2026-09-26** — owner asked 2026-09-26 to fix the measured findings | 2026-09-26 | 2026-09-26 |
 | Generalise the private rulebook into a distributable bundle | **done 2026-09-14** | 2026-09-14 | 2026-09-14 |
 

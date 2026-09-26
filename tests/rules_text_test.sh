@@ -269,6 +269,16 @@ done
 assert_eq "section 0 says which sections it does not summarise" \
     1 "$(count_in_file '**Always in context, never summarised:**' "$A")"
 
+# Path scopes stop at the project (ADR 0012): section 0's header and the front
+# page make reading the dev files by path a duty for code outside it.
+HDR=$(paragraph_with 'This file plus the Mantra is the whole of what you must know' "$A")
+assert_eq "section 0's header says a paths: scope only matches inside the project" \
+    1 "$(count_in_text "**A \`paths:\` scope only matches files inside the session's project**" "$HDR")"
+assert_eq "section 0's header makes CODE.md and TESTING.md a read-by-path duty outside the project" \
+    1 "$(count_in_text 'read `CODE.md` and `TESTING.md` by path, and `LOCAL_dev.md` if it exists' "$HDR")"
+assert_eq "CLAUDE.md states the project boundary of path scopes" \
+    1 "$(count_in_file "A \`paths:\` scope only matches files inside the session's project, so for code outside it" "$ROOT/CLAUDE.md")"
+
 # The statements that once lived only in a summary now live in their files.
 assert_eq "COLLABORATION.md: a question seen once and moved past is answered" \
     1 "$(count_in_file 'a question I saw once and moved past is answered' "$ROOT/rules/COLLABORATION.md")"

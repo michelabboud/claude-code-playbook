@@ -2,7 +2,14 @@
 
 Dated one-liners for everything deferred or spotted and not done.
 
-- **2026-09-26 · verification · open** — whether `QUARANTINE.md`'s `paths:`
+- **2026-09-26 · idea · open** — an owner-side hook that injects the dev rules
+  when code outside the project is edited would make ADR 0012's duty
+  deterministic. The playbook ships rules, not harness settings, so it stays an
+  idea for the owner's own setup. Source: v0.1.18.
+- **2026-09-26 · verification · done 2026-09-26** — answered by measurement: the glob
+  does not fire for a vault outside the project (0/2); read-by-path is the
+  mechanism (ADR 0012, `docs/reports/2026-09-26-loading-measurements.md`).
+  Original question: whether `QUARANTINE.md`'s `paths:`
   glob (`**/.quarantine/**`) auto-loads the file when the agent touches a vault
   outside the project root, as `~/.quarantine/` is. Not relied upon: the
   always-loaded `DESTRUCTIVE.md` sends the agent to the file by path. Needs one

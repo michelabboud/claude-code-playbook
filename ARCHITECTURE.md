@@ -38,7 +38,9 @@ a single file cannot:
    detail. `QUARANTINE` is scoped to the quarantine vault and read by path before
    a first quarantine. `AUTHORITY.md` summarises only these files — an always-loaded
    file is never summarised, because the copy would be a second place for the law
-   to drift (ADR 0011).
+   to drift (ADR 0011). A scope only matches files inside the session's project
+   (measured, ADR 0012); section 0 makes reading the dev files by path a duty
+   for code outside it.
 2. **Stable numbering.** Rules are numbered `<section>.<rule>`, so adding a rule
    never renumbers its neighbours and cross-references stay valid.
 

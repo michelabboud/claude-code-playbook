@@ -4,6 +4,24 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.18 — 2026-09-26
+
+Measured how rules reach context instead of assuming it
+(`docs/reports/2026-09-26-loading-measurements.md`). Decision record:
+`docs/adr/0012-path-scopes-stop-at-the-project.md`.
+
+- A `paths:` scope loads its file 2/2 for a matching file inside the session's
+  project and **0/2 for one outside it**, including the installed dev rules
+  and a directory added with `--add-dir`. Section 0's header and `CLAUDE.md`
+  now say so, and make it a duty to read `CODE.md` and `TESTING.md` (and
+  `LOCAL_dev.md`) by path before writing code outside the project.
+- The quarantine glob from 0.1.17 never fires for `~/.quarantine/`; the
+  read-by-path line in `DESTRUCTIVE.md` is the mechanism. Backlog item closed.
+- Skills: invoked 20/20 when the task names their subject, 2/5 when the need is
+  only implied. Laws stay in context; only procedure may move behind a trigger.
+- `tests/rules_text_test.sh` 179 → 182; `tests/rules_text_mutation_test.sh`
+  53 → 57.
+
 ## 0.1.17 — 2026-09-26
 
 The always-loaded rules cost context in every session. Measured on a Linux

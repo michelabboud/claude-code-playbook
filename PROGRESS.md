@@ -1,5 +1,10 @@
 # Progress & current standing
 
+**0.1.18, 2026-09-26 — loading measured:** a `paths:` scope never loads for a
+file outside the session's project (0/2, installed dev rules included); section
+0 now makes reading the dev rules by path a duty for such code. Skills are
+invoked 20/20 when named, 2/5 when implied. ADR 0012.
+
 **0.1.17, 2026-09-26 — context budget:** the always-loaded rules fell from
 68,338 to 50,677 bytes on a Linux installation's file set (−25.8 %). Section 0
 summarises only sections whose file may be absent from context; the quarantine

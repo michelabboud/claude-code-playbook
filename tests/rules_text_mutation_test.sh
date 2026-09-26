@@ -199,6 +199,18 @@ check_mutation "the never-fix-during-review rule leaving COLLABORATION.md is cau
 check_mutation "a platform file losing the never-carry-across rule is caught" \
     'drop_line "$M/rules/platform/MACOS.md" "Never carry a command across from another platform file"'
 
+check_mutation "section 0 losing the project boundary of path scopes is caught" \
+    'replace_in_file "$M/rules/AUTHORITY.md" "only matches files inside the session'"'"'s project**" "matches files**"'
+
+check_mutation "section 0 losing the read-by-path duty for outside code is caught" \
+    'replace_in_file "$M/rules/AUTHORITY.md" "read \`CODE.md\` and \`TESTING.md\` by path" "consider \`CODE.md\` and \`TESTING.md\`"'
+
+check_mutation "the boundary moving out of section 0's header is caught" \
+    'l=$(grep -F -e "This file plus the Mantra" -- "$M/rules/AUTHORITY.md") && drop_line "$M/rules/AUTHORITY.md" "This file plus the Mantra" && printf "%s\n" "$l" | sed "s/This file plus the Mantra/The Mantra and this file/" >> "$M/rules/AUTHORITY.md" && printf "%s\n" "***This file plus the Mantra is the whole of what you must know before acting.***" > "$M/x" && cat "$M/x" "$M/rules/AUTHORITY.md" > "$M/y" && mv -- "$M/y" "$M/rules/AUTHORITY.md"'
+
+check_mutation "CLAUDE.md losing the project boundary is caught" \
+    'drop_line "$M/CLAUDE.md" "A \`paths:\` scope only matches files inside the session'"'"'s project, so for code outside it"'
+
 # --- INSTALL.md and the visual map -----------------------------------------
 
 check_mutation "INSTALL.md stating the wrong file count is caught" \

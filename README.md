@@ -197,7 +197,9 @@ Six of them (`CODE`, `TESTING`, `REVIEWS`, `WORKFLOW`, `SUBAGENTS`, `ROSTER`) ca
 opens a source file shouldn't pay for development detail. `QUARANTINE.md` is scoped
 to the quarantine vault the same way: the always-loaded `DESTRUCTIVE.md` carries
 the principle and tells the agent to read the procedure by path before a first
-quarantine.
+quarantine. A `paths:` scope only matches files inside the session's project —
+measured, not assumed — so for code outside it (dotfiles, `~/.config`, another
+repository) section 0 tells the agent to read the dev rules by path.
 
 **Nothing but rule files lives under `rules/`.** Claude Code loads that folder
 recursively, so a backup, a draft or an example saved there becomes law in every
@@ -307,10 +309,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.17**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.18**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.18** | Measured how rules reach context: a skill is invoked 20/20 when its subject is named but 2/5 when the need is only implied, and a `paths:` scope loads deterministically inside the session's project but never for a file outside it. Section 0 and the front page now make reading the dev rules by path a duty for code outside the project — dotfiles, `~/.config`, another repository. |
 | **v0.1.17** | The always-loaded rules shrank by a quarter (68,338 → 50,677 bytes on a Linux install). Section 0 no longer re-summarises sections that load in full every session, the review summary is cut to one sentence per rule, and the quarantine procedure loads only when the vault is touched and is otherwise read by path. Four statements that existed only in a summary were moved into their files first, so no rule was lost. |
 | **v0.1.16** | "Make it yours" stopped meaning "edit the installed files". Customizations now live in a **local layer** — `rules/LOCAL.md` and `rules/LOCAL_dev.md`, two files this repository never ships and an update never writes to, copies over or replaces — and section 0 says in one sentence that an entry there wins over the playbook's wording. An entry is a **Fill**, an **Add**, or an **Override** that quotes the dead words it replaces, so `scripts/check-local.sh` can prove mechanically that it still bites before an update copies anything. An update is a copy plus a check; the git-email edit is gone; `INSTALL.md` gained an update procedure and a migration procedure for installations tailored the old way, and its file count was wrong (13, actually 14). |
 | **v0.1.15** | A second independent review, this time of the finished Codex port, failed it — and four of its six blockers were in this rulebook's text: the ceiling was off by one at the boundary (now an admission rule, with a normative table of worked cases), "mechanical review never blocks" read as absolute, an isolation condition no filesystem can satisfy, and a roster that claimed single ownership while the rules restated it. A third review, of that repair and before anything was published, found the admission could be granted twice on one count: and a fourth found two more states the wording missed and said to stop patching — so the ceiling is now one invariant: a line carries at most three unruled batches, the open one included. A fifth review found the restatement had made unplanned work unlandable and left fixes unreviewed; both are closed, and the rule now ends in a clause that resolves anything it does not name toward review. Twenty worked cases. |

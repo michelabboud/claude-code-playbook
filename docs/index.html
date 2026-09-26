@@ -287,7 +287,7 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="wrap">
 
 <header class="masthead">
-  <p class="eyebrow">Open source · MIT · v0.1.17</p>
+  <p class="eyebrow">Open source · MIT · v0.1.18</p>
   <h1>Claude Code Playbook</h1>
   <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: thirteen sections, fifty rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
   <dl class="facts">
@@ -334,7 +334,7 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="book">
   <nav class="spine" aria-label="Sections">
     <ol id="spine"></ol>
-    <p class="spine-key"><b>AUTO</b> — carries a <code style="font-family:var(--mono)">paths:</code> scope, so it loads only when source is touched (the quarantine procedure: when the vault is touched, and otherwise read by path). A session that never opens code doesn’t pay for development detail.</p>
+    <p class="spine-key"><b>AUTO</b> — carries a <code style="font-family:var(--mono)">paths:</code> scope, so it loads only when source is touched (the quarantine procedure: when the vault is touched, and otherwise read by path). A scope only matches files inside the session’s project; for code outside it, the dev rules are read by path. A session that never opens code doesn’t pay for development detail.</p>
   </nav>
   <main class="panel" id="panel" aria-live="polite"></main>
 </div>
