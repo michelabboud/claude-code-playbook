@@ -158,6 +158,47 @@ check_mutation "the template's paths: block drifting from the scoped files is ca
 check_mutation "the always-loaded template gaining a paths: scope is caught" \
     'printf -- "---\npaths:\n  - \"**/*.rs\"\n---\n" > "$M/templates/LOCAL.md.new" && cat "$M/templates/LOCAL.md" >> "$M/templates/LOCAL.md.new" && mv -- "$M/templates/LOCAL.md.new" "$M/templates/LOCAL.md"'
 
+# --- the context budget (ADR 0011) -----------------------------------------
+
+check_mutation "the quarantine procedure losing its paths: scope is caught" \
+    'drop_line "$M/rules/QUARANTINE.md" "**/.quarantine/**" && drop_line "$M/rules/QUARANTINE.md" "paths:"'
+
+check_mutation "the quarantine scope pointing somewhere else is caught" \
+    'replace_in_file "$M/rules/QUARANTINE.md" "**/.quarantine/**" "**/quarantine/**"'
+
+check_mutation "an always-loaded file gaining a paths: scope is caught" \
+    'printf -- "---\npaths:\n  - \"**/*.rs\"\n---\n" > "$M/rules/WRITING.md.new" && cat "$M/rules/WRITING.md" >> "$M/rules/WRITING.md.new" && mv -- "$M/rules/WRITING.md.new" "$M/rules/WRITING.md"'
+
+check_mutation "a platform file gaining a paths: scope is caught" \
+    'printf -- "---\npaths:\n  - \"**/*.sh\"\n---\n" > "$M/rules/platform/LINUX.md.new" && cat "$M/rules/platform/LINUX.md" >> "$M/rules/platform/LINUX.md.new" && mv -- "$M/rules/platform/LINUX.md.new" "$M/rules/platform/LINUX.md"'
+
+check_mutation "DESTRUCTIVE.md no longer sending the agent to the procedure is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "so read it by path before your first quarantine of a session" "so see it when needed"'
+
+check_mutation "section 0 summarising an always-loaded section again is caught" \
+    'printf "%s\n" "### 9 · Environment & operations — \`rules/ENVIRONMENT.md\`" >> "$M/rules/AUTHORITY.md"'
+
+check_mutation "section 0 summarising rule 10.1 again is caught" \
+    'printf "%s\n" "| 10.1 | **Destructive actions need my OK.** |" >> "$M/rules/AUTHORITY.md"'
+
+check_mutation "section 0 dropping a source-scoped summary is caught" \
+    'replace_in_file "$M/rules/AUTHORITY.md" "### 6 · Task & phase workflow" "### Task & phase workflow"'
+
+check_mutation "section 0 dropping the quarantine summary is caught" \
+    'replace_in_file "$M/rules/AUTHORITY.md" "### 10.3 · Quarantine" "### Quarantine"'
+
+check_mutation "section 0 no longer naming what it leaves out is caught" \
+    'drop_line "$M/rules/AUTHORITY.md" "**Always in context, never summarised:**"'
+
+check_mutation "the moved-past rule leaving COLLABORATION.md is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "; a question I saw once and moved past is answered" ""'
+
+check_mutation "the never-fix-during-review rule leaving COLLABORATION.md is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "A defect found during a review is reported, never fixed there" "A defect found during a review is noted"'
+
+check_mutation "a platform file losing the never-carry-across rule is caught" \
+    'drop_line "$M/rules/platform/MACOS.md" "Never carry a command across from another platform file"'
+
 # --- INSTALL.md and the visual map -----------------------------------------
 
 check_mutation "INSTALL.md stating the wrong file count is caught" \

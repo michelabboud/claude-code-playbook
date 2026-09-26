@@ -1,6 +1,6 @@
 # 10 · Destructive actions — rules 10.1–10.2 (10.3 = `QUARANTINE.md`)
 
-*Read BEFORE any delete, overwrite, truncation, purge, destructive migration, or history rewrite — including "cleanup". The quarantine procedure is `~/.claude/rules/QUARANTINE.md`.*
+*Read BEFORE any delete, overwrite, truncation, purge, destructive migration, or history rewrite — including "cleanup". The quarantine procedure is `~/.claude/rules/QUARANTINE.md`; it does not load every session, so read it by path before your first quarantine of a session.*
 
 10.1 **Destructive actions need my OK** — the approval table's seventh row. No `rm -rf` (your platform file gives the equivalent on other operating systems), `DROP`, mass deletes, history rewrites, or anything irreversible at scale without my confirmation first. **What matters is the effect, not the spelling of the command:** a script, a migration, a `--force` flag, or a truncating redirect are all the same act. Rule 10.2's cleanup carve-out is narrow and does not widen because you reached for `rm -rf` to do it.
 

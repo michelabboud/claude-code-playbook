@@ -1,3 +1,8 @@
+---
+paths:
+  - "**/.quarantine/**"
+---
+
 # 10.3 · QUARANTINE.md — the set-aside procedure
 
 *The HOW behind rule 10.2's calibration: "in doubt, quarantine, put aside."

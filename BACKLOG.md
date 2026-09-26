@@ -2,6 +2,22 @@
 
 Dated one-liners for everything deferred or spotted and not done.
 
+- **2026-09-26 · verification · open** — whether `QUARANTINE.md`'s `paths:`
+  glob (`**/.quarantine/**`) auto-loads the file when the agent touches a vault
+  outside the project root, as `~/.quarantine/` is. Not relied upon: the
+  always-loaded `DESTRUCTIVE.md` sends the agent to the file by path. Needs one
+  fresh-session test. Source: v0.1.17, ADR 0011.
+- **2026-09-26 · context budget · open** — in a session opened inside this
+  repository the front page loads twice: the project `CLAUDE.md` is the shipped
+  front page, on top of the installed `~/.claude/CLAUDE.md` (+8.4 KB). Only this
+  repository's sessions pay it; fixing it means moving the shipped front page
+  out of the repository root, which changes the installer's source paths.
+  Source: v0.1.17 measurement.
+- **2026-09-26 · context budget · open** — no token counter was available for the
+  0.1.17 measurement; the byte counts are exact, the token figures (3.5–4 bytes
+  per token) are estimates. Measure with the token-counting API when a key is
+  available. Source: v0.1.17.
+
 - **2026-09-21 · owner's own files · open** — with the corrected parser, the
   author's installed `~/.claude/rules/LOCAL.md` still has two lines the check
   refuses, and both refusals are correct. Line 9 is prose that names the bare

@@ -2,6 +2,8 @@
 
 *This is the platform half of the rules — read it when a rule says "your platform file gives the command."*
 
+**Only the file for this machine's operating system is installed. Never carry a command across from another platform file:** a command that works on one is frequently absent or subtly different on another, and that is how a safety check silently stops checking.
+
 ## 1. Is this port free?
 
 | Need | Command |

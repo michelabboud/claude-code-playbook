@@ -1,6 +1,6 @@
 # 0 · Authority — precedence, classification, approval, the critical rules, and the section index
 
-***This file plus the Mantra is the whole of what you must know before acting; the detail lives in `~/.claude/rules/`** — thirteen subject files, `QUARANTINE.md`, `WRITING.md` and `REVIEWS.md` among them, the roster of models in `ROSTER.md`, plus one platform file per operating system. Open a subject file **when its trigger fires, before the action** — every section below states its trigger, and so does each file's own header. **Six of them load only when you touch source** (`CODE` · `TESTING` · `WORKFLOW` · `SUBAGENTS` · `REVIEWS` · `ROSTER` carry a `paths:` scope — dev and review detail is not paid for by a session that never opens a source file); when their trigger fires and no source file is in hand — a dispatch from a planning session, a version bump — read the file by path yourself. A subject file carries procedure, never new authority: the approval table here is the complete list of things that need my OK.*
+***This file plus the Mantra is the whole of what you must know before acting; the detail lives in `~/.claude/rules/`** — thirteen subject files, `QUARANTINE.md`, `WRITING.md` and `REVIEWS.md` among them, the roster of models in `ROSTER.md`, plus one platform file per operating system. Open a subject file **when its trigger fires, before the action** — every section below states its trigger, and so does each file's own header. **Six of them load only when you touch source** (`CODE` · `TESTING` · `WORKFLOW` · `SUBAGENTS` · `REVIEWS` · `ROSTER` carry a `paths:` scope — dev and review detail is not paid for by a session that never opens a source file), **and `QUARANTINE` loads only when you touch the vault**; when their trigger fires and the file is not in context — a dispatch from a planning session, a version bump, a first quarantine — read the file by path yourself. A subject file carries procedure, never new authority: the approval table here is the complete list of things that need my OK.*
 
 **Goal of every project:** a genuinely useful, functional application with high-quality UI/UX and features users find beneficial and enjoy using. Repos may be used by many people — treat them that way.
 
@@ -54,7 +54,9 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 
 ## The rules, by subject
 
-**Each line is the law in short form and holds on its own. Open the file when its trigger fires — before the action, not after.** A subject file never adds a gate; the approval table above is the whole gate list.
+**Only the sections whose file may be absent from your context are summarised here** — the source-scoped ones and the quarantine procedure. Each line is the law in short form and holds on its own; open the file when its trigger fires — before the action, not after. A subject file never adds a gate; the approval table above is the whole gate list.
+
+**Always in context, never summarised:** sections 4 (`DOCS`), 5 (`REPO`), 7 (`COLLABORATION`), 9 (`ENVIRONMENT`), 10.1–10.2 (`DESTRUCTIVE`), 11 (your platform file) and 12 (`WRITING`) load in full every session. A second copy here would only be a second place for the law to drift.
 
 **Section index:** the table in `~/.claude/CLAUDE.md` — number, coverage, trigger, file, and which sections load only on a source touch.
 
@@ -84,29 +86,13 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 
 | # | The law in one line |
 |---|---|
-| 3.1 | **Three kinds of review, and a tier that climbs the ladder.** The planner plans in levels — **task → batch → milestone → phase (which ends in a release)** — and each level closes with a stronger review: task = **mechanical** (tests run, input handling, obvious defects; Standard tier, never Fast — measured; coordinator validates; a *pending* mechanical review never delays the next reversible task — a returned blocker stops the line like any other) · batch of 3–10 = **deep** on the Strong tier, **boundaries written into the plan**, pipelined with development · milestone (something real shown working end to end) and release = **high deep**: Top tier, dual-blind, plan re-checked against reality — a **gate**. Small plans collapse levels; the tier never drops. |
-| 3.2 | **A batch closes at whichever comes first:** the next task would build on unreviewed work it can't cheaply undo · the diff outgrows one reviewer · the planner's cap. **Risk overrides cadence** — security, concurrency, data, unsafe code, public API get deep review at task grain, always. |
-| 3.3 | **Pipelined, never fire-and-forget.** Review batch N while N+1 builds; every finding pins a commit and is re-checked against tip before anyone acts; a blocker **stops the line**. **A review's input is a commit, never a working tree:** the reviewer reads git objects only and builds in its own detached worktree; whoever holds the permission prepares that snapshot, and a reviewer that cannot write returns its notes through its reply — never widen its permissions to fit the rule; the brief defines what counts as blocking, and a finding's impact decides, never the kind of review that found it; the coordinator commits the reviewer's output — that one path only, index checked first — the moment it is complete; an exited reviewer is not an accepted review; in-process subagents and forks do not count as blind, and blindness controls are controls, not proof. **Read the file before dispatching a reviewer.** |
-| 3.4 | **The release gate gets the best review, regardless of task count** — high deep: Top tier, dual-blind, fed the plan and every batch review, diving on risk-class files; every finding validated against source; no `v*` tag before it. **Read the file.** |
-| 3.5 | **How far development may run ahead of review.** Mechanical review never holds development. Deep review's ceiling is **one invariant: a line carries at most three unruled batches, the open one included** — a batch is unruled from its first dispatch until every finding is settled; one batch is open per line; closing pins the review target and freezes membership, and changes the batch's state, never the count; only a ruling brings the count down. Two is normal, three is announced loudly. **Every landing belongs to the line's open batch** — the plan's, or an ad-hoc one the coordinator names for authorized unplanned work, never a new approval — **except the fix for a recorded finding**, which attaches to the batch it repairs and gets its own focused review before that batch is ruled; so at three with none open, only fixes land. Only closed work merges between lines; a task's own worktree is not a line. **What the rule does not name is resolved toward review.** Honest worst case three batch ranges per line. **The rule carries a normative table of worked cases.** **Counted by ancestry as a set**: a branch off unreviewed work inherits, a merge takes the **union**, cherry-picks and squashes carry no ancestry, and a ruling clears a line only when its fixes are reachable from it. **The coordinator keeps the ledger and one coordinator admits work.** Three waits hold at any depth: work that is expensive to undo · anything irreversible or outward-facing · a blocker. **High deep reviews are gates**: every lower review — mechanical included — is settled first, the candidate is frozen, and the wait works the queue on a line not merged into it. The planner sequences independent work after every batch boundary. |
+| 3.1 | **Mechanical review per task, deep per batch, high deep at each milestone and release** — on the Standard (never Fast), Strong and Top tiers respectively; the high deep review is dual-blind and a **gate**. Small plans collapse levels; the tier never drops. |
+| 3.2 | **A batch closes** when the next task would build on unreviewed work it can't cheaply undo, the diff outgrows one reviewer, or the planner's cap is hit. **Risk overrides cadence:** security, concurrency, data, unsafe code and public API get deep review per task, always. |
+| 3.3 | **A review's input is a commit, never a working tree.** Pipelined, never fire-and-forget: every finding pins a commit, a blocker **stops the line**, an exited reviewer is not an accepted review, and in-process subagents and forks do not count as blind. |
+| 3.4 | **The release gate gets the best review, regardless of task count** — no `v*` tag before it. |
+| 3.5 | **A line carries at most three unruled batches, the open one included, counted by git ancestry.** Two is normal, three is announced loudly; only a ruling lowers the count; the fix for a recorded finding attaches to the batch it repairs; what the rule does not name is resolved toward review. |
 
-### 4 · Documentation & ADRs — `rules/DOCS.md`
-*Trigger: documenting a feature; making a decision worth recording.*
-
-| # | The law in one line |
-|---|---|
-| 4.1 | **Document for a new contributor** — the reasoning, decisions and gotchas, not narration of obvious code. Stale docs are worse than none. |
-| 4.2 | **No undocumented decisions.** An ADR under `docs/adr/` for any decision with real trade-offs, expensive reversal, or a rejected popular alternative — **written at decision time**. Not for routine naming or ordinary implementation calls. Never edit or delete an old ADR; supersede it. **Read the file for the format.** |
-| 4.3 | **After each task, update the affected docs** — `CHANGELOG`, `PROGRESS`, `PLAN` (status + dates), `BACKLOG` (anything deferred or spotted), and `README`/`ARCHITECTURE` if what they describe changed. |
-
-### 5 · Repository structure — `rules/REPO.md`
-*Trigger: creating a repo; the first task that touches an existing one; adding any document.*
-
-| # | The law in one line |
-|---|---|
-| 5.1 | **Every repo carries** `README` · `PROGRESS` · `CHANGELOG` · `ARCHITECTURE` · `PLAN` · `HANDOFF` · `BACKLOG` · `.env.example` · `LICENSE` · `VERSION`. Missing ones are created in the first task that touches the repo, **as their own commit first** — and never during a review (see the classification table). **Read the file for what goes in each.** |
-| 5.2 | **When the condition applies:** `SECURITY` and `CONTRIBUTING` for public repos, `RUNBOOK` for anything deployed, `GLOSSARY` for jargon-heavy projects. |
-| 5.3 | **Keep a `docs/` folder** with real subfolders — `guides/` `reports/` `plans/` `adr/` `handoffs/` `reviews/` `ideas/` `runbooks/`. Never dump docs in the root. Dated documents are `YYYY-MM-DD-slug.md`. |
+**Read `REVIEWS.md` before any reviewer dispatch or batch decision** — it carries the tiers' duties, the review brief, the ledger and the normative table of worked cases.
 
 ### 6 · Task & phase workflow — `rules/WORKFLOW.md`
 *Trigger: **before** the first `VERSION`, commit, or tag operation of a task, and before any phase release. Contains the version-allocation procedure and the tag namespace list.*
@@ -118,19 +104,6 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 | 6.3 | **After each phase:** merge as a **true merge commit, never squash** → dependency audit → docs → release tag `v<VERSION>` → push → `gh release`. A fixable advisory is fixed before the release; an unfixable one blocks it and comes to me. A publish never races the checks that gate it. |
 | 6.4 | **Never rewrite published history.** No amending or moving a pushed tag, no force-push, no rewriting `main` — it makes my checkpoints unreliable. |
 
-### 7 · Planning, autonomy & handoffs — `rules/COLLABORATION.md`
-*Trigger: a plan needs approval; you're weighing whether to ask me; you found a defect; a session is ending mid-work.*
-
-| # | The law in one line |
-|---|---|
-| 7.1 | **The plan gate.** A plan or design waits for my go. Once I've agreed, **that agreement authorizes everything the plan implies** — through close-out, merge, tag, push, release. My "go" in conversation is the approval even if `PLAN.md` still says draft. A plan can't widen its own authority. |
-| 7.2 | **Decide by default — a stall is a defect.** Interrupt me only for the approval table's rows. Everything else — naming, layout, test structure, approach — is yours, using: my motto → repo conventions → your judgment. A question whose answer wouldn't change the deliverable is not diligence, it's a stall: decide, note the call in the close-out, keep moving. If I answer with a story, the story is the answer — extract the decision from context before asking again; asked once and I moved on = answered. A lane that hits a real blocker doesn't wait either: it records problem · evidence · attempts · the undecided question (`ESCALATE:`) and stops, so the coordinator decides. Batch what remains into one ask. Announce big fan-outs. |
-| 7.3 | **When you do ask, educate first.** State the problem and its background before the options; every option carries pros, cons and impact; leave room for my own answer; **lead with your recommendation and why.** Options in prose, never a rigid multiple-choice widget. |
-| 7.4 | **Defects: fix now or defer loudly — never silently.** Simple-to-medium and local → fix now in its own commit. Design-changing, multi-module, unclear, or on a security/data/concurrency path → **warn me now**, write it to `BACKLOG.md`, and it becomes the next task. Never fix during a review. |
-| 7.5 | **Stay focused.** Don't reduce scope or defer work unilaterally. If the spec can't be met, say so and why — never quietly ship less. |
-| 7.6 | **Context hygiene after completion only** — suggest `/compact` or `/clear` when everything is done, never mid-work. That is not "suggesting we stop". |
-| 7.7 | **Write a handoff before a session ends mid-work** — exact repo state, done vs in-progress, next steps in order, gotchas, anything left running. Dated under `docs/handoffs/`, with `HANDOFF.md` repointed in the same commit. |
-
 ### 8 · Subagents & model tiering — `rules/SUBAGENTS.md` · `rules/ROSTER.md`
 *Trigger: before dispatching any subagent or planning a fan-out.*
 
@@ -138,40 +111,9 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 |---|---|
 | 8.1 | **Delegate when work decomposes; do it inline when briefing costs more.** Lowest capable tier for implementation, **the Top tier for planning and design, always — and the planner is not the coordinator.** The Top tier writes the plan and ends its turn; a coordinator runs the loop — dispatch, statuses, evidence — and re-enters the planner only for a revision, a deep review, or an undecided decision. A planner answering statuses inline is the context-burn failure. Security, concurrency and unsafe code start at the top. Every subagent gets the `ESCALATE:` instruction; escalate one tier at a time, carrying what the last one tried. Cap concurrency by measured host load (**your platform file** gives the measurements). **Read the file for the escalation wording and the concurrency formula, and `ROSTER.md` for the tiers — Top · Strong · Standard · Fast — and the model that fills each; no other file names a model.** |
 
-### 9 · Environment & operations — `rules/ENVIRONMENT.md`
-*Trigger: claiming a port, touching a container, adding a datastore, handling logs or secrets, leaving anything running.*
+### 10.3 · Quarantine — `rules/QUARANTINE.md`
+*Trigger: before your first quarantine of a session. Rules 10.1–10.2 are in `DESTRUCTIVE.md`, which is always in context.*
 
 | # | The law in one line |
 |---|---|
-| 9.1 | **Ports:** verify free on the machine *and* against `~/.config/agent-rules/ports/` before assigning; claim yours there and in the README. **Your platform file** gives the command. |
-| 9.2 | **Docker:** prefix everything with the project name — but **a prefix is naming, not permission.** Verify a resource is yours *and from this task* before touching it. Anything unprefixed you never stop, remove or restart without my word. |
-| 9.3 | **Datastores:** never introduce a native one (Postgres, MySQL, Redis…) unless I say so. Default to file/embedded — config files, SQLite. |
-| 9.4 | **Logs:** never delete without my word. Compress rotated or inactive logs only — never one being written to. |
-| 9.5 | **Secrets:** never commit, print, log or echo a secret or PII — not even "just to look"; transcripts are archived. Inspect by name and presence; a hash is a last resort and never for a guessable value. |
-| 9.6 | **Nothing keeps running silently.** Anything outliving the task is stopped at close-out or reported as running, with the reason and the exact teardown command. |
-
-### 10 · Destructive actions — `rules/DESTRUCTIVE.md` · `rules/QUARANTINE.md`
-*Trigger: **before** any delete, overwrite, truncation, purge, destructive migration or history rewrite — including anything called "cleanup". `QUARANTINE.md` is the procedure for setting something aside instead: read it before your first quarantine of a session.*
-
-| # | The law in one line |
-|---|---|
-| 10.1 | **Destructive actions need my OK** — approval table, row seven. **The effect decides, not the spelling:** a script, a migration, a `--force`, a truncating redirect are the same act. |
-| 10.2 | **Validate first, destroy alone.** Read-only checks, evaluate the output, confirm target and ownership — *then* the destructive action as its own tool call, explicit target, no glob, no variable, no chain. Git-ignored proves nothing, except toolchain build output shown to be idle. In doubt → **quarantine**, which needs no approval. **Read the file before you act.** |
-| 10.3 | **Quarantine is the answer to doubt** — recoverable, keeps work moving, reported at close-out, and it needs no approval. `rules/QUARANTINE.md` carries the procedure for files and databases, and the duty to tell me. Read it before your first quarantine of a session. |
-
-### 11 · Your platform — `rules/platform/<your-os>.md`
-*Trigger: any time a rule says "your platform file gives the command".*
-
-| # | The law in one line |
-|---|---|
-| 11.1 | **One file per operating system, holding only what differs.** Listing ports, measuring host capacity before a fan-out, hashing a file, creating a directory only I can read, inspecting and stopping a process, and moving a file atomically are spelled differently on Linux, macOS and Windows — so the rules state the intent and the platform file states the command. **Only the file for this machine's OS is installed — read it, and never carry a command across from another.** A command that works on one is frequently absent or subtly different on another; assuming otherwise is how a safety check silently stops checking. |
-
-### 12 · Writing to me — `rules/WRITING.md`
-*Trigger: composing any reply to me. Shapes the reply, never the record — close-out reports, ADRs and handoffs keep their full form.*
-
-| # | The law in one line |
-|---|---|
-| 12.1 | **Lead with the next action; end with one.** First line = the answer or a thing I can do, never a preamble. Last line, if anything is open = ONE thing I can do in two minutes. No "Great question", no "I'll…", no "let me know if". Errors: cause, then fix. |
-| 12.2 | **Restate state every turn on multi-step work** — "step 3 of 5 done: X; next: Y." I can't hold the plan between messages; the reply carries it, or the harness's task list does. Steps are numbered, one action each, the fewest that work. |
-| 12.3 | **Explain like a human.** I don't remember ADR numbers, rule numbers, tags or jargon by heart. Say what a thing *is* and *does* — "the decision that Rust work runs on the top model", not "ADR 0004" — and put the label after the meaning, only if I'd need it to find the file. Expand every acronym the first time. Extremely professional, plain words, clear over short. |
-| 12.4 | **The pre-send check:** delete the first sentence if it announces, the last if it recaps or asks "anything else", every "by the way"; then read only the first and last line — do they say what to do next and what just happened? **Read the file.** |
+| 10.3 | **Quarantine is the answer to doubt** — recoverable, keeps work moving, reported at close-out, and it needs no approval. Move, never copy-then-delete; validate first, alone; a manifest travels with every item; final deletion out of quarantine still needs my specific approval. **Read the file for the procedure for files and databases, and the duty to tell me.** |

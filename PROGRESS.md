@@ -1,5 +1,12 @@
 # Progress & current standing
 
+**0.1.17, 2026-09-26 — context budget:** the always-loaded rules fell from
+68,338 to 50,677 bytes on a Linux installation's file set (−25.8 %). Section 0
+summarises only sections whose file may be absent from context; the quarantine
+procedure is scoped to the vault and read by path; four summary-only statements
+moved into their files first. ADR 0011. The live owner installation is still
+0.1.15 and needs the local-layer migration before any update.
+
 **Source publication verified, 2026-09-23:** remote `main` and peeled
 `checkpoint/0.1.16` resolve to `97938d0`. The tagged tree passed all six suites
 with direct exit 0. The source-publication receipt is

@@ -25,7 +25,10 @@ HERE=$(dirname -- "$0")
 ROOT=${1:-$HERE/..}
 
 SCOPED='CODE TESTING WORKFLOW SUBAGENTS REVIEWS ROSTER'
-UNSCOPED='AUTHORITY COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT QUARANTINE REPO WRITING'
+UNSCOPED='AUTHORITY COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT REPO WRITING'
+# Scoped to its trigger, not to source: the source-scoped invariants (hook 2,
+# the shared frontmatter) do not apply to it (ADR 0011).
+TRIGGER='QUARANTINE'
 PLATFORM='LINUX MACOS WINDOWS'
 
 HOOK2='*Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*'
@@ -39,7 +42,7 @@ for f in $SCOPED; do
     assert_eq "hook 2 appears exactly once in rules/$f.md" \
         1 "$(count_in_file "$HOOK2" "$ROOT/rules/$f.md")"
 done
-for f in $UNSCOPED; do
+for f in $UNSCOPED $TRIGGER; do
     assert_eq "hook 2 is absent from rules/$f.md" \
         0 "$(count_in_file "$HOOK2" "$ROOT/rules/$f.md")"
 done
@@ -64,7 +67,7 @@ done
 # ---------------------------------------------------------------------------
 assert_eq "hook 1 appears exactly once in rules/AUTHORITY.md" \
     1 "$(count_in_file "$HOOK1" "$ROOT/rules/AUTHORITY.md")"
-for f in $SCOPED $UNSCOPED; do
+for f in $SCOPED $UNSCOPED $TRIGGER; do
     [ "$f" = AUTHORITY ] && continue
     assert_eq "hook 1 is absent from rules/$f.md" \
         0 "$(count_in_file "$HOOK1" "$ROOT/rules/$f.md")"
@@ -97,7 +100,7 @@ assert_eq "section 0's paragraph denies the local layer any new authority" \
 # that nothing writes to them.
 assert_eq "section 0's paragraph says an update never writes to, copies over or replaces the local files" \
     1 "$(count_in_text 'an update replaces the playbook'"'"'s files and never writes to, copies over or replaces these two' "$PARA")"
-for f in $SCOPED $UNSCOPED; do
+for f in $SCOPED $UNSCOPED $TRIGGER; do
     assert_eq "rules/$f.md never claims the playbook does not open the local files" \
         0 "$(count_in_file 'without opening these two' "$ROOT/rules/$f.md")"
 done
@@ -132,7 +135,7 @@ assert_eq "section 0's header says thirteen subject files" \
 C=$ROOT/CLAUDE.md
 assert_eq "hook 3 appears exactly once in CLAUDE.md" \
     1 "$(count_in_file "$HOOK3" "$C")"
-for f in $SCOPED $UNSCOPED; do
+for f in $SCOPED $UNSCOPED $TRIGGER; do
     assert_eq "hook 3 is absent from rules/$f.md" \
         0 "$(count_in_file "$HOOK3" "$ROOT/rules/$f.md")"
 done
@@ -229,6 +232,52 @@ assert_contains "the shared frontmatter really is a paths: scope" \
 # The always-loaded template must NOT carry a paths: scope — it loads always.
 assert_eq "templates/LOCAL.md carries no paths: scope" \
     0 "$(count_in_file 'paths:' "$ROOT/templates/LOCAL.md")"
+
+# ---------------------------------------------------------------------------
+# The context budget (ADR 0011): what loads every session, and what section 0
+# summarises.
+# ---------------------------------------------------------------------------
+for f in $UNSCOPED; do
+    assert_eq "rules/$f.md carries no paths: scope — it loads every session" \
+        0 "$(frontmatter "$ROOT/rules/$f.md" | grep -c 'paths:')"
+done
+for f in $PLATFORM; do
+    assert_eq "rules/platform/$f.md carries no paths: scope" \
+        0 "$(frontmatter "$ROOT/rules/platform/$f.md" | grep -c 'paths:')"
+done
+frontmatter "$ROOT/rules/QUARANTINE.md" >"$TMPROOT/quarantine.fm"
+assert_contains "rules/QUARANTINE.md carries a paths: scope" \
+    "$(cat "$TMPROOT/quarantine.fm")" 'paths:'
+assert_contains "rules/QUARANTINE.md is scoped to the quarantine vault" \
+    "$(cat "$TMPROOT/quarantine.fm")" '"**/.quarantine/**"'
+# The safety net for a scoped procedure: the always-loaded file sends the agent
+# to it by path.
+assert_eq "DESTRUCTIVE.md tells the agent to read the quarantine procedure by path" \
+    1 "$(count_in_file 'it does not load every session, so read it by path before your first quarantine of a session' "$ROOT/rules/DESTRUCTIVE.md")"
+
+# Section 0 summarises only sections whose file may be absent from context.
+for n in 4 5 7 9 11 12; do
+    assert_eq "section 0 does not summarise always-loaded section $n" \
+        0 "$(grep -c "^### $n · " "$A")"
+done
+assert_eq "section 0 does not summarise rules 10.1–10.2, which are always loaded" \
+    0 "$(grep -c '^| 10\.[12] |' "$A")"
+for n in 1 2 3 6 8 10.3; do
+    assert_eq "section 0 summarises section $n" \
+        1 "$(grep -c "^### $n · " "$A")"
+done
+assert_eq "section 0 says which sections it does not summarise" \
+    1 "$(count_in_file '**Always in context, never summarised:**' "$A")"
+
+# The statements that once lived only in a summary now live in their files.
+assert_eq "COLLABORATION.md: a question seen once and moved past is answered" \
+    1 "$(count_in_file 'a question I saw once and moved past is answered' "$ROOT/rules/COLLABORATION.md")"
+assert_eq "COLLABORATION.md: a defect found during a review is reported, never fixed there" \
+    1 "$(count_in_file 'A defect found during a review is reported, never fixed there' "$ROOT/rules/COLLABORATION.md")"
+for f in $PLATFORM; do
+    assert_eq "rules/platform/$f.md forbids carrying a command across platforms" \
+        1 "$(count_in_file 'Never carry a command across from another platform file' "$ROOT/rules/platform/$f.md")"
+done
 
 # ---------------------------------------------------------------------------
 # INSTALL.md's verification counts match the repository.

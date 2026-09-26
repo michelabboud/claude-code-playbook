@@ -4,7 +4,34 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
-## Unreleased
+## 0.1.17 — 2026-09-26
+
+The always-loaded rules cost context in every session. Measured on a Linux
+installation's file set, the always-loaded bytes fell from 68,338 to 50,677
+(−17,661, −25.8 %); `AUTHORITY.md` alone fell from 26,774 to 16,289. Decision
+record: `docs/adr/0011-always-loaded-context-budget.md`.
+
+- Section 0 summarises only the sections whose file may be absent from context
+  — 1, 2, 3, 6, 8 and the quarantine procedure. Sections 4, 5, 7, 9, 10.1–10.2,
+  11 and 12 load in full every session and are named in one line, not copied.
+- The section 3 summary is one sentence per rule plus the instruction to read
+  `REVIEWS.md` before any reviewer dispatch or batch decision (4,400 → 1,803 bytes).
+- `QUARANTINE.md` carries a `paths:` scope on `**/.quarantine/**`.
+  `DESTRUCTIVE.md`, always loaded, keeps the principle and says to read the
+  procedure by path before a first quarantine.
+- Statements that existed only in a summary moved into their files first:
+  "a question I saw once and moved past is answered" (rule 7.2), "a defect found
+  during a review is reported, never fixed there" (rule 7.4), and "never carry a
+  command across from another platform file" (all three platform files).
+- `tests/rules_text_test.sh` gains a trigger-scoped file class and assertions
+  for all of the above (147 → 179); `tests/rules_text_mutation_test.sh` proves
+  each one catches its breakage (40 → 53).
+
+## 0.1.16 — additions of 2026-09-23 (shipped in `checkpoint/0.1.16`)
+
+*This heading read "Unreleased" until 0.1.17; every entry below is in the
+`checkpoint/0.1.16` tag.*
+
 
 - Refuse managed destination hard links before any install, update, or restore
   copy, preventing a regular-looking installed file from overwriting another

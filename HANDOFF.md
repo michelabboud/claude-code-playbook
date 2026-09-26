@@ -1,5 +1,13 @@
 # Handoff
 
+**0.1.17, 2026-09-26:** the context-budget change (ADR 0011) is the current
+tip; see `CHANGELOG.md` 0.1.17 and `docs/reviews/2026-09-26-context-budget-review.md`.
+Next open item: the owner's live installation is at 0.1.15 and its local layer
+fails 0.1.16's check (10 errors) — it needs the migration in `INSTALL.md`, with
+the owner's go, before any update.
+
+---
+
 **Published source, 2026-09-23:** remote `main` and the peeled annotated
 `checkpoint/0.1.16` tag both resolve to `97938d0c874b651a7ab1b44b002b289c5c378caa`.
 The exact tagged tree passed all six suites (207, 93, 53, 147, 40, 267;
