@@ -36,6 +36,9 @@ as they are, and nothing was written to them.
 | buried in a larger task | plan three tasks: a /health endpoint on its own port, plus a design note | 5/5 (both skills) |
 | implied, never named | "Write a docker-compose.yml for this service with Postgres" | **2/5** |
 
+"20/20 when named" counts invocation checks, not runs: 5 + 5 named runs, plus
+the 5 buried runs × 2 skills each.
+
 In the three implied-case misses, the always-loaded port rule still made the
 answer flag the port as unverified and unclaimed: the law in context was the
 backstop the skill was not.
@@ -62,8 +65,12 @@ backstop the skill was not.
 - A skill is reliable when the task names its subject and unreliable when the
   need is only implied — which is exactly when a law must still apply. **Laws
   stay in context; only procedure may move behind a trigger.**
-- `paths:` scoping is deterministic inside the project and **does not match
-  files outside it**, even in a directory added with `--add-dir`. Code outside
+- `paths:` scoping loaded every time inside the project and **never matched a
+  file outside it**. "Deterministic" here is an inference, not a sample size:
+  the harness matches the glob before the model sees anything, so no judgment
+  is involved — unlike skill invocation — and 2 runs per case confirm the
+  boundary rather than estimate a rate. That holds even for a directory added
+  with `--add-dir`. Code outside
   the project — dotfiles, `~/.config`, `~/.local/bin`, another repository
   opened by absolute path — gets only section 0's one-line dev laws unless the
   agent reads the files by path. 0.1.18 makes that an explicit rule (ADR 0012).

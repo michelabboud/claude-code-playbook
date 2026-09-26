@@ -17,8 +17,9 @@ Measured how rules reach context instead of assuming it
   `LOCAL_dev.md`) by path before writing code outside the project.
 - The quarantine glob from 0.1.17 never fires for `~/.quarantine/`; the
   read-by-path line in `DESTRUCTIVE.md` is the mechanism. Backlog item closed.
-- Skills: invoked 20/20 when the task names their subject, 2/5 when the need is
-  only implied. Laws stay in context; only procedure may move behind a trigger.
+- Skills: invoked 20/20 when the task names their subject (20 invocation
+  checks: 10 named runs, plus 5 buried runs needing both skills), 2/5 when the
+  need is only implied. Laws stay in context; only procedure may move behind a trigger.
 - `tests/rules_text_test.sh` 179 → 182; `tests/rules_text_mutation_test.sh`
   53 → 57.
 
