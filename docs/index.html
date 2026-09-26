@@ -495,7 +495,7 @@ const S=[
   ["9.6","<strong>Nothing keeps running silently.</strong> Anything outliving the task is stopped at close-out or reported as running, with the reason and the exact teardown command."]]},
 
 {n:10,name:"Destructive actions & quarantine",file:"rules/DESTRUCTIVE.md · rules/QUARANTINE.md",auto:false,
- trigger:"Before any delete, overwrite, truncation, purge, migration or history rewrite — including anything called “cleanup”.",
+ trigger:"Before any delete, overwrite, truncation, purge, migration or history rewrite — including anything called “cleanup”. The quarantine procedure (10.3) is scoped to the vault: read it by path before a first quarantine.",
  blurb:"The gate, the isolation discipline, and the answer to doubt that needs no approval at all.",
  rules:[
   ["10.1","<strong>Destructive actions need my OK.</strong> <strong>The effect decides, not the spelling:</strong> a script, a migration, a <code>--force</code> flag, a truncating redirect are the same act."],

@@ -15,7 +15,7 @@ record: `docs/adr/0011-always-loaded-context-budget.md`.
   — 1, 2, 3, 6, 8 and the quarantine procedure. Sections 4, 5, 7, 9, 10.1–10.2,
   11 and 12 load in full every session and are named in one line, not copied.
 - The section 3 summary is one sentence per rule plus the instruction to read
-  `REVIEWS.md` before any reviewer dispatch or batch decision (4,400 → 1,803 bytes).
+  `REVIEWS.md` before any reviewer dispatch or batch decision (4,400 → 1,803 bytes, measured from the `### 3` heading to the next `###` heading).
 - `QUARANTINE.md` carries a `paths:` scope on `**/.quarantine/**`.
   `DESTRUCTIVE.md`, always loaded, keeps the principle and says to read the
   procedure by path before a first quarantine.
