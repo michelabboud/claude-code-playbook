@@ -287,7 +287,7 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="wrap">
 
 <header class="masthead">
-  <p class="eyebrow">Open source · MIT · v0.1.19</p>
+  <p class="eyebrow">Open source · MIT · v0.1.20</p>
   <h1>Claude Code Playbook</h1>
   <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: thirteen sections, fifty rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
   <dl class="facts">
@@ -498,8 +498,8 @@ const S=[
  trigger:"Before any delete, overwrite, truncation, purge, migration or history rewrite — including anything called “cleanup”. The quarantine procedure (10.3) is scoped to the vault: read it by path before a first quarantine.",
  blurb:"The gate, the isolation discipline, and the answer to doubt that needs no approval at all.",
  rules:[
-  ["10.1","<strong>Destructive actions need my OK.</strong> <strong>The effect decides, not the spelling:</strong> a script, a migration, a <code>--force</code> flag, a truncating redirect are the same act."],
-  ["10.2","<strong>Validate first, destroy alone.</strong> Read-only checks, evaluate the output, confirm target and ownership — <em>then</em> the destructive action as its own call, explicit target, no glob, no variable, no chain. Git-ignored proves nothing, except toolchain build output shown to be idle."],
+  ["10.1","<strong>Destructive actions need my OK.</strong> <strong>The effect decides, not the spelling:</strong> a script, a migration, a <code>--force</code> flag, a truncating redirect are the same act. <strong>A blocked command is a stop, not a spelling problem:</strong> never re-issue the same effect in another form."],
+  ["10.2","<strong>Validate first, destroy alone.</strong> Read-only checks, evaluate the output, confirm target and ownership — <em>then</em> the destructive action as its own call, explicit target, no glob, no variable, no chain. Git-ignored proves nothing, except toolchain build output shown to be idle. <strong>Worktrees go through git:</strong> <code>git worktree remove</code> without <code>--force</code>, never deleting the folder; the owning lane locks its worktree."],
   ["10.3","<strong>Quarantine is the answer to doubt</strong> — recoverable, keeps work moving, reported at close-out, and <strong>it needs no approval.</strong> Move, never copy-then-delete. Provenance travels with the file."]],
  features:[
   {t:"Approval is not a liability dump",c:"The calibration that keeps the gate from becoming bureaucracy.",

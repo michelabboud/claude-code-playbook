@@ -232,6 +232,27 @@ check_mutation "the roster's economy seat changing model is caught" \
 check_mutation "a model named in REVIEWS.md is caught" \
     'replace_in_file "$M/rules/REVIEWS.md" "the roster'"'"'s economy configuration instead" "Opus 5.5 instead"'
 
+check_mutation "rule 10.1 losing stop-means-stop is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "**A blocked command is a stop, not a spelling problem.**" "**Blocked commands can be retried.**"'
+
+check_mutation "rule 10.1 allowing a re-spelled effect is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "never re-issue the same effect in another form" "try a gentler form"'
+
+check_mutation "worktree removal allowing --force is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`git worktree remove <path>\`, without \`--force\`, is" "\`git worktree remove --force <path>\` is"'
+
+check_mutation "worktree folder deletion stops being destructive is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "skips that check and is a destructive act under rule 10.1" "is also fine"'
+
+check_mutation "the worktree lock duty dropping is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "that lane locks it with \`git worktree lock\` while it works" "that lane may lock it"'
+
+check_mutation "branch -D becoming allowed is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "never \`git branch -D\` on a branch with unique work" "or \`git branch -D\` when convenient"'
+
+check_mutation "the workflow pointer to git worktree remove dropping is caught" \
+    'replace_in_file "$M/rules/WORKFLOW.md" ", and only with \`git worktree remove\` (rule 10.2);" ";"'
+
 # --- INSTALL.md and the visual map -----------------------------------------
 
 check_mutation "INSTALL.md stating the wrong file count is caught" \

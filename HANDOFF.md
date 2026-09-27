@@ -1,5 +1,8 @@
 # Handoff
 
+**0.1.20, 2026-09-27:** refused means stop; worktrees removed through git.
+The behaviour-suite plan (`docs/plans/2026-09-26-behaviour-suite-plan.md`) is
+approved in scope; its size (small / lean / full) awaits the owner.
 **0.1.19, 2026-09-26:** economy mode for code review (ADR 0013).
 **0.1.18, 2026-09-26:** loading measured and the out-of-project gap closed
 (ADR 0012, `docs/reports/2026-09-26-loading-measurements.md`); the tip before it,

@@ -1,5 +1,9 @@
 # Progress & current standing
 
+**0.1.20, 2026-09-27 — refused means stop; worktrees through git:** rule 10.1
+forbids re-spelling a refused destructive command; rule 10.2 makes
+`git worktree remove` (no `--force`) the only way a worktree is removed.
+
 **0.1.19, 2026-09-26 — economy mode:** owner-switched economy mode seats the
 Top tier's code-review seats on Opus 5.5 and GPT-6 Sol at `xhigh`. ADR 0013.
 

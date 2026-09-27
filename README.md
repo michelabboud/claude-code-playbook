@@ -309,10 +309,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.19**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.20**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.20** | A refused destructive command is a stop, not a spelling problem: never re-issue the same effect in another form. Worktrees are removed with `git worktree remove` (no `--force`), never by deleting the folder; the owning lane locks its worktree while it works; branches go with `git branch -d`. |
 | **v0.1.19** | **Economy mode** for code review: on the owner's word only, the Top tier's review seats run on Claude Opus 5.5 and GPT-6 Sol at `xhigh` effort instead of Fable and Astra. Planning stays on the Top tier; the pair stays dual-blind; every review it runs records *economy mode*. |
 | **v0.1.18** | Measured how rules reach context: a skill is invoked 20/20 when its subject is named but 2/5 when the need is only implied, and a `paths:` scope loads deterministically inside the session's project but never for a file outside it. Section 0 and the front page now make reading the dev rules by path a duty for code outside the project — dotfiles, `~/.config`, another repository. |
 | **v0.1.17** | The always-loaded rules shrank by a quarter (68,338 → 50,677 bytes on a Linux install). Section 0 no longer re-summarises sections that load in full every session, the review summary is cut to one sentence per rule, and the quarantine procedure loads only when the vault is touched and is otherwise read by path. Four statements that existed only in a summary were moved into their files first, so no rule was lost. |

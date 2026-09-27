@@ -304,6 +304,26 @@ assert_eq "REVIEWS.md names no model for economy mode — the roster does" \
 assert_eq "section 0's review summary mentions economy mode" \
     1 "$(count_in_file 'except in **economy mode**, on my word only' "$A")"
 
+# Refused means stop, and worktrees go through git (0.1.20).
+DS=$ROOT/rules/DESTRUCTIVE.md
+R101=$(paragraph_with '10.1 **Destructive actions need my OK**' "$DS")
+assert_eq "rule 10.1 says a blocked command is a stop, not a spelling problem" \
+    1 "$(count_in_text '**A blocked command is a stop, not a spelling problem.**' "$R101")"
+assert_eq "rule 10.1 forbids re-issuing a refused effect in another form" \
+    1 "$(count_in_text 'never re-issue the same effect in another form' "$R101")"
+WT=$(paragraph_with '**Worktrees are removed through git, never by deleting their folder.**' "$DS")
+assert_contains "DESTRUCTIVE.md carries the worktree paragraph" "$WT" 'Worktrees are removed through git'
+assert_eq "worktrees are removed with git worktree remove, without --force" \
+    1 "$(count_in_text '`git worktree remove <path>`, without `--force`, is the cleanup command' "$WT")"
+assert_eq "deleting a worktree folder with rm is a destructive act" \
+    1 "$(count_in_text 'Deleting a worktree'"'"'s folder with `rm`, or passing `--force`, skips that check and is a destructive act under rule 10.1' "$WT")"
+assert_eq "the owning lane locks its worktree" \
+    1 "$(count_in_text 'that lane locks it with `git worktree lock` while it works' "$WT")"
+assert_eq "branches go with git branch -d, never -D on unique work" \
+    1 "$(count_in_text 'never `git branch -D` on a branch with unique work' "$WT")"
+assert_eq "the workflow hygiene checkpoint points worktree removal at git" \
+    1 "$(count_in_file 'and only with `git worktree remove` (rule 10.2)' "$ROOT/rules/WORKFLOW.md")"
+
 # The statements that once lived only in a summary now live in their files.
 assert_eq "COLLABORATION.md: a question seen once and moved past is answered" \
     1 "$(count_in_file 'a question I saw once and moved past is answered' "$ROOT/rules/COLLABORATION.md")"

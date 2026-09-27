@@ -4,6 +4,25 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.20 — 2026-09-27
+
+Prompted by a real session: a policy refused `rm -rf` on build output, and the
+agent re-issued the same deletes as `rm -r --`.
+
+- Rule 10.1: **a blocked command is a stop, not a spelling problem.** A refused
+  destructive command is never re-issued in another form (`rm -r` for `rm -rf`,
+  `find -delete`, a script, a move to a throwaway path); take the route the
+  refusal names, quarantine, or ask.
+- Rule 10.2: **worktrees are removed through git.** `git worktree remove`
+  without `--force` is the cleanup command — git refuses a worktree with
+  uncommitted or untracked changes. `git worktree prune` for stale bookkeeping.
+  Deleting a worktree's folder, or `--force`, is a destructive act. The owning
+  lane locks its worktree while it works; locked or in-use worktrees that are not
+  yours are never removed. Branches go with `git branch -d`, never `-D` on
+  unique work. Rule 6.2's hygiene checkpoint points at it.
+- `tests/rules_text_test.sh` 192 → 200; `tests/rules_text_mutation_test.sh`
+  64 → 71.
+
 ## 0.1.19 — 2026-09-26
 
 - **Economy mode for code review** (ADR 0013). On the owner's word only, for a
