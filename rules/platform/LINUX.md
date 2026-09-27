@@ -20,6 +20,7 @@ No output for that port = free.
 |---|---|---|
 | Logical CPU count | `nproc` | a plain integer |
 | Current load | `cat /proc/loadavg` | first three fields are the 1/5/15-minute load averages; divide the one you use by `nproc` to get the load factor SUBAGENTS.md's formula wants |
+| Free disk | `df -h <path>` | read `Avail` and `Use%` for the filesystem holding `<path>` — the working filesystem, not `/` by habit |
 | Free memory | `free -m` | read the `available` column, not `free` — it already accounts for reclaimable cache/buffers |
 
 ## 3. Hash a file

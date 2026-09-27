@@ -4,6 +4,41 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.21 — 2026-09-27
+
+The owner's word after the two 0.1.20 incidents: "we should build a proper
+Hygiene rules". 0.1.20 said what not to do when a removal is refused; nothing
+said how to decide what is safe to remove in the first place.
+
+- New **section 13, Hygiene** (`rules/HYGIENE.md`), read by path before any
+  cleanup and scoped to `**/.worktrees/**`:
+  - 13.1 classify before you remove — six classes, each with its action; a name
+    or a `.gitignore` entry never decides the class.
+  - 13.2 remove only what is provably yours (created by this session, locked by
+    your lane, or marked for your task).
+  - 13.3 worktrees through git after three checks — moved here from rule 10.2,
+    and tightened: reachability is checked against `refs/heads refs/tags` only,
+    because `for-each-ref --contains` otherwise counts `refs/stash`; a
+    quarantined modified tracked file is restored with `git restore` so the
+    removal can proceed.
+  - 13.4 a `.hygiene.json` marker at creation (owner, task, created,
+    disposable, regenerate); a marker you did not write is evidence, not
+    permission.
+  - 13.5 when hygiene runs (every close-out and phase end, before disk-heavy
+    work, below a free-space floor — the local layer's, or 10 %) and the report
+    it ends with.
+  - 13.6 a refusal ends the attempt (rule 10.1 restated where cleanup happens).
+- Rule 10.2 now sends every cleanup to section 13 and keeps one sentence of
+  law: worktrees are removed only through git; deleting the folder or `--force`
+  is a destructive act. Rule 6.2's checkpoint runs the section-13 procedure.
+- Every platform file gained a free-disk row.
+- `INSTALL.md`: fifteen managed files; the staged-tree trust check now expects
+  20 entries (the install suite caught the stale 19).
+- The visual map gains section 13 (fourteen sections, fifty-six rules).
+- ADR 0014. The behaviour-suite plan's reserved ADR numbers move up by one.
+- `tests/rules_text_test.sh` 206 → 233; `tests/rules_text_mutation_test.sh`
+  77 → 91.
+
 ## 0.1.20 — 2026-09-27
 
 Prompted by two real sessions on 2026-09-27. In one, a policy refused `rm -rf`

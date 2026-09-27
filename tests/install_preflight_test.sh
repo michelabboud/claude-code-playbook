@@ -199,7 +199,7 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
     installed=$TMPROOT/no-backup-install
     mkdir -p "$installed/rules/platform"
     cp "$ROOT/CLAUDE.md" "$installed/CLAUDE.md"
-    for managed in AUTHORITY CODE COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT QUARANTINE REPO REVIEWS ROSTER SUBAGENTS TESTING WORKFLOW WRITING; do
+    for managed in AUTHORITY CODE COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT HYGIENE QUARANTINE REPO REVIEWS ROSTER SUBAGENTS TESTING WORKFLOW WRITING; do
         cp "$ROOT/rules/$managed.md" "$installed/rules/$managed.md"
     done
     cp "$ROOT/rules/platform/$platform" "$installed/rules/platform/$platform"

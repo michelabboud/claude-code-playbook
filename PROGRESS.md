@@ -1,5 +1,9 @@
 # Progress & current standing
 
+**0.1.21, 2026-09-27 — hygiene:** new section 13 makes cleanup a
+classification with one action per class, moves the worktree procedure out of
+rule 10.2, adds a creation-time marker and a free-space floor. ADR 0014.
+
 **0.1.20, 2026-09-27 — refused means stop; worktrees through git:** rule 10.1
 forbids re-spelling a refused destructive command; rule 10.2 makes
 `git worktree remove` (no `--force`) the only way a worktree is removed.

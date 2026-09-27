@@ -9,7 +9,7 @@ CLAUDE.md                 the Mantra + the section index        (always loaded)
   └── rules/AUTHORITY.md  §0 precedence · the local layer ·     (always loaded)
                              classification · THE APPROVAL TABLE
                              · critical rules
-        └── rules/*.md    §1–§12 subject files                  (trigger-loaded)
+        └── rules/*.md    §1–§13 subject files                  (trigger-loaded)
               └── rules/platform/<os>.md   §11 OS specifics     (read by path)
 
 rules/LOCAL.md            the user's entries                    (always loaded)
@@ -36,7 +36,9 @@ a single file cannot:
    `SUBAGENTS`, `ROSTER`) carry a `paths:` scope and enter context only when source files
    are touched. A session that never opens code shouldn't pay for development
    detail. `QUARANTINE` is scoped to the quarantine vault and read by path before
-   a first quarantine. `AUTHORITY.md` summarises only these files — an always-loaded
+   a first quarantine; `HYGIENE` is scoped to worktrees and read by path before any
+   cleanup — neither procedure pays for itself in a session that never cleans up.
+   `AUTHORITY.md` summarises only these files — an always-loaded
    file is never summarised, because the copy would be a second place for the law
    to drift (ADR 0011). A scope only matches files inside the session's project
    (measured, ADR 0012); section 0 makes reading the dev files by path a duty
@@ -55,6 +57,16 @@ Inlining one OS's command into a rule quietly makes the rule wrong on the other
 two, and the failure is silent: a safety check that cannot run is a safety check
 that stops checking. Keeping commands in one file per OS makes that impossible,
 and makes it obvious which file a contributor must update.
+
+## Why cleanup is its own section
+
+Rules 10.1 and 10.2 say *whether* a destructive act is allowed. They did not say
+how to decide what is safe to remove, and agents under disk pressure filled that
+gap with names (`tmp`, `old`) and `.gitignore` entries — neither of which says
+what an item holds. Section 13 turns cleanup into a classification with one
+action per class, and makes things cleanable at creation (a marker file) so the
+next cleanup reads a record instead of investigating. It stays procedure: it adds
+no gate, and every act it describes is still bound by 10.1 and 10.2 (ADR 0014).
 
 ## Why customizations live outside the bundle
 

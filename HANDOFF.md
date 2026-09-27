@@ -1,5 +1,8 @@
 # Handoff
 
+**0.1.21, 2026-09-27:** section 13, Hygiene (ADR 0014). The behaviour-suite
+plan's ADR numbers move up by one (0015–0019) when it is recorded.
+
 **0.1.20, 2026-09-27:** refused means stop; worktrees removed through git.
 The behaviour-suite plan (`docs/plans/2026-09-26-behaviour-suite-plan.md`) is
 approved in scope; its size (small / lean / full) awaits the owner.

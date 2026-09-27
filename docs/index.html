@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="An explorable map of all thirteen sections and fifty rules of the Claude Code Playbook - the Mantra, the approval table, the review ladder, and the model roster.">
+<meta name="description" content="An explorable map of all fourteen sections and fifty-six rules of the Claude Code Playbook - the Mantra, the approval table, the review ladder, and the model roster.">
 <style>
 html{color-scheme:light dark}
 body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;background:#fafaf9}
@@ -287,12 +287,12 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="wrap">
 
 <header class="masthead">
-  <p class="eyebrow">Open source · MIT · v0.1.20</p>
+  <p class="eyebrow">Open source · MIT · v0.1.21</p>
   <h1>Claude Code Playbook</h1>
-  <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: thirteen sections, fifty rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
+  <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: fourteen sections, fifty-six rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
   <dl class="facts">
-    <div class="fact"><dt>Sections</dt><dd>13 &nbsp;<span style="color:var(--ink-3);font-weight:400">(0–12)</span></dd></div>
-    <div class="fact"><dt>Rules</dt><dd>50</dd></div>
+    <div class="fact"><dt>Sections</dt><dd>14 &nbsp;<span style="color:var(--ink-3);font-weight:400">(0–13)</span></dd></div>
+    <div class="fact"><dt>Rules</dt><dd>56</dd></div>
     <div class="fact"><dt>Auto-loaded</dt><dd>5 <span>of 13</span></dd></div>
     <div class="fact"><dt>Platform files</dt><dd>3</dd></div>
     <div class="fact"><dt>Dependencies</dt><dd style="font-size:1.05rem">shell + git</dd></div>
@@ -534,7 +534,24 @@ const S=[
   {t:"Refused from the source, deliberately",c:"This section adapts prior work under MIT. Two of its recommendations were rejected on the way in — recorded, because a rule you declined is as informative as one you kept.",
    table:{h:["Refused","Why"],r:[
     ["“Cap lists to five items”","Let the model decide how many items are worth showing — show what earns attention, ranked, and say what’s being held back."],
-    ["“Give time estimates in minutes”","A model’s “about 15 minutes” is a guess wearing a fact’s clothes — <strong>rule 2.3 forbids exactly that.</strong> Say the effort class instead: one command · one lane · one plan · unknown."]]}}]}
+    ["“Give time estimates in minutes”","A model’s “about 15 minutes” is a guess wearing a fact’s clothes — <strong>rule 2.3 forbids exactly that.</strong> Say the effort class instead: one command · one lane · one plan · unknown."]]}}]},
+
+{n:13,name:"Hygiene",file:"rules/HYGIENE.md",auto:false,
+ trigger:"Read by path before any cleanup — a request to clean up or free space, a close-out checkpoint, a disk warning.",
+ blurb:"Cleanup is where agents delete the wrong thing with the best intentions. This section makes it a classification, not a judgment call made under disk pressure.",
+ rules:[
+  ["13.1","<strong>Classify before you remove.</strong> Regenerable and idle · created by this session · restorable by git · evidence · protected · unknown — the class decides the action. <strong>A name or a <code>.gitignore</code> entry never decides it.</strong> Unknown is quarantined."],
+  ["13.2","<strong>Remove only what is provably yours:</strong> this session created it, your lane holds its lock, or its marker names your task. Everything else goes in the report, untouched."],
+  ["13.3","<strong>Worktrees go through git, after three checks:</strong> ignored files preserved (removal deletes them silently), commits reachable from a branch or tag (a stash is not enough), nothing using it. Then <code>git worktree remove</code> without <code>--force</code>. The creating lane locks it and removes it."],
+  ["13.4","<strong>Make things cleanable when you create them.</strong> Large or long-lived output outside an obvious home gets a <code>.hygiene.json</code> marker: owner, task, created, disposable, regenerate. A marker you did not write is evidence, not permission."],
+  ["13.5","<strong>When it runs, and what it reports.</strong> Every close-out and phase end, before disk-heavy work, and below the free-space floor (10 % unless the local layer sets one). Low space calls for this procedure, never for broader deletion. The report: removed, kept and why, next candidates largest first."],
+  ["13.6","<strong>A refusal ends the attempt.</strong> A refused removal is never re-issued in another form; reclassify, then quarantine or report it."]],
+ features:[
+  {t:"Two sessions that wrote this section",c:"Both targets were legitimate build output. Both workarounds were not.",
+   table:{h:["Refused","What the agent did next"],r:[
+    ["<code>rm -rf target/</code>","Re-issued it as <code>rm -r --</code> on the same directories."],
+    ["Deleting its own temporary files","Removed 2 GB of build output with <code>find -delete</code> — and said afterwards that this “defeats the intent of the guard”."]]},
+   note:{cls:"measured",html:"<b>Verified against real git before release:</b> <code>git worktree remove</code> deletes git-ignored files without asking, and removing a detached worktree leaves its commits unreachable. <code>for-each-ref --contains</code> counts a stash unless it is limited to <code>refs/heads refs/tags</code>."}}]}
 ];
 
 const spine=document.getElementById("spine"), panel=document.getElementById("panel");

@@ -202,7 +202,7 @@ source_trust_preflight() {
     for trust_relative in VERSION CLAUDE.md INSTALL.md CHANGELOG.md \
         scripts/check-local.sh templates/LOCAL.md templates/LOCAL_dev.md \
         rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
-        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md rules/HYGIENE.md \
         rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
         rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
         rules/WRITING.md rules/platform/LINUX.md rules/platform/MACOS.md \
@@ -238,8 +238,8 @@ source_trust_preflight() {
         fi
     done
     if [ "$trust_mode" = current ]; then
-        # Root + fourteen managed files + platform directory + three platform files.
-        trust_expected_rule_entries=19
+        # Root + fifteen managed files + platform directory + three platform files.
+        trust_expected_rule_entries=20
         trust_rule_listing=$(find "$trust_root/rules" -print 2>/dev/null) || {
             printf 'Source trust blocked: cannot inspect staged rules tree.\n' >&2
             return 2
@@ -316,7 +316,7 @@ destination_root_preflight() {
     done
     for destination_relative in CLAUDE.md \
         rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
-        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md rules/HYGIENE.md \
         rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
         rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
         rules/WRITING.md rules/platform/LINUX.md rules/platform/MACOS.md \
@@ -401,7 +401,7 @@ Do this as its own step, and evaluate its result, before any copying begins.
 ## Step 2 — Copy the two things
 
 1. `CLAUDE.md` → `~/.claude/CLAUDE.md`
-2. Exactly the fourteen named managed subject files listed in step 5,
+2. Exactly the fifteen named managed subject files listed in step 5,
    individually, from `rules/` → `~/.claude/rules/`. Do not use a wildcard
    copy: a newly added or untracked Markdown file would become a recursively
    loaded rule without having been authenticated.
@@ -489,9 +489,9 @@ clearly that it is outstanding and what it needs.
 Confirm and state each of these:
 
 - `~/.claude/CLAUDE.md` exists and is non-empty.
-- `~/.claude/rules/` contains **14** `.md` files from this repository:
+- `~/.claude/rules/` contains **15** `.md` files from this repository:
   `AUTHORITY` `CODE` `COLLABORATION` `DESTRUCTIVE` `DOCS` `ENVIRONMENT`
-  `QUARANTINE` `REPO` `REVIEWS` `ROSTER` `SUBAGENTS` `TESTING` `WORKFLOW`
+  `HYGIENE` `QUARANTINE` `REPO` `REVIEWS` `ROSTER` `SUBAGENTS` `TESTING` `WORKFLOW`
   `WRITING` — plus `LOCAL.md` and/or `LOCAL_dev.md` if the user has them, which
   are theirs and are not counted as part of this bundle.
 - `~/.claude/rules/platform/` contains **exactly one** file, and it is the right
@@ -754,7 +754,7 @@ copy, and stop if they no longer pass.
 
 ## What the user gets
 
-Thirteen numbered sections across fourteen files. `CLAUDE.md` carries the Mantra
+Fourteen numbered sections across fifteen files. `CLAUDE.md` carries the Mantra
 and an index; `rules/AUTHORITY.md` is section 0 and holds the precedence chain,
 the local layer's force, how to classify a request, the four critical rules, and
 **the approval table — the complete list of things needing the user's OK.**
@@ -847,7 +847,7 @@ uninstall_managed_file_preflight() {
     esac
     for relative in CLAUDE.md \
         rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
-        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md rules/HYGIENE.md \
         rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
         rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
         rules/WRITING.md "rules/platform/$platform"; do
@@ -897,7 +897,7 @@ rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or
 an old copy of a local file the user has changed since, and that is the one loss
 this design exists to prevent. If there were no backups, the user had no previous
 rulebook — **only after the exact-content and fresh-snapshot preflights pass**,
-delete only the fourteen named managed rule files and the single
+delete only the fifteen named managed rule files and the single
 installed managed platform `.md` file, each by its exact path, then
 `~/.claude/CLAUDE.md`. Remove `~/.claude/rules/platform/` with `rmdir` only
 if it is empty. If any other content remains, preserve it and report it;

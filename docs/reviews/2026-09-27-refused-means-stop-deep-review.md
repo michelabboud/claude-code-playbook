@@ -35,3 +35,22 @@
 overrides); no conflict with the build-output carve-out, rule 6.4, or the
 quarantine procedure; tests paragraph-scoped and each mutation able to fail;
 version carriers and counts consistent.
+
+## Re-review of the fixes — PASS
+
+Strong tier (Opus 5.5), same brief, against the fix commit `531cec8` on an
+archived tree: **PASS**, both blockers and all six minors fixed. The reviewer
+re-ran every git fact in a throwaway repository (git 2.43.0): ignored files are
+listed by check 1's command; a detached commit prints no ref; `prune` skips a
+locked worktree; a quarantined tracked-file change makes `remove` refuse, which
+fails safe. Suites: 206/206 wording, 77/77 mutations.
+
+Three new minor findings, all fixed in 0.1.21 (section 13):
+
+1. Check 2 passed on `refs/stash` alone — one `git stash drop` loses the
+   commit. Now `for-each-ref --contains HEAD refs/heads refs/tags`, with an
+   assertion and a mutation.
+2. Check 1 did not say what to do after quarantining a modified tracked file.
+   Now: restore its committed version with `git -C <worktree> restore <file>`.
+3. No mutation covered the `cargo clean` example, "the one sanctioned move", or
+   the reviewer-worktree ownership clause. All three now have one.

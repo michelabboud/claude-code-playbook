@@ -28,7 +28,7 @@ SCOPED='CODE TESTING WORKFLOW SUBAGENTS REVIEWS ROSTER'
 UNSCOPED='AUTHORITY COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT REPO WRITING'
 # Scoped to its trigger, not to source: the source-scoped invariants (hook 2,
 # the shared frontmatter) do not apply to it (ADR 0011).
-TRIGGER='QUARANTINE'
+TRIGGER='QUARANTINE HYGIENE'
 PLATFORM='LINUX MACOS WINDOWS'
 
 HOOK2='*Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*'
@@ -125,9 +125,9 @@ done
 rulenames=${rulenames# }
 subject=$((rulecount - 1))
 assert_eq "section 0's header still says the right number of subject files" \
-    13 "$subject"
-assert_eq "section 0's header says thirteen subject files" \
-    1 "$(count_in_file 'thirteen subject files' "$A")"
+    14 "$subject"
+assert_eq "section 0's header says fourteen subject files" \
+    1 "$(count_in_file 'fourteen subject files' "$A")"
 
 # ---------------------------------------------------------------------------
 # Hook 3 — CLAUDE.md names the layer, and its self-update paragraph is rewritten.
@@ -195,7 +195,7 @@ nonmd=$(find "$ROOT/rules" -type f ! -name '*.md' | head -5)
 assert_eq "every file under rules/ is a Markdown rule file" "" "$nonmd"
 
 # The rules directory holds exactly the files it is supposed to hold.
-expected='AUTHORITY.md CODE.md COLLABORATION.md DESTRUCTIVE.md DOCS.md ENVIRONMENT.md QUARANTINE.md REPO.md REVIEWS.md ROSTER.md SUBAGENTS.md TESTING.md WORKFLOW.md WRITING.md'
+expected='AUTHORITY.md CODE.md COLLABORATION.md DESTRUCTIVE.md DOCS.md ENVIRONMENT.md HYGIENE.md QUARANTINE.md REPO.md REVIEWS.md ROSTER.md SUBAGENTS.md TESTING.md WORKFLOW.md WRITING.md'
 assert_eq "rules/ holds exactly the playbook's rule files" "$expected" "$rulenames"
 
 assert_eq "the templates live outside rules/" \
@@ -262,7 +262,7 @@ for n in 4 5 7 9 11 12; do
 done
 assert_eq "section 0 does not summarise rules 10.1–10.2, which are always loaded" \
     0 "$(grep -c '^| 10\.[12] |' "$A")"
-for n in 1 2 3 6 8 10.3; do
+for n in 1 2 3 6 8 10.3 13; do
     assert_eq "section 0 summarises section $n" \
         1 "$(grep -c "^### $n · " "$A")"
 done
@@ -311,30 +311,76 @@ assert_eq "rule 10.1 says a blocked command is a stop, not a spelling problem" \
     1 "$(count_in_text '**A blocked command is a stop, not a spelling problem.**' "$R101")"
 assert_eq "rule 10.1 forbids re-issuing a refused effect in another form" \
     1 "$(count_in_text 'never re-issue the same effect in another form' "$R101")"
-WT=$(paragraph_with '**Worktrees are removed through git, never by deleting their folder — and only after three read-only checks.**' "$DS")
-assert_contains "DESTRUCTIVE.md carries the worktree paragraph" "$WT" 'Worktrees are removed through git'
-assert_eq "worktrees are removed with git worktree remove, without --force, alone" \
-    1 "$(count_in_text 'Then run `git worktree remove <path>`, without `--force`, alone' "$WT")"
+# Section 13, hygiene (0.1.21): the worktree procedure moved here from 10.2.
+H=$ROOT/rules/HYGIENE.md
+frontmatter "$H" >"$TMPROOT/hygiene.fm"
+assert_contains "rules/HYGIENE.md carries a paths: scope" "$(cat "$TMPROOT/hygiene.fm")" 'paths:'
+assert_contains "rules/HYGIENE.md is scoped to worktree folders" "$(cat "$TMPROOT/hygiene.fm")" '"**/.worktrees/**"'
+WT=$(paragraph_with '13.3 **Worktrees are removed through git, never by deleting their folder, and only after three read-only checks.**' "$H")
+WT2=$(paragraph_with 'Then run `git worktree remove <path>`, without `--force`, alone' "$H")
+assert_contains "HYGIENE.md carries the worktree checks" "$WT" 'Worktrees are removed through git'
 assert_eq "check 1: ignored files are inspected, since remove deletes them silently" \
     1 "$(count_in_text '`git worktree remove` deletes ignored files silently, so preserve or quarantine them first' "$WT")"
-assert_eq "check 2: commits must be reachable before removal" \
-    1 "$(count_in_text '`git -C <worktree> for-each-ref --contains HEAD` must print a ref' "$WT")"
+assert_eq "check 1: a quarantined tracked file is restored so git allows removal" \
+    1 "$(count_in_text 'restore its committed version (`git -C <worktree> restore <file>`)' "$WT")"
+assert_eq "check 2: commits must be reachable from a branch or tag" \
+    1 "$(count_in_text '`git -C <worktree> for-each-ref --contains HEAD refs/heads refs/tags` must print a ref' "$WT")"
+assert_eq "check 2: a stash alone does not count" \
+    1 "$(count_in_text 'A stash or a remote-tracking ref alone is not enough' "$WT")"
 assert_eq "check 3: not in use, not locked by another lane" \
     1 "$(count_in_text 'no running process works in it, and no other lane has it locked' "$WT")"
 assert_eq "a refused removal is fixed, not forced" \
-    1 "$(count_in_text 'if git refuses, fix the cause it names instead of forcing' "$WT")"
+    1 "$(count_in_text 'If git refuses, fix the cause it names instead of forcing' "$WT2")"
+assert_eq "deleting a worktree folder with rm is a destructive act" \
+    1 "$(count_in_text 'Deleting a worktree'"'"'s folder with `rm`, or passing `--force`, skips git'"'"'s checks and is a destructive act under rule 10.1' "$WT2")"
+assert_eq "the creating lane owns worktrees, a reviewer's detached one included" \
+    1 "$(count_in_text 'including a detached one made for a reviewer' "$WT2")"
+assert_eq "the owning lane locks its worktree" \
+    1 "$(count_in_text 'it locks it with `git worktree lock` while it is in use, and unlocks and removes it at close-out' "$WT2")"
 assert_eq "branch -d is described against its upstream, not main" \
-    1 "$(count_in_text 'which is not the same as merged into `main`' "$WT")"
+    1 "$(count_in_text 'which is not the same as merged into `main`' "$WT2")"
+assert_eq "branches go with git branch -d, never -D on unique work" \
+    1 "$(count_in_text 'Never use `git branch -D` on a branch with unique work' "$WT2")"
+assert_eq "rule 10.1 names cargo clean as a same-effect example" \
+    1 "$(count_in_text '`rm -r` or `cargo clean` for a refused `rm -rf target/`' "$R101")"
+assert_eq "rule 10.1 names quarantine as the one sanctioned move" \
+    1 "$(count_in_text 'rule 10.3 — the one sanctioned move' "$R101")"
 assert_eq "rule 10.1 counts the owner declining as a refusal" \
     1 "$(count_in_text 'or I decline it, never re-issue' "$R101")"
-assert_eq "deleting a worktree folder with rm is a destructive act" \
-    1 "$(count_in_text 'Deleting a worktree'"'"'s folder with `rm`, or passing `--force`, skips git'"'"'s checks and is a destructive act under rule 10.1' "$WT")"
-assert_eq "the owning lane locks its worktree" \
-    1 "$(count_in_text 'it locks it with `git worktree lock` while it is in use, and unlocks and removes it at close-out' "$WT")"
-assert_eq "branches go with git branch -d, never -D on unique work" \
-    1 "$(count_in_text 'Never use `git branch -D` on a branch with unique work' "$WT")"
-assert_eq "the workflow hygiene checkpoint points worktree removal at git" \
-    1 "$(count_in_file 'and only with `git worktree remove` (rule 10.2)' "$ROOT/rules/WORKFLOW.md")"
+H131=$(paragraph_with '13.1 **Classify before you remove.**' "$H")
+assert_eq "13.1: a name or a .gitignore entry never decides the class" \
+    1 "$(count_in_text 'A name (`tmp`, `old`, `backup`) or a `.gitignore` entry never decides it' "$H131")"
+assert_eq "13.1: a session may remove its own temporary files" \
+    1 "$(count_in_file 'including a read-only inventory'"'"'s own temporary files' "$H")"
+assert_eq "13.1: protected items only on the owner's word" \
+    1 "$(count_in_file '| **Protected** | `.env`, credentials, keys, databases, state files, backups, anything I created | only on my word (rule 10.2) |' "$H")"
+assert_eq "13.1: unknown items are quarantined" \
+    1 "$(count_in_file '| **Unknown** | anything that fits none of the above | quarantine it (rule 10.3) |' "$H")"
+assert_eq "13.2: only what is provably yours" \
+    1 "$(count_in_text 'goes in the report (rule 13.5) and is not touched' "$(paragraph_with '13.2 **Remove only what is provably yours.**' "$H")")"
+assert_eq "13.4: the marker file and its fields" \
+    1 "$(count_in_file '`.hygiene.json`, recording `owner`, `task`, `created`, `disposable` (`true` or `false`) and `regenerate`' "$H")"
+assert_eq "13.4: a marker you did not write is not permission" \
+    1 "$(count_in_file 'A marker you did not write is evidence, not permission' "$H")"
+H135=$(paragraph_with '13.5 **When hygiene runs, and what it reports.**' "$H")
+assert_eq "13.5: the disk floor is the local layer's, else 10 % free" \
+    1 "$(count_in_text 'the one your local layer sets, or 10 % free when it sets none' "$H135")"
+assert_eq "13.5: low space never widens deletion" \
+    1 "$(count_in_text 'Low space calls for this procedure, never for broader deletion' "$H135")"
+assert_eq "13.5: the report lists candidates with their cost" \
+    1 "$(count_in_text 'the next candidates for me, largest first, each with what would be lost and whether it can be regenerated' "$H135")"
+assert_eq "13.6: a refusal ends the attempt" \
+    1 "$(count_in_file '13.6 **A refusal ends the attempt.**' "$H")"
+assert_eq "DESTRUCTIVE.md sends cleanup to section 13 by path" \
+    1 "$(count_in_file '**Cleanup follows section 13: read `~/.claude/rules/HYGIENE.md` by path before any cleanup**' "$DS")"
+assert_eq "DESTRUCTIVE.md keeps the worktree law" \
+    1 "$(count_in_file 'deleting a worktree'"'"'s folder, or `git worktree remove --force`, is a destructive act under rule 10.1' "$DS")"
+assert_eq "the workflow hygiene checkpoint runs section 13" \
+    1 "$(count_in_file 'run the hygiene procedure (`HYGIENE.md`, section 13)' "$ROOT/rules/WORKFLOW.md")"
+for f in $PLATFORM; do
+    assert_eq "rules/platform/$f.md gives the free-disk command" \
+        1 "$(grep -c '^| Free disk |' "$ROOT/rules/platform/$f.md")"
+done
 
 # The statements that once lived only in a summary now live in their files.
 assert_eq "COLLABORATION.md: a question seen once and moved past is answered" \
@@ -468,7 +514,7 @@ assert_eq "quiescence is in the shared preflight, before first-install-only step
 # ---------------------------------------------------------------------------
 mkdir -p -- "$TMPROOT/local"
 printf '# LOCAL\n\n  **Dead words:** `%s` (in `%s`)\n' \
-    'thirteen subject files' 'AUTHORITY.md' >"$TMPROOT/local/LOCAL.md"
+    'fourteen subject files' 'AUTHORITY.md' >"$TMPROOT/local/LOCAL.md"
 out=$(sh "$ROOT/scripts/check-local.sh" "$TMPROOT/local" "$ROOT/rules" 2>&1); st=$?
 assert_status "a real override against the real rules: exit 0" 0 "$st"
 assert_contains "a real override against the real rules: reports ok" "$out" "ok — 1"

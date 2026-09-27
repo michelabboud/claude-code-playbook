@@ -239,42 +239,90 @@ check_mutation "rule 10.1 allowing a re-spelled effect is caught" \
     'replace_in_file "$M/rules/DESTRUCTIVE.md" "never re-issue the same effect in another form" "try a gentler form"'
 
 check_mutation "worktree removal allowing --force is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "Then run \`git worktree remove <path>\`, without \`--force\`, alone" "Then run \`git worktree remove --force <path>\`"'
+    'replace_in_file "$M/rules/HYGIENE.md" "Then run \`git worktree remove <path>\`, without \`--force\`, alone" "Then run \`git worktree remove --force <path>\`"'
 
 check_mutation "worktree folder deletion stops being destructive is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "skips git'"'"'s checks and is a destructive act under rule 10.1" "is also fine"'
+    'replace_in_file "$M/rules/HYGIENE.md" "skips git'"'"'s checks and is a destructive act under rule 10.1" "is also fine"'
 
 check_mutation "the worktree lock duty dropping is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "it locks it with \`git worktree lock\` while it is in use" "it may lock it"'
+    'replace_in_file "$M/rules/HYGIENE.md" "it locks it with \`git worktree lock\` while it is in use" "it may lock it"'
 
 check_mutation "branch -D becoming allowed is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "Never use \`git branch -D\` on a branch with unique work" "Use \`git branch -D\` when convenient"'
+    'replace_in_file "$M/rules/HYGIENE.md" "Never use \`git branch -D\` on a branch with unique work" "Use \`git branch -D\` when convenient"'
 
-check_mutation "the workflow pointer to git worktree remove dropping is caught" \
-    'replace_in_file "$M/rules/WORKFLOW.md" ", and only with \`git worktree remove\` (rule 10.2);" ";"'
+check_mutation "the workflow checkpoint no longer running section 13 is caught" \
+    'replace_in_file "$M/rules/WORKFLOW.md" "run the hygiene procedure (\`HYGIENE.md\`, section 13)" "tidy up"'
 
 check_mutation "the ignored-files check dropping is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`git worktree remove\` deletes ignored files silently, so preserve or quarantine them first" "ignored files are disposable"'
+    'replace_in_file "$M/rules/HYGIENE.md" "\`git worktree remove\` deletes ignored files silently, so preserve or quarantine them first" "ignored files are disposable"'
 
 check_mutation "the reachability check dropping is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`git -C <worktree> for-each-ref --contains HEAD\` must print a ref" "the branch is enough"'
+    'replace_in_file "$M/rules/HYGIENE.md" "\`git -C <worktree> for-each-ref --contains HEAD refs/heads refs/tags\` must print a ref" "\`git -C <worktree> for-each-ref --contains HEAD\` must print a ref"'
 
 check_mutation "the in-use check gaining an exception is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "no running process works in it, and no other lane has it locked" "no other lane has it locked"'
+    'replace_in_file "$M/rules/HYGIENE.md" "no running process works in it, and no other lane has it locked" "no other lane has it locked"'
 
 check_mutation "forcing past a git refusal is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "if git refuses, fix the cause it names instead of forcing" "if git refuses, add --force"'
+    'replace_in_file "$M/rules/HYGIENE.md" "If git refuses, fix the cause it names instead of forcing" "If git refuses, add --force"'
 
 check_mutation "branch -d being described as merged-into-main is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" ", which is not the same as merged into \`main\`" ""'
+    'replace_in_file "$M/rules/HYGIENE.md" ", which is not the same as merged into \`main\`" ""'
 
 check_mutation "the owner declining no longer counting as a refusal is caught" \
     'replace_in_file "$M/rules/DESTRUCTIVE.md" "or I decline it, never re-issue" "never re-issue"'
 
+check_mutation "rule 10.1 losing its cargo clean example is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`rm -r\` or \`cargo clean\` for" "\`rm -r\` for"'
+
+check_mutation "rule 10.1 losing quarantine as the sanctioned move is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "rule 10.3 — the one sanctioned move" "rule 10.3"'
+
+check_mutation "the hygiene section losing its paths: scope is caught" \
+    'drop_line "$M/rules/HYGIENE.md" "**/.worktrees/**" && drop_line "$M/rules/HYGIENE.md" "paths:"'
+
+check_mutation "a stash counting as reachable again is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "A stash or a remote-tracking ref alone is not enough" "Any ref is enough"'
+
+check_mutation "the restore step for quarantined tracked files dropping is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "restore its committed version (\`git -C <worktree> restore <file>\`)" "leave it"'
+
+check_mutation "reviewer worktrees losing their owner is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" " — including a detached one made for a reviewer" ""'
+
+check_mutation "a name deciding the class is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "or a \`.gitignore\` entry never decides it" "or a \`.gitignore\` entry decides it"'
+
+check_mutation "protected items losing the owner-only rule is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "anything I created | only on my word (rule 10.2) |" "anything I created | remove when stale |"'
+
+check_mutation "unknown items no longer quarantined is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "| quarantine it (rule 10.3) |" "| remove it |"'
+
+check_mutation "13.2 touching other lanes' items is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "and is not touched" "and may be removed"'
+
+check_mutation "a foreign marker becoming permission is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "A marker you did not write is evidence, not permission" "Any marker is permission"'
+
+check_mutation "the disk-floor default dropping is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" ", or 10 % free when it sets none" ""'
+
+check_mutation "low space widening deletion is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "Low space calls for this procedure, never for broader deletion" "Low space justifies broader deletion"'
+
+check_mutation "the report losing its candidate costs is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "each with what would be lost and whether it can be regenerated" "each listed"'
+
+check_mutation "DESTRUCTIVE.md no longer sending cleanup to section 13 is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "read \`~/.claude/rules/HYGIENE.md\` by path before any cleanup" "tidy up as needed"'
+
+check_mutation "a platform file losing its free-disk command is caught" \
+    'drop_line "$M/rules/platform/WINDOWS.md" "| Free disk |"'
+
 # --- INSTALL.md and the visual map -----------------------------------------
 
 check_mutation "INSTALL.md stating the wrong file count is caught" \
-    'drop_line "$M/INSTALL.md" "contains **14**" && printf "%s\n" "- \`~/.claude/rules/\` contains **13** \`.md\` files from this repository:" >> "$M/INSTALL.md"'
+    'drop_line "$M/INSTALL.md" "contains **15**" && printf "%s\n" "- \`~/.claude/rules/\` contains **14** \`.md\` files from this repository:" >> "$M/INSTALL.md"'
 
 check_mutation "the visual map losing the local layer is caught" \
     'drop_line "$M/docs/index.html" "The local layer — customizations the playbook never touches"'

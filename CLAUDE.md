@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. That is the job. Agreeing with me is not.
 
-**This rulebook is version 0.1.20** — source `github.com/michelabboud/claude-code-playbook`.
+**This rulebook is version 0.1.21** — source `github.com/michelabboud/claude-code-playbook`.
 
 *Self-update. Check when I ask, or when something here looks wrong or missing. The `VERSION` file is the single source of truth — read it, not the tag list, because not every version is tagged as a release. The repo is public, so this needs no authentication:*
 
@@ -28,7 +28,7 @@ curl -fsSL https://raw.githubusercontent.com/michelabboud/claude-code-playbook/m
 
 ## The rulebook — sections, what they cover, when to open them
 
-Sections marked **auto** carry a `paths:` scope: they enter context on their own when you touch source, a manifest, `VERSION` or `CHANGELOG.md`, and otherwise you read them by path when their trigger fires. `QUARANTINE.md` is scoped the same way to the quarantine vault, so it too is read by path before a first quarantine. A `paths:` scope only matches files inside the session's project, so for code outside it — dotfiles, `~/.config`, another repository — read the **auto** files by path. Everything else loads every session.
+Sections marked **auto** carry a `paths:` scope: they enter context on their own when you touch source, a manifest, `VERSION` or `CHANGELOG.md`, and otherwise you read them by path when their trigger fires. `QUARANTINE.md` and `HYGIENE.md` are scoped the same way to a folder they work on, so they too are read by path when their trigger fires. A `paths:` scope only matches files inside the session's project, so for code outside it — dotfiles, `~/.config`, another repository — read the **auto** files by path. Everything else loads every session.
 
 | § | Section | What it covers | Open it when | File |
 |---|---|---|---|---|
@@ -45,3 +45,4 @@ Sections marked **auto** carry a `paths:` scope: they enter context on their own
 | 10 | **Destructive actions & quarantine** | Destructive acts need my OK · validate first, destroy alone · quarantine is the answer to doubt, and its procedure | Before any delete, overwrite, truncation, purge, migration or history rewrite — "cleanup" included; the quarantine procedure before a first quarantine — **auto** (quarantine only) | `rules/DESTRUCTIVE.md` · `rules/QUARANTINE.md` |
 | 11 | **Your platform** | The OS-specific commands every other section defers to: ports, host capacity, hashing, private directories, process inspection, atomic moves | A rule says "your platform file gives the command" — only the file for your own OS is installed | `rules/platform/<your-os>.md` |
 | 12 | **Writing to me** | Lead with the next action and end with one · restate state every turn · explain like a human · the pre-send check | Composing any reply to me | `rules/WRITING.md` |
+| 13 | **Hygiene** | Classify before you remove · only what is provably yours · worktrees through git after three checks · make things cleanable at creation · the disk floor and the hygiene report · a refusal ends the attempt | Before any cleanup, free-space request, close-out checkpoint or disk warning — read by path | `rules/HYGIENE.md` |

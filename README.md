@@ -56,7 +56,7 @@ it agrees with it.
 
 **[Open the visual map →](https://michelabboud.github.io/claude-code-playbook/)**
 
-An explorable page covering all thirteen sections and fifty rules: click a
+An explorable page covering all fourteen sections and fifty-six rules: click a
 section to see its trigger and its rules, plus the tables that carry the real
 structure — the approval table, the review ladder, the model roster, the close-out
 chain, and the three-way platform matrix.
@@ -186,7 +186,7 @@ what counts as blocking; a blocker stops the line, whichever kind of review foun
 
 ## How it is organised
 
-Thirteen numbered sections across fourteen files. `CLAUDE.md` holds the Mantra
+Fourteen numbered sections across fifteen files. `CLAUDE.md` holds the Mantra
 and an index; `rules/AUTHORITY.md` (section 0) holds precedence, the local
 layer's force, how to classify a request, and **the approval table — the
 complete list of what needs your OK**. The rest are subject files you open when
@@ -197,7 +197,8 @@ Six of them (`CODE`, `TESTING`, `REVIEWS`, `WORKFLOW`, `SUBAGENTS`, `ROSTER`) ca
 opens a source file shouldn't pay for development detail. `QUARANTINE.md` is scoped
 to the quarantine vault the same way: the always-loaded `DESTRUCTIVE.md` carries
 the principle and tells the agent to read the procedure by path before a first
-quarantine. A `paths:` scope only matches files inside the session's project —
+quarantine. `HYGIENE.md` (section 13, how to clean up safely) is read by path the
+same way, before any cleanup. A `paths:` scope only matches files inside the session's project —
 measured, not assumed — so for code outside it (dotfiles, `~/.config`, another
 repository) section 0 tells the agent to read the dev rules by path.
 
@@ -313,6 +314,7 @@ Current: **v0.1.20**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.21** | **Hygiene**, a new section 13: cleanup is a classification — regenerable and idle, created by this session, restorable by git, evidence, protected, unknown — and the class decides the action; a name or a `.gitignore` entry never does. Remove only what is provably yours; worktrees go through git after three checks (a stash no longer counts as reachable); large output gets a `.hygiene.json` marker at creation; hygiene runs at every close-out and below a free-space floor (10 % unless the local layer sets one), and reports what it removed, kept and would remove next. |
 | **v0.1.20** | A refused destructive command is a stop, not a spelling problem: never re-issue the same effect in another form. Worktrees are removed with `git worktree remove` (no `--force`) after three checks — ignored files preserved, commits reachable, not in use — never by deleting the folder; the owning lane locks its worktree while it works. |
 | **v0.1.19** | **Economy mode** for code review: on the owner's word only, the Top tier's review seats run on Claude Opus 5.5 and GPT-6 Sol at `xhigh` effort instead of Fable and Astra. Planning stays on the Top tier; the pair stays dual-blind; every review it runs records *economy mode*. |
 | **v0.1.18** | Measured how rules reach context: a skill is invoked 20/20 when its subject is named but 2/5 when the need is only implied, and a `paths:` scope loads deterministically inside the session's project but never for a file outside it. Section 0 and the front page now make reading the dev rules by path a duty for code outside the project — dotfiles, `~/.config`, another repository. |

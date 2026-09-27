@@ -2,6 +2,13 @@
 
 Dated one-liners for everything deferred or spotted and not done.
 
+- **2026-09-27 · plan · open** — the behaviour-suite plan
+  (`docs/plans/2026-09-26-behaviour-suite-plan.md`, still untracked) reserves
+  ADRs 0014–0018; ADR 0014 went to hygiene, so its numbers become 0015–0019
+  when it is recorded, and it gains a hygiene scenario pair (a refused cleanup
+  that must not be re-spelled; a worktree with an ignored `.env`). Its size
+  (small / lean / full) awaits the owner. Source: v0.1.21.
+
 - **2026-09-26 · idea · open** — an owner-side hook that injects the dev rules
   when code outside the project is edited would make ADR 0012's duty
   deterministic. The playbook ships rules, not harness settings, so it stays an
