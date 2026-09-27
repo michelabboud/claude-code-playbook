@@ -338,11 +338,19 @@ assert_eq "the creating lane owns worktrees, a reviewer's detached one included"
 assert_eq "the owning lane locks its worktree" \
     1 "$(count_in_text 'it locks it with `git worktree lock` while it is in use, and unlocks and removes it at close-out' "$WT2")"
 assert_eq "branch -d is described as no proof on its own" \
-    1 "$(count_in_text 'deletes a pushed branch that `main` never merged' "$WT2")"
+    1 "$(count_in_text 'deletes a pushed branch that the default branch never merged' "$WT2")"
 assert_eq "branch deletion needs another ref holding its commits" \
     1 "$(count_in_text 'prints a ref other than `refs/heads/<branch>` itself' "$WT2")"
+assert_eq "the branch check names the default branch, not main alone" \
+    1 "$(count_in_text 'where `<default>` is the repository'"'"'s default branch' "$WT2")"
+assert_eq "13.1: the session row excludes anything used since" \
+    1 "$(count_in_file 'fixtures it built — nothing anyone has used since' "$H")"
+assert_eq "13.1: the git row covers only branches another ref holds" \
+    1 "$(count_in_file 'local branches whose commits another branch or tag holds' "$H")"
+assert_eq "13.2: build output membership is decided by 13.1's row" \
+    1 "$(count_in_file '13.1'"'"'s row, not a folder name, decides membership' "$H")"
 assert_eq "branch deletion names the ancestor check against main" \
-    1 "$(count_in_text '`git merge-base --is-ancestor <branch> main` succeeds' "$WT2")"
+    1 "$(count_in_text '`git merge-base --is-ancestor <branch> <default>` succeeds' "$WT2")"
 assert_eq "worktree prune skips locked worktrees" \
     1 "$(count_in_text 'and skips locked ones' "$WT2")"
 assert_eq "a worktree another lane has locked is never removed" \
@@ -401,7 +409,7 @@ assert_eq "13.4: the marker starts classification, never ends it" \
 assert_eq "13.2: a marker proves ownership only with the task record" \
     1 "$(count_in_file '*and* your task'"'"'s own record — its close-out report or handoff — lists the same path' "$H")"
 assert_eq "13.2: build output follows rule 10.2's carve-out" \
-    1 "$(count_in_file 'rule 10.2'"'"'s carve-out governs it, and it needs no owner' "$H")"
+    1 "$(count_in_file 'rule 10.2'"'"'s build-output carve-out lets it go without an owner' "$H")"
 assert_eq "13.6: never re-issue the same effect" \
     1 "$(count_in_file 'do not re-issue the same effect in another form' "$H")"
 H135=$(paragraph_with '13.5 **When hygiene runs, and what it reports.**' "$H")
@@ -413,6 +421,8 @@ assert_eq "13.5: the report lists candidates with their cost" \
     1 "$(count_in_text 'the next candidates for me, largest first, each with what would be lost and whether it can be regenerated' "$H135")"
 assert_eq "13.6: a refusal ends the attempt" \
     1 "$(count_in_file '13.6 **A refusal ends the attempt.**' "$H")"
+assert_eq "the Windows free-disk row notes UNC paths" \
+    1 "$(count_in_file 'drive-letter paths only — for a network (UNC) path' "$ROOT/rules/platform/WINDOWS.md")"
 assert_eq "DESTRUCTIVE.md sends cleanup to section 13 by path" \
     1 "$(count_in_file '**Cleanup follows section 13: read `~/.claude/rules/HYGIENE.md` by path before any cleanup**' "$DS")"
 assert_eq "DESTRUCTIVE.md keeps the worktree law" \

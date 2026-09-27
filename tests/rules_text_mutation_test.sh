@@ -266,7 +266,7 @@ check_mutation "forcing past a git refusal is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "If git refuses, fix the cause it names instead of forcing" "If git refuses, add --force"'
 
 check_mutation "the ancestor-of-main branch check dropping is caught" \
-    'replace_in_file "$M/rules/HYGIENE.md" "\`git merge-base --is-ancestor <branch> main\` succeeds" "it looks merged"'
+    'replace_in_file "$M/rules/HYGIENE.md" "\`git merge-base --is-ancestor <branch> <default>\` succeeds" "it looks merged"'
 
 check_mutation "the owner declining no longer counting as a refusal is caught" \
     'replace_in_file "$M/rules/DESTRUCTIVE.md" "or I decline it, never re-issue" "never re-issue"'
@@ -347,7 +347,7 @@ check_mutation "a marker alone proving ownership again is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" " *and* your task'"'"'s own record — its close-out report or handoff — lists the same path" ""'
 
 check_mutation "build output needing no owner being dropped is caught" \
-    'replace_in_file "$M/rules/HYGIENE.md" "rule 10.2'"'"'s carve-out governs it, and it needs no owner" "it needs an owner"'
+    'replace_in_file "$M/rules/HYGIENE.md" "rule 10.2'"'"'s build-output carve-out lets it go without an owner" "it needs an owner"'
 
 check_mutation "a marker moving an item out of the protected class is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "A marker never moves an item out of the protected or evidence class" "A marker may move an item out of the protected or evidence class"'
@@ -368,13 +368,31 @@ check_mutation "branch deletion relying on the self-containing check is caught" 
     'replace_in_file "$M/rules/HYGIENE.md" "prints a ref other than \`refs/heads/<branch>\` itself" "prints a ref"'
 
 check_mutation "branch -d becoming proof on its own is caught" \
-    'replace_in_file "$M/rules/HYGIENE.md" "deletes a pushed branch that \`main\` never merged" "is enough"'
+    'replace_in_file "$M/rules/HYGIENE.md" "deletes a pushed branch that the default branch never merged" "is enough"'
 
 check_mutation "locked worktrees becoming removable is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "Never remove a worktree another lane has locked" "Remove any stale worktree"'
 
 check_mutation "13.6 losing its body is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "do not re-issue the same effect in another form" "try another way"'
+
+check_mutation "the session row losing its not-used-since limit is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" " — nothing anyone has used since" ""'
+
+check_mutation "the git row widening to any branch is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "local branches whose commits another branch or tag holds" "branches"'
+
+check_mutation "tracked files becoming cleanup is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" ", and a tracked file is not cleaned up at all" ""'
+
+check_mutation "the branch check hard-coding main again is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" ", where \`<default>\` is the repository'"'"'s default branch (\`main\`, \`master\`, \`trunk\`)" ""'
+
+check_mutation "build-output membership decided by name is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "13.1'"'"'s row, not a folder name, decides membership" "its name decides membership"'
+
+check_mutation "the Windows UNC caveat dropping is caught" \
+    'replace_in_file "$M/rules/platform/WINDOWS.md" "; drive-letter paths only — for a network (UNC) path, check free space on the share'"'"'s host" ""'
 
 # --- INSTALL.md and the visual map -----------------------------------------
 

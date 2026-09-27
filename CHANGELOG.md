@@ -50,8 +50,11 @@ said how to decide what is safe to remove in the first place.
   are reported, not moved; remote branches and tracked files are not cleanup;
   the worktree's own HEAD log is checked; the Windows free-disk row notes UNC
   paths.
-- `tests/rules_text_test.sh` 206 → 254; `tests/rules_text_mutation_test.sh`
-  77 → 112.
+- The focused re-review of the fixes passed; its three minors are fixed too:
+  build-output membership is decided by rule 13.1's row, the branch check names
+  the default branch rather than `main`, and four table clauses gained tests.
+- `tests/rules_text_test.sh` 206 → 259; `tests/rules_text_mutation_test.sh`
+  77 → 118.
 
 ## 0.1.20 — 2026-09-27
 

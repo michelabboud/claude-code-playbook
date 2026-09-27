@@ -49,7 +49,22 @@
 Also: the Windows free-disk row notes that `Get-PSDrive` does not cover UNC
 paths.
 
+## Focused re-review of `88ba85f` — PASS
+
+Same reviewer, same tier. All three blockers and nine minors closed; no new
+way to lose data; no contradiction with rules 10.1, 10.2, 9.4, the quarantine
+procedure or the approval table. Lab-verified: the branch checks (merged,
+unmerged, parent and child branches), `--untracked-files=all`, and the
+worktree HEAD log deleted with the worktree. Three minors, fixed:
+
+1. "Rule 10.2's carve-out governs it" could fall back to 10.2's looser list of
+   names — 13.2 now says 13.1's row decides membership.
+2. The branch check named `main` — now the repository's default branch.
+3. Four table clauses lacked a mutation or assertion — added (session row's
+   "nothing anyone has used since", the git row's branch limit, "a tracked
+   file is not cleaned up at all", the Windows UNC note).
+
 ## Tests after the fixes
 
-`rules_text_test.sh` 254/254; `rules_text_mutation_test.sh` 112/112;
+`rules_text_test.sh` 259/259; `rules_text_mutation_test.sh` 118/118;
 `install_preflight_test.sh` 267/267.
