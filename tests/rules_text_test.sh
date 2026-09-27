@@ -337,8 +337,24 @@ assert_eq "the creating lane owns worktrees, a reviewer's detached one included"
     1 "$(count_in_text 'including a detached one made for a reviewer' "$WT2")"
 assert_eq "the owning lane locks its worktree" \
     1 "$(count_in_text 'it locks it with `git worktree lock` while it is in use, and unlocks and removes it at close-out' "$WT2")"
-assert_eq "branch -d is described against its upstream, not main" \
-    1 "$(count_in_text 'which is not the same as merged into `main`' "$WT2")"
+assert_eq "branch -d is described as no proof on its own" \
+    1 "$(count_in_text 'deletes a pushed branch that `main` never merged' "$WT2")"
+assert_eq "branch deletion needs another ref holding its commits" \
+    1 "$(count_in_text 'prints a ref other than `refs/heads/<branch>` itself' "$WT2")"
+assert_eq "branch deletion names the ancestor check against main" \
+    1 "$(count_in_text '`git merge-base --is-ancestor <branch> main` succeeds' "$WT2")"
+assert_eq "worktree prune skips locked worktrees" \
+    1 "$(count_in_text 'and skips locked ones' "$WT2")"
+assert_eq "a worktree another lane has locked is never removed" \
+    1 "$(count_in_text 'Never remove a worktree another lane has locked' "$WT2")"
+assert_eq "check 1 lists files inside ignored folders" \
+    1 "$(count_in_text 'status --short --ignored --untracked-files=all' "$WT")"
+assert_eq "check 2 says the exit status is not the signal" \
+    1 "$(count_in_text 'its exit status is 0 either way, so the printed ref is the signal' "$WT")"
+assert_eq "check 2 branches or tags a detached worktree's commits" \
+    1 "$(count_in_text 'so branch or tag them first' "$WT")"
+assert_eq "check 2 covers the worktree's own HEAD log" \
+    1 "$(count_in_text 'if `git -C <worktree> reflog` shows commits you moved away from' "$WT")"
 assert_eq "branches go with git branch -d, never -D on unique work" \
     1 "$(count_in_text 'Never use `git branch -D` on a branch with unique work' "$WT2")"
 assert_eq "rule 10.1 names cargo clean as a same-effect example" \
@@ -355,13 +371,39 @@ assert_eq "13.1: a session may remove its own temporary files" \
 assert_eq "13.1: protected items only on the owner's word" \
     1 "$(count_in_file '| **Protected** | `.env`, credentials, keys, databases, state files, backups, anything I created | only on my word (rule 10.2) |' "$H")"
 assert_eq "13.1: unknown items are quarantined" \
-    1 "$(count_in_file '| **Unknown** | anything that fits none of the above | quarantine it (rule 10.3) |' "$H")"
+    1 "$(count_in_file '| **Unknown** | anything that fits none of the above | quarantine it (rule 10.3) — unless' "$H")"
+assert_eq "13.1: an in-use or live-database unknown is reported, not moved" \
+    1 "$(count_in_file 'which the quarantine procedure forbids moving: list it in the report instead' "$H")"
+assert_eq "13.1: overlapping classes resolve to the most protective" \
+    1 "$(count_in_text 'the most protective one applies: protected, then evidence, then unknown, then the rest' "$H131")"
+assert_eq "13.1: the session row covers disposable items only" \
+    1 "$(count_in_file '| **Disposable, created by this session** |' "$H")"
+assert_eq "13.1: evidence is kept" \
+    1 "$(count_in_file 'debug dumps a document refers to | keep; compress rotated logs (rule 9.4)' "$H")"
+assert_eq "13.1: regenerable means rebuilt by a manifest or build command" \
+    1 "$(count_in_file 'untracked or git-ignored toolchain output that a manifest or build command beside it rebuilds' "$H")"
+assert_eq "13.1: regenerable output is removed only when idle" \
+    1 "$(count_in_file 'after checking no process uses it' "$H")"
+assert_eq "13.1: a tracked folder with a build name is not regenerable" \
+    1 "$(count_in_file 'a tracked or hand-made folder of the same name is not in this class' "$H")"
+assert_eq "13.1: remote branches and tracked files are not cleanup" \
+    1 "$(count_in_file 'a remote branch is outward-facing and not cleanup, and a tracked file is not cleaned up at all' "$H")"
 assert_eq "13.2: only what is provably yours" \
     1 "$(count_in_text 'goes in the report (rule 13.5) and is not touched' "$(paragraph_with '13.2 **Remove only what is provably yours.**' "$H")")"
 assert_eq "13.4: the marker file and its fields" \
     1 "$(count_in_file '`.hygiene.json`, recording `owner`, `task`, `created`, `disposable` (`true` or `false`) and `regenerate`' "$H")"
 assert_eq "13.4: a marker you did not write is not permission" \
-    1 "$(count_in_file 'A marker you did not write is evidence, not permission' "$H")"
+    1 "$(count_in_file 'A marker you did not write, or cannot show you wrote, is evidence, not permission' "$H")"
+assert_eq "13.4: a marker never leaves the protected or evidence class" \
+    1 "$(count_in_file 'A marker never moves an item out of the protected or evidence class' "$H")"
+assert_eq "13.4: the marker starts classification, never ends it" \
+    1 "$(count_in_file 'as the starting point of classification, not as its result' "$H")"
+assert_eq "13.2: a marker proves ownership only with the task record" \
+    1 "$(count_in_file '*and* your task'"'"'s own record — its close-out report or handoff — lists the same path' "$H")"
+assert_eq "13.2: build output follows rule 10.2's carve-out" \
+    1 "$(count_in_file 'rule 10.2'"'"'s carve-out governs it, and it needs no owner' "$H")"
+assert_eq "13.6: never re-issue the same effect" \
+    1 "$(count_in_file 'do not re-issue the same effect in another form' "$H")"
 H135=$(paragraph_with '13.5 **When hygiene runs, and what it reports.**' "$H")
 assert_eq "13.5: the disk floor is the local layer's, else 10 % free" \
     1 "$(count_in_text 'the one your local layer sets, or 10 % free when it sets none' "$H135")"

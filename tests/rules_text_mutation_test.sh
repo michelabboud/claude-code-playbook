@@ -265,8 +265,8 @@ check_mutation "the in-use check gaining an exception is caught" \
 check_mutation "forcing past a git refusal is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "If git refuses, fix the cause it names instead of forcing" "If git refuses, add --force"'
 
-check_mutation "branch -d being described as merged-into-main is caught" \
-    'replace_in_file "$M/rules/HYGIENE.md" ", which is not the same as merged into \`main\`" ""'
+check_mutation "the ancestor-of-main branch check dropping is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "\`git merge-base --is-ancestor <branch> main\` succeeds" "it looks merged"'
 
 check_mutation "the owner declining no longer counting as a refusal is caught" \
     'replace_in_file "$M/rules/DESTRUCTIVE.md" "or I decline it, never re-issue" "never re-issue"'
@@ -296,13 +296,13 @@ check_mutation "protected items losing the owner-only rule is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "anything I created | only on my word (rule 10.2) |" "anything I created | remove when stale |"'
 
 check_mutation "unknown items no longer quarantined is caught" \
-    'replace_in_file "$M/rules/HYGIENE.md" "| quarantine it (rule 10.3) |" "| remove it |"'
+    'replace_in_file "$M/rules/HYGIENE.md" "| quarantine it (rule 10.3) — unless" "| remove it — unless"'
 
 check_mutation "13.2 touching other lanes' items is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "and is not touched" "and may be removed"'
 
 check_mutation "a foreign marker becoming permission is caught" \
-    'replace_in_file "$M/rules/HYGIENE.md" "A marker you did not write is evidence, not permission" "Any marker is permission"'
+    'replace_in_file "$M/rules/HYGIENE.md" "A marker you did not write, or cannot show you wrote, is evidence, not permission" "Any marker is permission"'
 
 check_mutation "the disk-floor default dropping is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" ", or 10 % free when it sets none" ""'
@@ -318,6 +318,63 @@ check_mutation "DESTRUCTIVE.md no longer sending cleanup to section 13 is caught
 
 check_mutation "a platform file losing its free-disk command is caught" \
     'drop_line "$M/rules/platform/WINDOWS.md" "| Free disk |"'
+
+check_mutation "overlapping classes no longer resolving to the most protective is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "the most protective one applies: protected, then evidence, then unknown, then the rest" "the first one applies"'
+
+check_mutation "the session row widening past disposable items is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "| **Disposable, created by this session** |" "| **Created by this session** |"'
+
+check_mutation "evidence becoming removable is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "debug dumps a document refers to | keep;" "debug dumps a document refers to | remove;"'
+
+check_mutation "regenerable losing its build-command condition is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "that a manifest or build command beside it rebuilds" "with a familiar name"'
+
+check_mutation "regenerable losing its idle check is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "after checking no process uses it" "at once"'
+
+check_mutation "a tracked build-named folder becoming regenerable is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "; a tracked or hand-made folder of the same name is not in this class" ""'
+
+check_mutation "remote branches becoming cleanup is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "a remote branch is outward-facing and not cleanup" "a remote branch is cleanup too"'
+
+check_mutation "an in-use unknown being moved is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "which the quarantine procedure forbids moving: list it in the report instead" "which you quarantine anyway"'
+
+check_mutation "a marker alone proving ownership again is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" " *and* your task'"'"'s own record — its close-out report or handoff — lists the same path" ""'
+
+check_mutation "build output needing no owner being dropped is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "rule 10.2'"'"'s carve-out governs it, and it needs no owner" "it needs an owner"'
+
+check_mutation "a marker moving an item out of the protected class is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "A marker never moves an item out of the protected or evidence class" "A marker may move an item out of the protected or evidence class"'
+
+check_mutation "the marker replacing investigation again is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "as the starting point of classification, not as its result" "instead of investigating"'
+
+check_mutation "check 1 hiding files inside ignored folders is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "status --short --ignored --untracked-files=all" "status --short --ignored"'
+
+check_mutation "check 2 trusting the exit status is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "its exit status is 0 either way, so the printed ref is the signal" "exit 0 is enough"'
+
+check_mutation "the HEAD log clause dropping is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "if \`git -C <worktree> reflog\` shows commits you moved away from" "if nothing else"'
+
+check_mutation "branch deletion relying on the self-containing check is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "prints a ref other than \`refs/heads/<branch>\` itself" "prints a ref"'
+
+check_mutation "branch -d becoming proof on its own is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "deletes a pushed branch that \`main\` never merged" "is enough"'
+
+check_mutation "locked worktrees becoming removable is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "Never remove a worktree another lane has locked" "Remove any stale worktree"'
+
+check_mutation "13.6 losing its body is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "do not re-issue the same effect in another form" "try another way"'
 
 # --- INSTALL.md and the visual map -----------------------------------------
 

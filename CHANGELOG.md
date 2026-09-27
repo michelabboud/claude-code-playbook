@@ -36,8 +36,22 @@ said how to decide what is safe to remove in the first place.
   20 entries (the install suite caught the stale 19).
 - The visual map gains section 13 (fourteen sections, fifty-six rules).
 - ADR 0014. The behaviour-suite plan's reserved ADR numbers move up by one.
-- `tests/rules_text_test.sh` 206 → 233; `tests/rules_text_mutation_test.sh`
-  77 → 91.
+- Deep review (Strong tier) failed the first cut on three wording gaps, all
+  fixed before release (`docs/reviews/2026-09-27-hygiene-deep-review.md`):
+  overlapping classes now resolve to the most protective, so a log or database
+  this session created is never "scratch"; a `.hygiene.json` marker proves
+  ownership only when the task's own record lists the same path, and never
+  moves an item out of the protected or evidence class; a branch is deleted only
+  when another ref holds its commits (`merge-base --is-ancestor <branch> main`),
+  because the worktree check always passes for a branch that contains itself.
+  Its minor findings are fixed too: `--untracked-files=all` so an ignored folder
+  cannot hide a `.env`; the regenerable class requires a build command and an
+  untracked folder; build output follows rule 10.2's carve-out; in-use unknowns
+  are reported, not moved; remote branches and tracked files are not cleanup;
+  the worktree's own HEAD log is checked; the Windows free-disk row notes UNC
+  paths.
+- `tests/rules_text_test.sh` 206 → 254; `tests/rules_text_mutation_test.sh`
+  77 → 112.
 
 ## 0.1.20 — 2026-09-27
 

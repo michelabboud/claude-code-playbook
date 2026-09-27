@@ -115,7 +115,7 @@ the owner approved refusing extra Markdown under `rules/` on 2026-09-23.
 Neither playbook is published on the strength of passing tests alone.
 
 The bundle is complete and installable: thirteen numbered sections across
-fourteen rule files, the model roster (`rules/ROSTER.md`, the only file that
+fourteen rule files (at the time; fourteen sections and fifteen files since 0.1.21), the model roster (`rules/ROSTER.md`, the only file that
 names a model), three platform files, a README, and an optional-tools note.
 Every rule file has been swept for private references and none remain.
 
