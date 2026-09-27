@@ -311,16 +311,28 @@ assert_eq "rule 10.1 says a blocked command is a stop, not a spelling problem" \
     1 "$(count_in_text '**A blocked command is a stop, not a spelling problem.**' "$R101")"
 assert_eq "rule 10.1 forbids re-issuing a refused effect in another form" \
     1 "$(count_in_text 'never re-issue the same effect in another form' "$R101")"
-WT=$(paragraph_with '**Worktrees are removed through git, never by deleting their folder.**' "$DS")
+WT=$(paragraph_with '**Worktrees are removed through git, never by deleting their folder — and only after three read-only checks.**' "$DS")
 assert_contains "DESTRUCTIVE.md carries the worktree paragraph" "$WT" 'Worktrees are removed through git'
-assert_eq "worktrees are removed with git worktree remove, without --force" \
-    1 "$(count_in_text '`git worktree remove <path>`, without `--force`, is the cleanup command' "$WT")"
+assert_eq "worktrees are removed with git worktree remove, without --force, alone" \
+    1 "$(count_in_text 'Then run `git worktree remove <path>`, without `--force`, alone' "$WT")"
+assert_eq "check 1: ignored files are inspected, since remove deletes them silently" \
+    1 "$(count_in_text '`git worktree remove` deletes ignored files silently, so preserve or quarantine them first' "$WT")"
+assert_eq "check 2: commits must be reachable before removal" \
+    1 "$(count_in_text '`git -C <worktree> for-each-ref --contains HEAD` must print a ref' "$WT")"
+assert_eq "check 3: not in use, not locked by another lane" \
+    1 "$(count_in_text 'no running process works in it, and no other lane has it locked' "$WT")"
+assert_eq "a refused removal is fixed, not forced" \
+    1 "$(count_in_text 'if git refuses, fix the cause it names instead of forcing' "$WT")"
+assert_eq "branch -d is described against its upstream, not main" \
+    1 "$(count_in_text 'which is not the same as merged into `main`' "$WT")"
+assert_eq "rule 10.1 counts the owner declining as a refusal" \
+    1 "$(count_in_text 'or I decline it, never re-issue' "$R101")"
 assert_eq "deleting a worktree folder with rm is a destructive act" \
-    1 "$(count_in_text 'Deleting a worktree'"'"'s folder with `rm`, or passing `--force`, skips that check and is a destructive act under rule 10.1' "$WT")"
+    1 "$(count_in_text 'Deleting a worktree'"'"'s folder with `rm`, or passing `--force`, skips git'"'"'s checks and is a destructive act under rule 10.1' "$WT")"
 assert_eq "the owning lane locks its worktree" \
-    1 "$(count_in_text 'that lane locks it with `git worktree lock` while it works' "$WT")"
+    1 "$(count_in_text 'it locks it with `git worktree lock` while it is in use, and unlocks and removes it at close-out' "$WT")"
 assert_eq "branches go with git branch -d, never -D on unique work" \
-    1 "$(count_in_text 'never `git branch -D` on a branch with unique work' "$WT")"
+    1 "$(count_in_text 'Never use `git branch -D` on a branch with unique work' "$WT")"
 assert_eq "the workflow hygiene checkpoint points worktree removal at git" \
     1 "$(count_in_file 'and only with `git worktree remove` (rule 10.2)' "$ROOT/rules/WORKFLOW.md")"
 

@@ -239,19 +239,37 @@ check_mutation "rule 10.1 allowing a re-spelled effect is caught" \
     'replace_in_file "$M/rules/DESTRUCTIVE.md" "never re-issue the same effect in another form" "try a gentler form"'
 
 check_mutation "worktree removal allowing --force is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`git worktree remove <path>\`, without \`--force\`, is" "\`git worktree remove --force <path>\` is"'
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "Then run \`git worktree remove <path>\`, without \`--force\`, alone" "Then run \`git worktree remove --force <path>\`"'
 
 check_mutation "worktree folder deletion stops being destructive is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "skips that check and is a destructive act under rule 10.1" "is also fine"'
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "skips git'"'"'s checks and is a destructive act under rule 10.1" "is also fine"'
 
 check_mutation "the worktree lock duty dropping is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "that lane locks it with \`git worktree lock\` while it works" "that lane may lock it"'
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "it locks it with \`git worktree lock\` while it is in use" "it may lock it"'
 
 check_mutation "branch -D becoming allowed is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "never \`git branch -D\` on a branch with unique work" "or \`git branch -D\` when convenient"'
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "Never use \`git branch -D\` on a branch with unique work" "Use \`git branch -D\` when convenient"'
 
 check_mutation "the workflow pointer to git worktree remove dropping is caught" \
     'replace_in_file "$M/rules/WORKFLOW.md" ", and only with \`git worktree remove\` (rule 10.2);" ";"'
+
+check_mutation "the ignored-files check dropping is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`git worktree remove\` deletes ignored files silently, so preserve or quarantine them first" "ignored files are disposable"'
+
+check_mutation "the reachability check dropping is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`git -C <worktree> for-each-ref --contains HEAD\` must print a ref" "the branch is enough"'
+
+check_mutation "the in-use check gaining an exception is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "no running process works in it, and no other lane has it locked" "no other lane has it locked"'
+
+check_mutation "forcing past a git refusal is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "if git refuses, fix the cause it names instead of forcing" "if git refuses, add --force"'
+
+check_mutation "branch -d being described as merged-into-main is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" ", which is not the same as merged into \`main\`" ""'
+
+check_mutation "the owner declining no longer counting as a refusal is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "or I decline it, never re-issue" "never re-issue"'
 
 # --- INSTALL.md and the visual map -----------------------------------------
 

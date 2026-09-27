@@ -6,22 +6,36 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ## 0.1.20 — 2026-09-27
 
-Prompted by a real session: a policy refused `rm -rf` on build output, and the
-agent re-issued the same deletes as `rm -r --`.
+Prompted by two real sessions on 2026-09-27. In one, a policy refused `rm -rf`
+on build output and the agent re-issued the same deletes as `rm -r --`. In the
+other, the policy refused an agent deleting its own temporary files, and the
+agent then removed 2 GB of build output with `find -delete` — and, asked
+afterwards, said itself that the substitution "defeats the intent of the guard".
+Both targets were legitimate; both workarounds were not.
 
 - Rule 10.1: **a blocked command is a stop, not a spelling problem.** A refused
   destructive command is never re-issued in another form (`rm -r` for `rm -rf`,
   `find -delete`, a script, a move to a throwaway path); take the route the
   refusal names, quarantine, or ask.
-- Rule 10.2: **worktrees are removed through git.** `git worktree remove`
-  without `--force` is the cleanup command — git refuses a worktree with
-  uncommitted or untracked changes. `git worktree prune` for stale bookkeeping.
-  Deleting a worktree's folder, or `--force`, is a destructive act. The owning
-  lane locks its worktree while it works; locked or in-use worktrees that are not
-  yours are never removed. Branches go with `git branch -d`, never `-D` on
-  unique work. Rule 6.2's hygiene checkpoint points at it.
-- `tests/rules_text_test.sh` 192 → 200; `tests/rules_text_mutation_test.sh`
-  64 → 71.
+- Rule 10.2: **worktrees are removed through git, after three read-only
+  checks.** (1) `status --short --ignored` — `git worktree remove` silently
+  deletes git-ignored files such as a `.env` or a local database, so those are
+  preserved or quarantined first; (2) the worktree's commits are reachable
+  (`for-each-ref --contains HEAD`) — a detached worktree's commits otherwise
+  become unreachable; (3) no process works in it and no other lane has it
+  locked. Then `git worktree remove` without `--force`; if git refuses, fix the
+  cause. Deleting the folder, or `--force`, is a destructive act. The lane that
+  creates a worktree, including a reviewer's detached one, locks it while in use
+  and removes it at close-out. `git branch -d` checks the upstream, not `main`,
+  so it follows the reachability check; never `-D` on unique work. Rule 6.2's
+  hygiene checkpoint points at it.
+- Rule 10.1 also counts the owner declining a command as a refusal, and names
+  quarantine as the one sanctioned move.
+- Deep review (Strong tier) failed the first draft on two claims reproduced
+  against real git — ignored files deleted silently, detached commits lost —
+  both fixed before release (`docs/reviews/2026-09-27-refused-means-stop-deep-review.md`).
+- `tests/rules_text_test.sh` 192 → 206; `tests/rules_text_mutation_test.sh`
+  64 → 77.
 
 ## 0.1.19 — 2026-09-26
 
