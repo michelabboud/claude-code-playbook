@@ -18,8 +18,21 @@ back to this edition.
   directory), `lsof +D <dir>` on macOS, and on Windows Sysinternals
   `handle.exe` or Resource Monitor — or a plain statement that the check was
   not run and the folder is not proven idle.
-- `tests/rules_text_test.sh` 259 → 265; `tests/rules_text_mutation_test.sh`
-  118 → 121.
+- The Codex edition's re-review sharpened the Linux and macOS rows: `lsof`
+  exits 1 even when it prints matches, may not see other users' processes, and
+  a build between compile steps holds nothing open under its output — so look
+  for the build tool too, and treat silence as "nothing found", not proof.
+- **Rule 7.1: tasks run back to back, and every plan says so in its header.**
+  When a task's close-out chain finishes, the hygiene checkpoint included, the
+  next approved task starts at once, in the same turn. A close-out report is a
+  record, not a stopping point; never end the turn to report, wait for a "go",
+  or ask "shall I continue?". The only stops are the plan's own gates, a real
+  blocker, an approval-table action the plan did not cover, or the owner's
+  word. Rule 6.2's hygiene checkpoint hands on to the next task. (The owner's
+  word, 2026-09-28: "extremely important … when one task finishes it start the
+  next one".)
+- `tests/rules_text_test.sh` 259 → 271; `tests/rules_text_mutation_test.sh`
+  118 → 125.
 
 ---
 

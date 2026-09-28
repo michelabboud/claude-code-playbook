@@ -403,6 +403,18 @@ check_mutation "the Linux directory check losing lsof +D is caught" \
 check_mutation "Windows claiming an idle folder without a check is caught" \
     'replace_in_file "$M/rules/platform/WINDOWS.md" "the check was not run, and the folder is not proven idle" "assume it is idle"'
 
+check_mutation "7.1 losing back-to-back execution is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "**Tasks run back to back — every plan says so in its header.**" ""'
+
+check_mutation "7.1 allowing a pause to report is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "A close-out report is a record, not a stopping point" "A close-out report is a natural pause"'
+
+check_mutation "7.1 inviting shall-I-continue is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "never ask \"shall I continue?\"" "ask whether to continue"'
+
+check_mutation "the hygiene checkpoint no longer handing on is caught" \
+    'replace_in_file "$M/rules/WORKFLOW.md" "; then the next approved task starts at once (rule 7.1)" ""'
+
 # --- INSTALL.md and the visual map -----------------------------------------
 
 check_mutation "INSTALL.md stating the wrong file count is caught" \
