@@ -1,5 +1,7 @@
 # Handoff
 
+**Owner installation, 2026-09-28:** 0.1.22 installed (backup `~/.claude/rules.backup-2026-09-28-171612/`), byte-identical to `checkpoint/0.1.22`, local layer 6/6. The Codex edition 0.1.7 ports hygiene and back-to-back tasks and is installed too, with the owner's first Codex local layer.
+
 **0.1.22, 2026-09-28:** every platform file says how to find a process using a directory (a gap the Codex edition's review found in section 13's idle check).
 
 **0.1.21, 2026-09-27:** section 13, Hygiene (ADR 0014). The behaviour-suite
