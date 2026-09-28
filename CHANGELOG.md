@@ -19,20 +19,28 @@ back to this edition.
   `handle.exe` or Resource Monitor — or a plain statement that the check was
   not run and the folder is not proven idle.
 - The Codex edition's re-review sharpened the Linux and macOS rows: `lsof`
-  exits 1 even when it prints matches, may not see other users' processes, and
+  can exit 1 even when it prints matches, may not see other users' processes, and
   a build between compile steps holds nothing open under its output — so look
   for the build tool too, and treat silence as "nothing found", not proof.
 - **Rule 7.1: tasks run back to back, and every plan says so in its header.**
   When a task's close-out chain finishes, the hygiene checkpoint included, the
   next approved task starts at once, in the same turn. A close-out report is a
-  record, not a stopping point; never end the turn to report, wait for a "go",
-  or ask "shall I continue?". The only stops are the plan's own gates, a real
-  blocker, an approval-table action the plan did not cover, or the owner's
-  word. Rule 6.2's hygiene checkpoint hands on to the next task. (The owner's
+  record, not a stopping point: whoever runs the plan (the coordinator, or a
+  solo session) never ends the turn to report, waits for a "go", or asks "shall
+  I continue?". A lane still ends its turn by returning its close-out to the
+  coordinator, and never admits the next task itself. The only stops are the
+  gates the rulebook keeps: a high deep review, the review ceiling and its
+  waits, a review's blocking finding, a real blocker, a change of direction or
+  something the plan did not cover, an uncovered approval-table action, or the
+  owner's word. Rule 6.2's hygiene checkpoint hands on to the next task. The
+  first wording failed review (Codex edition's
+  `docs/reviews/2026-09-28-0.1.7-deep-review.md`): its list of stops left out
+  the review ceiling and stop-the-line, and its "never end the turn" reached
+  lanes too. (The owner's
   word, 2026-09-28: "extremely important … when one task finishes it start the
   next one".)
-- `tests/rules_text_test.sh` 259 → 271; `tests/rules_text_mutation_test.sh`
-  118 → 125.
+- `tests/rules_text_test.sh` 259 → 274; `tests/rules_text_mutation_test.sh`
+  118 → 128.
 
 ---
 

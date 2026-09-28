@@ -446,16 +446,22 @@ assert_eq "WINDOWS.md: an unrun idle check is said to be unrun" \
 C71="$ROOT/rules/COLLABORATION.md"
 assert_eq "7.1: tasks run back to back and every plan says so" \
     1 "$(count_in_file '**Tasks run back to back — every plan says so in its header.**' "$C71")"
-assert_eq "7.1: the next approved task starts at once, in the same turn" \
-    1 "$(count_in_file 'the next approved task starts at once, in the same turn' "$C71")"
+assert_eq "7.1: whoever runs the plan starts the next task at once" \
+    1 "$(count_in_file 'whoever runs the plan — the coordinator, or a solo session running it — starts the next approved task at once, in the same turn' "$C71")"
+assert_eq "7.1: a lane returns its close-out and never admits the next task" \
+    1 "$(count_in_file 'and never admits the next task itself (rule 3.5: one coordinator admits work)' "$C71")"
+assert_eq "7.1: the stops include rule 3.5's ceiling and its waits" \
+    1 "$(count_in_file 'rule 3.5'"'"'s ceiling and its waits' "$C71")"
+assert_eq "7.1: the stops include a review's blocking finding" \
+    1 "$(count_in_file 'a review'"'"'s blocking finding (rule 3.3'"'"'s stop-the-line)' "$C71")"
 assert_eq "7.1: a close-out report is a record, not a stopping point" \
     1 "$(count_in_file 'A close-out report is a record, not a stopping point' "$C71")"
 assert_eq "7.1: never ask whether to continue" \
-    1 "$(count_in_file 'never ask "shall I continue?"' "$C71")"
-assert_eq "7.1: the stops are named and closed" \
-    1 "$(count_in_file 'The only stops are the plan'"'"'s own gates (a high deep review)' "$C71")"
+    1 "$(count_in_file 'never asks "shall I continue?"' "$C71")"
+assert_eq "7.1: the stops are the gates this rulebook keeps" \
+    1 "$(count_in_file 'The only stops are the gates this rulebook keeps: a high deep review' "$C71")"
 assert_eq "6.2: the hygiene checkpoint hands on to the next task" \
-    1 "$(count_in_file 'then the next approved task starts at once (rule 7.1)' "$ROOT/rules/WORKFLOW.md")"
+    1 "$(count_in_file 'then whoever runs the plan starts the next approved task at once (rule 7.1)' "$ROOT/rules/WORKFLOW.md")"
 
 # The statements that once lived only in a summary now live in their files.
 assert_eq "COLLABORATION.md: a question seen once and moved past is answered" \

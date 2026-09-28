@@ -409,11 +409,20 @@ check_mutation "7.1 losing back-to-back execution is caught" \
 check_mutation "7.1 allowing a pause to report is caught" \
     'replace_in_file "$M/rules/COLLABORATION.md" "A close-out report is a record, not a stopping point" "A close-out report is a natural pause"'
 
+check_mutation "7.1 letting a lane admit the next task is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "and never admits the next task itself" "and may admit the next task itself"'
+
+check_mutation "7.1 dropping the review ceiling from its stops is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" " rule 3.5'"'"'s ceiling and its waits (work expensive to undo, anything irreversible or outward-facing);" ""'
+
+check_mutation "7.1 dropping stop-the-line from its stops is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" " a review'"'"'s blocking finding (rule 3.3'"'"'s stop-the-line);" ""'
+
 check_mutation "7.1 inviting shall-I-continue is caught" \
-    'replace_in_file "$M/rules/COLLABORATION.md" "never ask \"shall I continue?\"" "ask whether to continue"'
+    'replace_in_file "$M/rules/COLLABORATION.md" "never asks \"shall I continue?\"" "ask whether to continue"'
 
 check_mutation "the hygiene checkpoint no longer handing on is caught" \
-    'replace_in_file "$M/rules/WORKFLOW.md" "; then the next approved task starts at once (rule 7.1)" ""'
+    'replace_in_file "$M/rules/WORKFLOW.md" "; then whoever runs the plan starts the next approved task at once (rule 7.1)" ""'
 
 # --- INSTALL.md and the visual map -----------------------------------------
 
