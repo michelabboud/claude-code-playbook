@@ -32,15 +32,15 @@ back to this edition.
   gates the rulebook keeps: a high deep review, the review ceiling and its
   waits, a review's blocking finding, a real blocker, a change of direction or
   something the plan did not cover, an uncovered approval-table action, or the
-  owner's word. Rule 6.2's hygiene checkpoint hands on to the next task. The
+  owner's word — and a release blocked by an unfixable advisory. Rule 6.2's hygiene checkpoint hands on to the next task. The
   first wording failed review (Codex edition's
   `docs/reviews/2026-09-28-0.1.7-deep-review.md`): its list of stops left out
   the review ceiling and stop-the-line, and its "never end the turn" reached
   lanes too. (The owner's
   word, 2026-09-28: "extremely important … when one task finishes it start the
   next one".)
-- `tests/rules_text_test.sh` 259 → 274; `tests/rules_text_mutation_test.sh`
-  118 → 128.
+- `tests/rules_text_test.sh` 259 → 275; `tests/rules_text_mutation_test.sh`
+  118 → 129.
 
 ---
 

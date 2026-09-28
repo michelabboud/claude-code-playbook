@@ -418,6 +418,9 @@ check_mutation "7.1 dropping the review ceiling from its stops is caught" \
 check_mutation "7.1 dropping stop-the-line from its stops is caught" \
     'replace_in_file "$M/rules/COLLABORATION.md" " a review'"'"'s blocking finding (rule 3.3'"'"'s stop-the-line);" ""'
 
+check_mutation "7.1 dropping the advisory block from its stops is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "a release blocked by an unfixable advisory (rule 6.3); " ""'
+
 check_mutation "7.1 inviting shall-I-continue is caught" \
     'replace_in_file "$M/rules/COLLABORATION.md" "never asks \"shall I continue?\"" "ask whether to continue"'
 

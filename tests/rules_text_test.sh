@@ -458,6 +458,8 @@ assert_eq "7.1: a close-out report is a record, not a stopping point" \
     1 "$(count_in_file 'A close-out report is a record, not a stopping point' "$C71")"
 assert_eq "7.1: never ask whether to continue" \
     1 "$(count_in_file 'never asks "shall I continue?"' "$C71")"
+assert_eq "7.1: the stops include an unfixable-advisory release block" \
+    1 "$(count_in_file 'a release blocked by an unfixable advisory (rule 6.3)' "$C71")"
 assert_eq "7.1: the stops are the gates this rulebook keeps" \
     1 "$(count_in_file 'The only stops are the gates this rulebook keeps: a high deep review' "$C71")"
 assert_eq "6.2: the hygiene checkpoint hands on to the next task" \
