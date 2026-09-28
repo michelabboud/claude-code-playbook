@@ -394,6 +394,15 @@ check_mutation "build-output membership decided by name is caught" \
 check_mutation "the Windows UNC caveat dropping is caught" \
     'replace_in_file "$M/rules/platform/WINDOWS.md" "; drive-letter paths only — for a network (UNC) path, check free space on the share'"'"'s host" ""'
 
+check_mutation "a platform file losing its process-using-a-directory step is caught" \
+    'drop_line "$M/rules/platform/MACOS.md" "4. Is a process using a directory"'
+
+check_mutation "the Linux directory check losing lsof +D is caught" \
+    'replace_in_file "$M/rules/platform/LINUX.md" "\`lsof +D <dir>\` lists every process" "\`ls <dir>\` lists every process"'
+
+check_mutation "Windows claiming an idle folder without a check is caught" \
+    'replace_in_file "$M/rules/platform/WINDOWS.md" "the check was not run, and the folder is not proven idle" "assume it is idle"'
+
 # --- INSTALL.md and the visual map -----------------------------------------
 
 check_mutation "INSTALL.md stating the wrong file count is caught" \

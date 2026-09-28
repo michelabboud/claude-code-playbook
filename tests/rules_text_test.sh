@@ -432,7 +432,15 @@ assert_eq "the workflow hygiene checkpoint runs section 13" \
 for f in $PLATFORM; do
     assert_eq "rules/platform/$f.md gives the free-disk command" \
         1 "$(grep -c '^| Free disk |' "$ROOT/rules/platform/$f.md")"
+    assert_eq "rules/platform/$f.md says how to find a process using a directory" \
+        1 "$(grep -c '^4\. Is a process using a directory' "$ROOT/rules/platform/$f.md")"
 done
+assert_eq "LINUX.md: lsof +D finds a process under a directory" \
+    1 "$(count_in_file '`lsof +D <dir>` lists every process with a file open anywhere under it' "$ROOT/rules/platform/LINUX.md")"
+assert_eq "MACOS.md: lsof +D finds a process under a directory" \
+    1 "$(count_in_file '`lsof +D <dir>` lists every process with a file open anywhere under it' "$ROOT/rules/platform/MACOS.md")"
+assert_eq "WINDOWS.md: an unrun idle check is said to be unrun" \
+    1 "$(count_in_file 'the check was not run, and the folder is not proven idle' "$ROOT/rules/platform/WINDOWS.md")"
 
 # The statements that once lived only in a summary now live in their files.
 assert_eq "COLLABORATION.md: a question seen once and moved past is answered" \

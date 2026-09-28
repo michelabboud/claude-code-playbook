@@ -1,5 +1,7 @@
 # Progress & current standing
 
+**0.1.22, 2026-09-28 — process-using-a-directory rows** in every platform file, found by the Codex edition's deep review.
+
 **Owner installation, 2026-09-28:** migrated from 0.1.15 and updated to 0.1.21
 (local layer checked 6/6; installed files byte-identical to the tag).
 

@@ -1,5 +1,7 @@
 # Handoff
 
+**0.1.22, 2026-09-28:** every platform file says how to find a process using a directory (a gap the Codex edition's review found in section 13's idle check).
+
 **0.1.21, 2026-09-27:** section 13, Hygiene (ADR 0014). The behaviour-suite
 plan's ADR numbers move up by one (0015–0019) when it is recorded.
 

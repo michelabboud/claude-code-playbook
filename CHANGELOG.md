@@ -4,6 +4,25 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.22 — 2026-09-28
+
+Found by the deep review of the Codex edition's port of section 13 (Codex
+Playbook `docs/reviews/2026-09-28-0.1.7-deep-review.md`), which traced the gap
+back to this edition.
+
+- Rules 13.1 and 13.5 say "check that no process uses it — your platform file
+  gives the command", but the platform files only looked processes up by port
+  or process ID, so the check checked nothing. Each platform file now has a
+  step 4, "Is a process using a directory": `lsof +D <dir>` and `fuser -v <dir>`
+  on Linux (verified on this machine against a process sitting in a probe
+  directory), `lsof +D <dir>` on macOS, and on Windows Sysinternals
+  `handle.exe` or Resource Monitor — or a plain statement that the check was
+  not run and the folder is not proven idle.
+- `tests/rules_text_test.sh` 259 → 265; `tests/rules_text_mutation_test.sh`
+  118 → 121.
+
+---
+
 ## 0.1.21 — 2026-09-27
 
 The owner's word after the two 0.1.20 incidents: "we should build a proper
