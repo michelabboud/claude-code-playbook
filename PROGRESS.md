@@ -1,5 +1,8 @@
 # Progress & current standing
 
+**Owner installation, 2026-09-28:** migrated from 0.1.15 and updated to 0.1.21
+(local layer checked 6/6; installed files byte-identical to the tag).
+
 **0.1.21, 2026-09-27 — hygiene:** new section 13 makes cleanup a
 classification with one action per class, moves the worktree procedure out of
 rule 10.2, adds a creation-time marker and a free-space floor. ADR 0014.

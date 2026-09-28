@@ -10,9 +10,12 @@ approved in scope; its size (small / lean / full) awaits the owner.
 **0.1.18, 2026-09-26:** loading measured and the out-of-project gap closed
 (ADR 0012, `docs/reports/2026-09-26-loading-measurements.md`); the tip before it,
 0.1.17, is the context-budget change (ADR 0011).
-Next open item: the owner's live installation is at 0.1.15 and its local layer
-fails 0.1.16's check (10 errors) — it needs the migration in `INSTALL.md`, with
-the owner's go, before any update.
+The owner's live installation was migrated and updated to 0.1.21 on 2026-09-28,
+with the owner's go: `rules/MAI.md` folded word for word into `LOCAL.md` as rule
+M.1 (original kept in `~/.claude/rules-backups/`), the `unsafe` review exception
+dropped (a local layer may not relax a protection), four Overrides given
+verifiers; installed files byte-identical to `checkpoint/0.1.21`, staleness
+check 6/6. Backup: `~/.claude/rules.backup-2026-09-28-153215/`.
 
 ---
 
