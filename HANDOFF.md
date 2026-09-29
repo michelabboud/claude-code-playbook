@@ -1,5 +1,14 @@
 # Handoff
 
+**Current seam tape:** [`docs/handoffs/2026-09-29-hygiene-back-to-back-and-installs.md`](docs/handoffs/2026-09-29-hygiene-back-to-back-and-installs.md).
+Where we are in three lines: `main` = `origin/main` = `checkpoint/0.1.22` =
+`bafad2d`, pushed and installed. Codex sister repo at `checkpoint/0.1.7`,
+pushed and installed. Next: pick the behaviour-suite plan's size (small
+recommended); decide whether the disk-floor default should follow the owner's
+local 3 % or stay at the published 10 %.
+
+---
+
 **Owner installation, 2026-09-28:** 0.1.22 installed (backup `~/.claude/rules.backup-2026-09-28-171612/`), byte-identical to `checkpoint/0.1.22`, local layer 6/6. The Codex edition 0.1.7 ports hygiene and back-to-back tasks and is installed too, with the owner's first Codex local layer.
 
 **0.1.22, 2026-09-28:** every platform file says how to find a process using a directory (a gap the Codex edition's review found in section 13's idle check).
