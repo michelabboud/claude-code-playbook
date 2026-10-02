@@ -20,12 +20,13 @@ There are three procedures here. Use the one that matches what you found:
 ## What this installs, and what it must never touch
 
 This repository is a **rulebook** meant to live in the user's Claude Code
-configuration directory. Installing it means copying two things:
+configuration directory. Installing it means copying three things:
 
 | From this repo | To |
 |---|---|
 | `CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | `rules/*.md` | `~/.claude/rules/` |
+| `skills/dev-mode/SKILL.md` | `~/.claude/skills/dev-mode/SKILL.md` — the `/dev-mode` command (section 14) |
 
 On Windows the configuration directory is `%USERPROFILE%\.claude\`.
 
@@ -52,7 +53,11 @@ the source and destination trust checks.
 
 **Touch nothing else in that directory.** `~/.claude/` also holds the user's
 settings, their own skills, their own slash commands, and their session history.
-None of that is yours to move, merge, tidy, or "clean up".
+None of that is yours to move, merge, tidy, or "clean up". The one exception is
+`~/.claude/skills/dev-mode/SKILL.md`, the single skill this playbook ships; every
+other folder under `~/.claude/skills/` is the user's. **On a first install, if
+`~/.claude/skills/dev-mode/` already exists, it is the user's own skill with the
+same name: stop and ask before replacing it.**
 
 **Two files in `~/.claude/rules/` are the user's and never yours:**
 
@@ -202,11 +207,11 @@ source_trust_preflight() {
     for trust_relative in VERSION CLAUDE.md INSTALL.md CHANGELOG.md \
         scripts/check-local.sh templates/LOCAL.md templates/LOCAL_dev.md \
         rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
-        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md rules/HYGIENE.md \
-        rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
-        rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
+        rules/DESTRUCTIVE.md rules/DEV_MODES.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/HYGIENE.md rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md \
+        rules/ROSTER.md rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
         rules/WRITING.md rules/platform/LINUX.md rules/platform/MACOS.md \
-        rules/platform/WINDOWS.md; do
+        rules/platform/WINDOWS.md skills/dev-mode/SKILL.md; do
         trust_path=$trust_root/$trust_relative
         trust_blob=$(GIT_NO_REPLACE_OBJECTS=1 git -C "$trust_root" rev-parse --verify "HEAD:$trust_relative" 2>/dev/null) || trust_blob=
         if [ -z "$trust_blob" ] && [ "$trust_mode" = baseline ] &&
@@ -215,7 +220,8 @@ source_trust_preflight() {
         fi
         if [ -z "$trust_blob" ] || [ -L "$trust_path" ] || [ ! -f "$trust_path" ] ||
            [ -L "$trust_root/rules" ] || [ -L "$trust_root/rules/platform" ] ||
-           [ -L "$trust_root/scripts" ] || [ -L "$trust_root/templates" ]; then
+           [ -L "$trust_root/scripts" ] || [ -L "$trust_root/templates" ] ||
+           [ -L "$trust_root/skills" ] || [ -L "$trust_root/skills/dev-mode" ]; then
             printf 'Source trust blocked: missing or linked source file: %s\n' "$trust_relative" >&2
             return 2
         fi
@@ -238,8 +244,8 @@ source_trust_preflight() {
         fi
     done
     if [ "$trust_mode" = current ]; then
-        # Root + fifteen managed files + platform directory + three platform files.
-        trust_expected_rule_entries=20
+        # Root + sixteen managed files + platform directory + three platform files.
+        trust_expected_rule_entries=21
         trust_rule_listing=$(find "$trust_root/rules" -print 2>/dev/null) || {
             printf 'Source trust blocked: cannot inspect staged rules tree.\n' >&2
             return 2
@@ -247,6 +253,15 @@ source_trust_preflight() {
         trust_rule_entries=$(printf '%s\n' "$trust_rule_listing" | wc -l)
         if [ "$trust_rule_entries" -ne "$trust_expected_rule_entries" ]; then
             printf 'Source trust blocked: unexpected file or directory in staged rules.\n' >&2
+            return 2
+        fi
+        # Root + the dev-mode directory + its one SKILL.md.
+        trust_skill_listing=$(find "$trust_root/skills" -print 2>/dev/null) || {
+            printf 'Source trust blocked: cannot inspect staged skills tree.\n' >&2
+            return 2
+        }
+        if [ "$(printf '%s\n' "$trust_skill_listing" | wc -l)" -ne 3 ]; then
+            printf 'Source trust blocked: unexpected file or directory in staged skills.\n' >&2
             return 2
         fi
     fi
@@ -307,7 +322,7 @@ destination_root_preflight() {
         fi
         destination_remaining=${destination_remaining#*/}
     done
-    for destination_path in "$1" "$1/rules" "$1/rules/platform"; do
+    for destination_path in "$1" "$1/rules" "$1/rules/platform" "$1/skills" "$1/skills/dev-mode"; do
         if [ -L "$destination_path" ] ||
            { [ -e "$destination_path" ] && [ ! -d "$destination_path" ]; }; then
             printf 'Destination blocked: linked or non-directory root: %s\n' "$destination_path" >&2
@@ -316,11 +331,11 @@ destination_root_preflight() {
     done
     for destination_relative in CLAUDE.md \
         rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
-        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md rules/HYGIENE.md \
-        rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
-        rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
+        rules/DESTRUCTIVE.md rules/DEV_MODES.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/HYGIENE.md rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md \
+        rules/ROSTER.md rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
         rules/WRITING.md rules/platform/LINUX.md rules/platform/MACOS.md \
-        rules/platform/WINDOWS.md; do
+        rules/platform/WINDOWS.md skills/dev-mode/SKILL.md; do
         destination_file=$1/$destination_relative
         if [ -L "$destination_file" ] ||
            { [ -e "$destination_file" ] && [ ! -f "$destination_file" ]; }; then
@@ -388,6 +403,9 @@ either has become unverifiable, do not start a backup or a copy.
   older backup. If no unique target is available, stop before copying.
 - The backup of `rules/` must include `LOCAL.md` and `LOCAL_dev.md` if they are
   there. Copying the whole directory does that; copying file by file may not.
+- If `~/.claude/skills/dev-mode/SKILL.md` exists, back it up too, to
+  `~/.claude/skills.dev-mode.backup-YYYY-MM-DD-HHMMSS/SKILL.md` — a sibling of
+  `skills/`, never inside it, because a folder there loads as a skill.
 - **Read the backup back and confirm it is there and non-empty.**
 - **If the backup cannot be made or cannot be verified, STOP.** Do not install.
   Report the failure and its cause. A failed backup is a refusal, not a warning
@@ -398,15 +416,20 @@ Do this as its own step, and evaluate its result, before any copying begins.
 
 ---
 
-## Step 2 — Copy the two things
+## Step 2 — Copy the three things
 
 1. `CLAUDE.md` → `~/.claude/CLAUDE.md`
-2. Exactly the fifteen named managed subject files listed in step 5,
+2. Exactly the sixteen named managed subject files listed in step 5,
    individually, from `rules/` → `~/.claude/rules/`. Do not use a wildcard
    copy: a newly added or untracked Markdown file would become a recursively
    loaded rule without having been authenticated.
 
 Create `~/.claude/rules/` if it does not exist.
+
+3. `skills/dev-mode/SKILL.md` → `~/.claude/skills/dev-mode/SKILL.md`, creating
+   `~/.claude/skills/dev-mode/` if needed (on a first install, see "Touch nothing
+   else" above). Copy that one file; never copy or replace `~/.claude/skills/` as
+   a whole — every other folder in it is the user's.
 
 **Copy file by file. Never replace the whole directory** — not with a recursive
 copy that clears the destination first, not with a sync that deletes extras.
@@ -489,13 +512,14 @@ clearly that it is outstanding and what it needs.
 Confirm and state each of these:
 
 - `~/.claude/CLAUDE.md` exists and is non-empty.
-- `~/.claude/rules/` contains **15** `.md` files from this repository:
-  `AUTHORITY` `CODE` `COLLABORATION` `DESTRUCTIVE` `DOCS` `ENVIRONMENT`
+- `~/.claude/rules/` contains **16** `.md` files from this repository:
+  `AUTHORITY` `CODE` `COLLABORATION` `DESTRUCTIVE` `DEV_MODES` `DOCS` `ENVIRONMENT`
   `HYGIENE` `QUARANTINE` `REPO` `REVIEWS` `ROSTER` `SUBAGENTS` `TESTING` `WORKFLOW`
   `WRITING` — plus `LOCAL.md` and/or `LOCAL_dev.md` if the user has them, which
   are theirs and are not counted as part of this bundle.
 - `~/.claude/rules/platform/` contains **exactly one** file, and it is the right
   one for this machine.
+- `~/.claude/skills/dev-mode/SKILL.md` is byte-identical to this repository's.
 - Nothing else lives under `~/.claude/rules/` — no backup, no draft, no note,
   no template.
 - The git identity is either filled in `LOCAL.md` or explicitly flagged as
@@ -754,7 +778,7 @@ copy, and stop if they no longer pass.
 
 ## What the user gets
 
-Fourteen numbered sections across fifteen files. `CLAUDE.md` carries the Mantra
+Fifteen numbered sections across sixteen files. `CLAUDE.md` carries the Mantra
 and an index; `rules/AUTHORITY.md` is section 0 and holds the precedence chain,
 the local layer's force, how to classify a request, the four critical rules, and
 **the approval table — the complete list of things needing the user's OK.**
@@ -847,12 +871,18 @@ uninstall_managed_file_preflight() {
     esac
     for relative in CLAUDE.md \
         rules/AUTHORITY.md rules/CODE.md rules/COLLABORATION.md \
-        rules/DESTRUCTIVE.md rules/DOCS.md rules/ENVIRONMENT.md rules/HYGIENE.md \
-        rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md rules/ROSTER.md \
-        rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
-        rules/WRITING.md "rules/platform/$platform"; do
+        rules/DESTRUCTIVE.md rules/DEV_MODES.md rules/DOCS.md rules/ENVIRONMENT.md \
+        rules/HYGIENE.md rules/QUARANTINE.md rules/REPO.md rules/REVIEWS.md \
+        rules/ROSTER.md rules/SUBAGENTS.md rules/TESTING.md rules/WORKFLOW.md \
+        rules/WRITING.md "rules/platform/$platform" skills/dev-mode/SKILL.md; do
         installed=$1/$relative
         source=$trust_root/$relative
+        # A release before 0.1.23 shipped no skill: absent on both sides is consistent.
+        if [ "$relative" = skills/dev-mode/SKILL.md ] &&
+           [ ! -e "$source" ] && [ ! -L "$source" ] &&
+           [ ! -e "$installed" ] && [ ! -L "$installed" ]; then
+            continue
+        fi
         if [ -L "$installed" ] || [ -L "$source" ] ||
            [ ! -f "$installed" ] || [ ! -f "$source" ] ||
            ! cmp -s "$installed" "$source"; then
@@ -895,11 +925,15 @@ Restore the timestamped backups from step 1 over `~/.claude/CLAUDE.md` and the
 rule files in `~/.claude/rules/` — **file by file, and never `LOCAL.md` or
 `LOCAL_dev.md`.** Restoring a whole backup directory over `rules/` would put back
 an old copy of a local file the user has changed since, and that is the one loss
-this design exists to prevent. If there were no backups, the user had no previous
+this design exists to prevent. Restore `~/.claude/skills/dev-mode/SKILL.md` from
+its own step-1 backup when there is one; when the backup predates the skill
+(an installation before 0.1.23), delete the installed `SKILL.md` by its exact
+path and remove `~/.claude/skills/dev-mode/` with `rmdir` only if it is empty. If there were no backups, the user had no previous
 rulebook — **only after the exact-content and fresh-snapshot preflights pass**,
-delete only the fifteen named managed rule files and the single
-installed managed platform `.md` file, each by its exact path, then
-`~/.claude/CLAUDE.md`. Remove `~/.claude/rules/platform/` with `rmdir` only
+delete only the sixteen named managed rule files, the single
+installed managed platform `.md` file and `~/.claude/skills/dev-mode/SKILL.md`,
+each by its exact path, then `~/.claude/CLAUDE.md`. Remove
+`~/.claude/skills/dev-mode/` with `rmdir` only if it is empty. Remove `~/.claude/rules/platform/` with `rmdir` only
 if it is empty. If any other content remains, preserve it and report it;
 never recursively delete that directory or the rules directory.
 

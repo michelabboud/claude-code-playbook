@@ -28,7 +28,7 @@ SCOPED='CODE TESTING WORKFLOW SUBAGENTS REVIEWS ROSTER'
 UNSCOPED='AUTHORITY COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT REPO WRITING'
 # Scoped to its trigger, not to source: the source-scoped invariants (hook 2,
 # the shared frontmatter) do not apply to it (ADR 0011).
-TRIGGER='QUARANTINE HYGIENE'
+TRIGGER='QUARANTINE HYGIENE DEV_MODES'
 PLATFORM='LINUX MACOS WINDOWS'
 
 HOOK2='*Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*'
@@ -125,9 +125,9 @@ done
 rulenames=${rulenames# }
 subject=$((rulecount - 1))
 assert_eq "section 0's header still says the right number of subject files" \
-    14 "$subject"
-assert_eq "section 0's header says fourteen subject files" \
-    1 "$(count_in_file 'fourteen subject files' "$A")"
+    15 "$subject"
+assert_eq "section 0's header says fifteen subject files" \
+    1 "$(count_in_file 'fifteen subject files' "$A")"
 
 # ---------------------------------------------------------------------------
 # Hook 3 — CLAUDE.md names the layer, and its self-update paragraph is rewritten.
@@ -195,7 +195,7 @@ nonmd=$(find "$ROOT/rules" -type f ! -name '*.md' | head -5)
 assert_eq "every file under rules/ is a Markdown rule file" "" "$nonmd"
 
 # The rules directory holds exactly the files it is supposed to hold.
-expected='AUTHORITY.md CODE.md COLLABORATION.md DESTRUCTIVE.md DOCS.md ENVIRONMENT.md HYGIENE.md QUARANTINE.md REPO.md REVIEWS.md ROSTER.md SUBAGENTS.md TESTING.md WORKFLOW.md WRITING.md'
+expected='AUTHORITY.md CODE.md COLLABORATION.md DESTRUCTIVE.md DEV_MODES.md DOCS.md ENVIRONMENT.md HYGIENE.md QUARANTINE.md REPO.md REVIEWS.md ROSTER.md SUBAGENTS.md TESTING.md WORKFLOW.md WRITING.md'
 assert_eq "rules/ holds exactly the playbook's rule files" "$expected" "$rulenames"
 
 assert_eq "the templates live outside rules/" \
@@ -597,7 +597,7 @@ assert_eq "quiescence is in the shared preflight, before first-install-only step
 # ---------------------------------------------------------------------------
 mkdir -p -- "$TMPROOT/local"
 printf '# LOCAL\n\n  **Dead words:** `%s` (in `%s`)\n' \
-    'fourteen subject files' 'AUTHORITY.md' >"$TMPROOT/local/LOCAL.md"
+    'fifteen subject files' 'AUTHORITY.md' >"$TMPROOT/local/LOCAL.md"
 out=$(sh "$ROOT/scripts/check-local.sh" "$TMPROOT/local" "$ROOT/rules" 2>&1); st=$?
 assert_status "a real override against the real rules: exit 0" 0 "$st"
 assert_contains "a real override against the real rules: reports ok" "$out" "ok — 1"
@@ -627,5 +627,36 @@ assert_eq "the guide provides a complete live Override example" 1 \
 out=$(sh "$ROOT/scripts/check-local.sh" "$TMPROOT/local" "$ROOT/rules" 2>&1); st=$?
 assert_status "the guide Override verifies against the shipped rules" 0 "$st"
 assert_contains "the guide example checks one anchored quotation" "$out" "1 search(es), 0 stale, 0 error(s)"
+
+# Section 14, dev modes (0.1.23).
+assert_eq "14.1 only the owner changes the dev mode" 1 "$(count_in_file '**Every project has a dev mode, and only I change it.**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.1 the data sets the minimum mode" 1 "$(count_in_file '**The data sets the minimum, not the schedule:**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.1 an agent never changes the mode" 1 "$(count_in_file 'you never change it yourself, and you never read a deadline as permission to lower it' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.2 the mode sets the amount and kind of review" 1 "$(count_in_file '**The mode sets the amount and the kind of review**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.2 an mvp milestone review is pipelined" 1 "$(count_in_file 'high deep, **pipelined like a deep review — not a gate**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.2 risk overrides cadence from mvp upward" 1 "$(count_in_file '**Risk overrides cadence from mvp upward** (rule 3.2)' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.3 the floor holds in every mode" 1 "$(count_in_file '**The floor — every mode, never deferred, never parked in the backlog.**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.3 a floor finding blocks even in a spike" 1 "$(count_in_file 'A floor finding is blocking in every mode, a spike included.' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.4 no attack story means no blocker" 1 "$(count_in_file '**No attack story, no blocker.**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.4 downgrading a finding takes a reason" 1 "$(count_in_file '**Downgrading takes a reason:**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.4 an incomplete story counts as realistic" 1 "$(count_in_file 'counts as realistic until someone completes it' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.4 hardening findings get one line of effort" 1 "$(count_in_file 'no proof of concept, no deep dive, no fix proposal' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.5 every security finding is kept" 1 "$(count_in_file '**The security backlog — every finding kept, none ignored.**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.5 open realistic findings stay out of a public tree" 1 "$(count_in_file '**In a public repository an open realistic finding is a map for an attacker:**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.6 moving up starts a hardening phase" 1 "$(count_in_file '**Moving up a mode is mine, and it starts a hardening phase.**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.7 extra hardening is its own phase after production" 1 "$(count_in_file '**Extra hardening is its own phase, after production.**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.7 extra hardening never blocks a feature release" 1 "$(count_in_file 'nothing in it blocks a feature release' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.8 security is designed in from the first plan" 1 "$(count_in_file '**Security is designed in, from the first plan.**' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "14.8 every plan opens with a threat sketch" 1 "$(count_in_file 'Every plan opens with a **threat sketch**, ten lines at most' "$ROOT/rules/DEV_MODES.md")"
+assert_eq "3.1 the dev mode scales the review ladder" 1 "$(count_in_file '**The project'"'"'s dev mode decides how much of this ladder runs**' "$ROOT/rules/REVIEWS.md")"
+assert_eq "3.2 risk overrides cadence from MVP upward" 1 "$(count_in_file '**Risk overrides cadence, from MVP upward** (rule 14.2)' "$ROOT/rules/REVIEWS.md")"
+assert_eq "3.3 security findings are classed by attack story" 1 "$(count_in_file '**A security finding is classed by its attack story (rule 14.4):**' "$ROOT/rules/REVIEWS.md")"
+assert_eq "3.4 the release review reads the security backlog" 1 "$(count_in_file 'It also reads the security backlog:' "$ROOT/rules/REVIEWS.md")"
+assert_eq "3.5 more lines keep development moving" 1 "$(count_in_file '**More lines, not bigger batches, is how development keeps moving.**' "$ROOT/rules/REVIEWS.md")"
+assert_eq "7.1 a plan opens with the dev mode and a threat sketch" 1 "$(count_in_file 'The plan opens with the project'"'"'s dev mode and a threat sketch' "$ROOT/rules/COLLABORATION.md")"
+assert_eq "7.4 security defects are triaged by attack story" 1 "$(count_in_file '**A security defect is triaged by its attack story instead (rule 14.4):**' "$ROOT/rules/COLLABORATION.md")"
+assert_eq "the dev-mode skill is owner-invoked only" 1 "$(count_in_file 'disable-model-invocation: true' "$ROOT/skills/dev-mode/SKILL.md")"
+assert_eq "the dev-mode skill refuses to go below the data minimum" 1 "$(count_in_file '**Lowering below the data minimum is refused**' "$ROOT/skills/dev-mode/SKILL.md")"
+assert_eq "INSTALL.md protects a user skill named dev-mode" 1 "$(count_in_file 'same name: stop and ask before replacing it.' "$ROOT/INSTALL.md")"
 
 finish

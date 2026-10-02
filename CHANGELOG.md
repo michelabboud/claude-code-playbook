@@ -4,6 +4,43 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.23 — 2026-10-02
+
+Dev modes, on the owner's word: reviews were spending most of their effort on
+exotic security edge cases, and the schedule paid for it.
+
+- **Section 14, `rules/DEV_MODES.md`** (read by path before a plan, a reviewer
+  dispatch, a security finding or a mode change): a project is a **spike, poc,
+  mvp, production or sensitive**; only the owner changes it, and real personal,
+  financial or health data sets the minimum at sensitive. The mode scales the
+  review ladder (none in a spike, pipelined milestone reviews in an MVP,
+  per-task deep reviews on floor work in sensitive). A **floor** holds in every
+  mode. **No attack story, no blocker**: a finding blocks only when its path is
+  open at the current mode; downgrading takes a reason; non-blocking findings
+  get one line and go to the backlog unverified. A **security backlog** keeps
+  every finding with the mode it is due at, with open realistic entries kept out
+  of public trees. Moving up a mode starts a **hardening phase**; **extra
+  hardening** is its own phase after production. Every plan opens with a
+  **threat sketch**.
+- **`skills/dev-mode/SKILL.md`**, the first shipped skill: `/dev-mode` shows or
+  sets the mode, refuses to go below the data minimum, and `/dev-mode harden`
+  starts extra hardening. Owner-invoked only (`disable-model-invocation`).
+- **Rules 3.1–3.5:** the mode decides how much of the ladder runs; per-task deep
+  review for security applies from MVP up and only to floor work; security
+  findings are classed by attack story and only realistic ones are validated;
+  the release review re-reads the backlog; more parallel lines, not bigger
+  batches. **7.1:** a plan opens with the mode and a threat sketch and splits
+  into lines. **7.4:** security defects are triaged by attack story.
+- **`INSTALL.md`:** the skill joins the trust, destination, copy, backup, verify,
+  restore and uninstall lists; a user's own `dev-mode` skill stops a first
+  install. Uninstall accepts a pre-0.1.23 installation that has no skill.
+- Tests: 308 wording assertions, 158 mutations (29 new), 291 installer
+  assertions (24 new: an edited skill refuses uninstall; linked or hard-linked
+  skill paths and an extra staged skill are refused).
+- ADR 0015. Verified by the suites only; no independent review was run.
+
+---
+
 ## 0.1.22 — 2026-09-28
 
 Found by the deep review of the Codex edition's port of section 13 (Codex

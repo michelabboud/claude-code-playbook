@@ -1,5 +1,7 @@
 # Progress & current standing
 
+**0.1.23, 2026-10-02 — dev modes:** section 14 and the `/dev-mode` skill; the mode sets review depth and the security bar, with a floor in every mode, a security backlog, and hardening phases. ADR 0015.
+
 **0.1.22, 2026-09-28 — process-using-a-directory rows** in every platform file, found by the Codex edition's deep review.
 
 **Owner installation, 2026-09-28:** migrated from 0.1.15 and updated to 0.1.21

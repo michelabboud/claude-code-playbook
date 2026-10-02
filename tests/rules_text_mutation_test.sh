@@ -33,6 +33,7 @@ fresh_copy() { # dest
     cp -R -- "$SRC/rules" "$1/rules"
     cp -R -- "$SRC/templates" "$1/templates"
     cp -R -- "$SRC/scripts" "$1/scripts"
+    cp -R -- "$SRC/skills" "$1/skills"
     mkdir -p -- "$1/docs"
     cp -- "$SRC/docs/index.html" "$1/docs/index.html"
     mkdir -p -- "$1/docs/guides"
@@ -430,7 +431,7 @@ check_mutation "the hygiene checkpoint no longer handing on is caught" \
 # --- INSTALL.md and the visual map -----------------------------------------
 
 check_mutation "INSTALL.md stating the wrong file count is caught" \
-    'drop_line "$M/INSTALL.md" "contains **15**" && printf "%s\n" "- \`~/.claude/rules/\` contains **14** \`.md\` files from this repository:" >> "$M/INSTALL.md"'
+    'drop_line "$M/INSTALL.md" "contains **16**" && printf "%s\n" "- \`~/.claude/rules/\` contains **15** \`.md\` files from this repository:" >> "$M/INSTALL.md"'
 
 check_mutation "the visual map losing the local layer is caught" \
     'drop_line "$M/docs/index.html" "The local layer — customizations the playbook never touches"'
@@ -519,5 +520,94 @@ check_mutation "quiescence moved out of shared preflight is caught" \
 
 check_mutation "a guide example missing its verifier is caught" \
     'drop_line "$M/docs/guides/local-layer.md" "  **Rule digest:**"'
+
+# --- Section 14, dev modes (0.1.23) ---
+
+check_mutation "14.1 only the owner changes the dev mode is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**Every project has a dev mode, and only I change it.**" "MUTATED"'
+
+check_mutation "14.1 the data sets the minimum mode is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**The data sets the minimum, not the schedule:**" "MUTATED"'
+
+check_mutation "14.1 an agent never changes the mode is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "you never change it yourself, and you never read a deadline as permission to lower it" "MUTATED"'
+
+check_mutation "14.2 the mode sets the amount and kind of review is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**The mode sets the amount and the kind of review**" "MUTATED"'
+
+check_mutation "14.2 an mvp milestone review is pipelined is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "high deep, **pipelined like a deep review — not a gate**" "MUTATED"'
+
+check_mutation "14.2 risk overrides cadence from mvp upward is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**Risk overrides cadence from mvp upward** (rule 3.2)" "MUTATED"'
+
+check_mutation "14.3 the floor holds in every mode is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**The floor — every mode, never deferred, never parked in the backlog.**" "MUTATED"'
+
+check_mutation "14.3 a floor finding blocks even in a spike is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "A floor finding is blocking in every mode, a spike included." "MUTATED"'
+
+check_mutation "14.4 no attack story means no blocker is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**No attack story, no blocker.**" "MUTATED"'
+
+check_mutation "14.4 downgrading a finding takes a reason is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**Downgrading takes a reason:**" "MUTATED"'
+
+check_mutation "14.4 an incomplete story counts as realistic is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "counts as realistic until someone completes it" "MUTATED"'
+
+check_mutation "14.4 hardening findings get one line of effort is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "no proof of concept, no deep dive, no fix proposal" "MUTATED"'
+
+check_mutation "14.5 every security finding is kept is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**The security backlog — every finding kept, none ignored.**" "MUTATED"'
+
+check_mutation "14.5 open realistic findings stay out of a public tree is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**In a public repository an open realistic finding is a map for an attacker:**" "MUTATED"'
+
+check_mutation "14.6 moving up starts a hardening phase is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**Moving up a mode is mine, and it starts a hardening phase.**" "MUTATED"'
+
+check_mutation "14.7 extra hardening is its own phase after production is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**Extra hardening is its own phase, after production.**" "MUTATED"'
+
+check_mutation "14.7 extra hardening never blocks a feature release is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "nothing in it blocks a feature release" "MUTATED"'
+
+check_mutation "14.8 security is designed in from the first plan is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "**Security is designed in, from the first plan.**" "MUTATED"'
+
+check_mutation "14.8 every plan opens with a threat sketch is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "Every plan opens with a **threat sketch**, ten lines at most" "MUTATED"'
+
+check_mutation "3.1 the dev mode scales the review ladder is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "**The project'"'"'s dev mode decides how much of this ladder runs**" "MUTATED"'
+
+check_mutation "3.2 risk overrides cadence from MVP upward is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "**Risk overrides cadence, from MVP upward** (rule 14.2)" "MUTATED"'
+
+check_mutation "3.3 security findings are classed by attack story is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "**A security finding is classed by its attack story (rule 14.4):**" "MUTATED"'
+
+check_mutation "3.4 the release review reads the security backlog is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "It also reads the security backlog:" "MUTATED"'
+
+check_mutation "3.5 more lines keep development moving is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "**More lines, not bigger batches, is how development keeps moving.**" "MUTATED"'
+
+check_mutation "7.1 a plan opens with the dev mode and a threat sketch is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "The plan opens with the project'"'"'s dev mode and a threat sketch" "MUTATED"'
+
+check_mutation "7.4 security defects are triaged by attack story is caught" \
+    'replace_in_file "$M/rules/COLLABORATION.md" "**A security defect is triaged by its attack story instead (rule 14.4):**" "MUTATED"'
+
+check_mutation "the dev-mode skill is owner-invoked only is caught" \
+    'replace_in_file "$M/skills/dev-mode/SKILL.md" "disable-model-invocation: true" "MUTATED"'
+
+check_mutation "the dev-mode skill refuses to go below the data minimum is caught" \
+    'replace_in_file "$M/skills/dev-mode/SKILL.md" "**Lowering below the data minimum is refused**" "MUTATED"'
+
+check_mutation "INSTALL.md protects a user skill named dev-mode is caught" \
+    'replace_in_file "$M/INSTALL.md" "same name: stop and ask before replacing it." "MUTATED"'
 
 finish

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="An explorable map of all fourteen sections and fifty-six rules of the Claude Code Playbook - the Mantra, the approval table, the review ladder, and the model roster.">
+<meta name="description" content="An explorable map of all fifteen sections and sixty-four rules of the Claude Code Playbook - the Mantra, the approval table, the review ladder, and the model roster.">
 <style>
 html{color-scheme:light dark}
 body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;background:#fafaf9}
@@ -287,12 +287,12 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="wrap">
 
 <header class="masthead">
-  <p class="eyebrow">Open source · MIT · v0.1.22</p>
+  <p class="eyebrow">Open source · MIT · v0.1.23</p>
   <h1>Claude Code Playbook</h1>
-  <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: fourteen sections, fifty-six rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
+  <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: fifteen sections, sixty-four rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
   <dl class="facts">
-    <div class="fact"><dt>Sections</dt><dd>14 &nbsp;<span style="color:var(--ink-3);font-weight:400">(0–13)</span></dd></div>
-    <div class="fact"><dt>Rules</dt><dd>56</dd></div>
+    <div class="fact"><dt>Sections</dt><dd>15 &nbsp;<span style="color:var(--ink-3);font-weight:400">(0–14)</span></dd></div>
+    <div class="fact"><dt>Rules</dt><dd>64</dd></div>
     <div class="fact"><dt>Auto-loaded</dt><dd>5 <span>of 13</span></dd></div>
     <div class="fact"><dt>Platform files</dt><dd>3</dd></div>
     <div class="fact"><dt>Dependencies</dt><dd style="font-size:1.05rem">shell + git</dd></div>
@@ -551,7 +551,28 @@ const S=[
    table:{h:["Refused","What the agent did next"],r:[
     ["<code>rm -rf target/</code>","Re-issued it as <code>rm -r --</code> on the same directories."],
     ["Deleting its own temporary files","Removed 2 GB of build output with <code>find -delete</code> — and said afterwards that this “defeats the intent of the guard”."]]},
-   note:{cls:"measured",html:"<b>Verified against real git before release:</b> <code>git worktree remove</code> deletes git-ignored files without asking, and removing a detached worktree leaves its commits unreachable. <code>for-each-ref --contains</code> counts a stash unless it is limited to <code>refs/heads refs/tags</code>."}}]}
+   note:{cls:"measured",html:"<b>Verified against real git before release:</b> <code>git worktree remove</code> deletes git-ignored files without asking, and removing a detached worktree leaves its commits unreachable. <code>for-each-ref --contains</code> counts a stash unless it is limited to <code>refs/heads refs/tags</code>."}}]},
+
+{n:14,name:"Dev modes",file:"rules/DEV_MODES.md",auto:false,
+ trigger:"Read by path before writing a plan, before any reviewer dispatch, on a security finding, and when the owner changes the mode with <code>/dev-mode</code>.",
+ blurb:"Asked for a production-ready app, reviewers chase exotic edge cases and the schedule pays. The project's dev mode sets how much review runs and which security findings stop the line; nothing found is ever dropped.",
+ rules:[
+  ["14.1","<strong>Every project has a dev mode, and only the owner changes it:</strong> spike · poc · mvp · production · sensitive, one line in the project's <code>CLAUDE.md</code>. <strong>The data sets the minimum:</strong> real personal, financial or health data means sensitive."],
+  ["14.2","<strong>The mode sets the amount and the kind of review</strong> — from none in a spike to per-task deep reviews on floor work in sensitive. In an MVP the milestone review is pipelined, not a gate; the release review gates in every mode that releases."],
+  ["14.3","<strong>The floor holds in every mode:</strong> no secret in code or logs, no injection on reachable input, nothing exposed without login, no data-loss path, dependencies vetted."],
+  ["14.4","<strong>No attack story, no blocker.</strong> Who, through what, what they get. Realistic at this mode → blocks; open only at a higher mode → due there; open at no mode → hardening. Downgrading takes a reason, and an exotic finding gets one line of effort."],
+  ["14.5","<strong>The security backlog keeps every finding</strong>, with the mode it is due at. Open realistic entries stay out of a public tree."],
+  ["14.6","<strong>Moving up a mode is the owner's call and starts a hardening phase</strong> from the entries due at the new mode."],
+  ["14.7","<strong>Extra hardening is its own phase after production</strong> (<code>/dev-mode harden</code>), on its own line beside feature work, never blocking a release."],
+  ["14.8","<strong>Security is designed in:</strong> every plan opens with a threat sketch of ten lines at most."]],
+ features:[
+  {t:"What each mode runs",c:"Section 3's ladder, scaled by the mode.",
+   table:{h:["Mode","Per task","Per batch","Milestone","Release"],r:[
+    ["spike","none","none","none","none"],
+    ["poc","mechanical","one deep at the end","none","deep"],
+    ["mvp","mechanical","deep, up to 10 tasks","high deep, pipelined","high deep, gate"],
+    ["production","mechanical","deep, 3–10 tasks","high deep, gate","high deep, gate"],
+    ["sensitive","mechanical + deep on floor work","deep, 3–6 tasks","high deep, gate","high deep, gate"]]}}]}
 ];
 
 const spine=document.getElementById("spine"), panel=document.getElementById("panel");

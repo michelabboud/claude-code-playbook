@@ -1,12 +1,10 @@
 # Handoff
 
 **Current seam tape:** [`docs/handoffs/2026-09-29-hygiene-back-to-back-and-installs.md`](docs/handoffs/2026-09-29-hygiene-back-to-back-and-installs.md).
-Where we are in three lines: `main` = `origin/main` = `checkpoint/0.1.22` =
-`bafad2d`, pushed and installed. Codex sister repo at `checkpoint/0.1.7`,
-pushed and installed. Next: pick the behaviour-suite plan's size (small
-recommended); decide whether the disk-floor default should follow the owner's
-local 3 % or stay at the published 10 %.
-
+Where we are in three lines: `checkpoint/0.1.23` adds dev modes (section 14,
+ADR 0015) and the first shipped skill, `/dev-mode`. The Codex edition gets the
+same in 0.1.9. Next: pick the behaviour-suite plan's size (small recommended;
+its ADRs are now 0016–0020); decide the published disk-floor default.
 ---
 
 **Owner installation, 2026-09-28:** 0.1.22 installed (backup `~/.claude/rules.backup-2026-09-28-171612/`), byte-identical to `checkpoint/0.1.22`, local layer 6/6. The Codex edition 0.1.7 ports hygiene and back-to-back tasks and is installed too, with the owner's first Codex local layer.
@@ -14,7 +12,7 @@ local 3 % or stay at the published 10 %.
 **0.1.22, 2026-09-28:** every platform file says how to find a process using a directory (a gap the Codex edition's review found in section 13's idle check).
 
 **0.1.21, 2026-09-27:** section 13, Hygiene (ADR 0014). The behaviour-suite
-plan's ADR numbers move up by one (0015–0019) when it is recorded.
+plan's ADR numbers move up by one (now 0016–0020) when it is recorded.
 
 **0.1.20, 2026-09-27:** refused means stop; worktrees removed through git.
 The behaviour-suite plan (`docs/plans/2026-09-26-behaviour-suite-plan.md`) is

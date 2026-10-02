@@ -56,7 +56,7 @@ it agrees with it.
 
 **[Open the visual map →](https://michelabboud.github.io/claude-code-playbook/)**
 
-An explorable page covering all fourteen sections and fifty-six rules: click a
+An explorable page covering all fifteen sections and sixty-four rules: click a
 section to see its trigger and its rules, plus the tables that carry the real
 structure — the approval table, the review ladder, the model roster, the close-out
 chain, and the three-way platform matrix.
@@ -186,7 +186,7 @@ what counts as blocking; a blocker stops the line, whichever kind of review foun
 
 ## How it is organised
 
-Fourteen numbered sections across fifteen files. `CLAUDE.md` holds the Mantra
+Fifteen numbered sections across sixteen files, plus one skill. `CLAUDE.md` holds the Mantra
 and an index; `rules/AUTHORITY.md` (section 0) holds precedence, the local
 layer's force, how to classify a request, and **the approval table — the
 complete list of what needs your OK**. The rest are subject files you open when
@@ -198,7 +198,9 @@ opens a source file shouldn't pay for development detail. `QUARANTINE.md` is sco
 to the quarantine vault the same way: the always-loaded `DESTRUCTIVE.md` carries
 the principle and tells the agent to read the procedure by path before a first
 quarantine. `HYGIENE.md` (section 13, how to clean up safely) is read by path the
-same way, before any cleanup. A `paths:` scope only matches files inside the session's project —
+same way, before any cleanup, and so is `DEV_MODES.md` (section 14: how much review
+and which security findings a project owes at its stage), before a plan or a review.
+The one shipped skill, `/dev-mode`, is how the owner sets that stage. A `paths:` scope only matches files inside the session's project —
 measured, not assumed — so for code outside it (dotfiles, `~/.config`, another
 repository) section 0 tells the agent to read the dev rules by path.
 
@@ -310,10 +312,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.20**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.23**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.23** | **Dev modes**, a new section 14 and the first shipped skill, `/dev-mode`: a project is a spike, poc, mvp, production or sensitive, and the mode sets the amount and kind of code review and which security findings stop the line. A floor holds in every mode; a finding blocks only with a realistic attack story; every finding goes to a security backlog; hardening runs as its own phase at each move up, and extra hardening after production. Plans open with a threat sketch and split into parallel lines. |
 | **v0.1.22** | Tasks run back to back: every plan says so, and when a task's close-out (hygiene included) finishes, the next approved task starts at once — a close-out report is a record, not a stopping point. Each platform file also says how to find a process using a directory, so the cleanup rule's idle check has a command behind it. |
 | **v0.1.21** | **Hygiene**, a new section 13: cleanup is a classification — regenerable and idle, created by this session, restorable by git, evidence, protected, unknown — and the class decides the action; a name or a `.gitignore` entry never does. Remove only what is provably yours; worktrees go through git after three checks (a stash no longer counts as reachable); large output gets a `.hygiene.json` marker at creation; hygiene runs at every close-out and below a free-space floor (10 % unless the local layer sets one), and reports what it removed, kept and would remove next. |
 | **v0.1.20** | A refused destructive command is a stop, not a spelling problem: never re-issue the same effect in another form. Worktrees are removed with `git worktree remove` (no `--force`) after three checks — ignored files preserved, commits reachable, not in use — never by deleting the folder; the owning lane locks its worktree while it works. |

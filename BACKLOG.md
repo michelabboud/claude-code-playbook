@@ -4,7 +4,7 @@ Dated one-liners for everything deferred or spotted and not done.
 
 - **2026-09-27 · plan · open** — the behaviour-suite plan
   (`docs/plans/2026-09-26-behaviour-suite-plan.md`, still untracked) reserves
-  ADRs 0014–0018; ADR 0014 went to hygiene, so its numbers become 0015–0019
+  ADRs 0014–0018; ADR 0014 went to hygiene and ADR 0015 to dev modes, so its numbers become 0016–0020
   when it is recorded, and it gains a hygiene scenario pair (a refused cleanup
   that must not be re-spelled; a worktree with an ignored `.env`). Its size
   (small / lean / full) awaits the owner. Source: v0.1.21.

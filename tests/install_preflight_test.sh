@@ -15,7 +15,7 @@ trust_fixture=$TMPROOT/source-trust
 mkdir -p "$trust_fixture/published" || exit 2
 cp "$ROOT/CLAUDE.md" "$ROOT/VERSION" "$ROOT/INSTALL.md" "$ROOT/CHANGELOG.md" \
     "$trust_fixture/published/" || exit 2
-cp -R "$ROOT/rules" "$ROOT/scripts" "$ROOT/templates" "$trust_fixture/published/" || exit 2
+cp -R "$ROOT/rules" "$ROOT/scripts" "$ROOT/templates" "$ROOT/skills" "$trust_fixture/published/" || exit 2
 release_version=$(sed -n '1p' "$trust_fixture/published/VERSION")
 git -C "$trust_fixture/published" init -q || exit 2
 git -C "$trust_fixture/published" config user.name Fixture || exit 2
@@ -199,10 +199,12 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
     installed=$TMPROOT/no-backup-install
     mkdir -p "$installed/rules/platform"
     cp "$ROOT/CLAUDE.md" "$installed/CLAUDE.md"
-    for managed in AUTHORITY CODE COLLABORATION DESTRUCTIVE DOCS ENVIRONMENT HYGIENE QUARANTINE REPO REVIEWS ROSTER SUBAGENTS TESTING WORKFLOW WRITING; do
+    for managed in AUTHORITY CODE COLLABORATION DESTRUCTIVE DEV_MODES DOCS ENVIRONMENT HYGIENE QUARANTINE REPO REVIEWS ROSTER SUBAGENTS TESTING WORKFLOW WRITING; do
         cp "$ROOT/rules/$managed.md" "$installed/rules/$managed.md"
     done
     cp "$ROOT/rules/platform/$platform" "$installed/rules/platform/$platform"
+    mkdir -p "$installed/skills/dev-mode"
+    cp "$ROOT/skills/dev-mode/SKILL.md" "$installed/skills/dev-mode/SKILL.md"
     sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
         "$TMPROOT/$guard.sh" "$installed" "$source_checkout" "$TMPROOT/clean-continued" \
         >"$TMPROOT/content-output" 2>&1
@@ -218,6 +220,14 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
     [ ! -e "$TMPROOT/edited-continued" ] && _pass "edited continuation unreachable" || _fail "edited continuation unreachable" "marker exists"
     assert_files_identical "edited managed bytes preserved" "$installed/rules/AUTHORITY.md" "$TMPROOT/owner-edit-original"
     cp "$ROOT/rules/AUTHORITY.md" "$installed/rules/AUTHORITY.md"
+
+    printf '\nowner skill edit\n' >>"$installed/skills/dev-mode/SKILL.md"
+    sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
+        "$TMPROOT/$guard.sh" "$installed" "$source_checkout" "$TMPROOT/skill-continued" \
+        >"$TMPROOT/content-output" 2>&1
+    assert_status "edited dev-mode skill refuses before deletion" 2 "$?"
+    [ ! -e "$TMPROOT/skill-continued" ] && _pass "skill continuation unreachable" || _fail "skill continuation unreachable" "marker exists"
+    cp "$ROOT/skills/dev-mode/SKILL.md" "$installed/skills/dev-mode/SKILL.md"
 
     printf '\nowner platform edit\n' >>"$installed/rules/platform/$platform"
     sh -c '. "$1"; uninstall_managed_file_preflight "$2" "$3" || exit 2; : > "$4"' sh \
@@ -312,11 +322,14 @@ if [ -s "$TMPROOT/$guard-original.sh" ]; then
     assert_files_identical "baseline refusal preserves hidden historical edit" \
         "$historical_checkout/rules/AUTHORITY.md" "$trust_fixture/historical-edited-original"
 
-    for extra in markdown symlink; do
+    for extra in markdown symlink skill; do
         checkout=$trust_fixture/extra-$extra
         git clone -q "$trust_fixture/published" "$checkout" || exit 2
         if [ "$extra" = markdown ]; then
             printf 'unpublished active rules\n' >"$checkout/rules/EVIL.md"
+        elif [ "$extra" = skill ]; then
+            mkdir -p "$checkout/skills/evil" || exit 2
+            printf 'unpublished active skill\n' >"$checkout/skills/evil/SKILL.md"
         else
             ln -s ../CLAUDE.md "$checkout/rules/EVIL.md" || exit 2
         fi
@@ -413,7 +426,7 @@ awk -v name="$guard" '
 ' "$ROOT/INSTALL.md" >"$TMPROOT/$guard.sh"
 assert_status "destination root guard exists as an executable preflight" 0 "$?"
 if [ -s "$TMPROOT/$guard.sh" ]; then
-    for state in absent directory ancestor-link config-link rules-link platform-link claude-link managed-link claude-hardlink managed-hardlink newline-root config-dangling rules-dangling platform-dangling claude-dangling; do
+    for state in absent directory ancestor-link config-link rules-link platform-link claude-link managed-link skills-link skilldir-link skill-link skill-hardlink claude-hardlink managed-hardlink newline-root config-dangling rules-dangling platform-dangling claude-dangling; do
         case_dir=$TMPROOT/destination-$state
         config_dir=$case_dir/config
         mkdir -p "$case_dir/external/rules/platform" || exit 2
@@ -441,6 +454,18 @@ if [ -s "$TMPROOT/$guard.sh" ]; then
             managed-link)
                 mkdir -p "$config_dir/rules"
                 ln -s "$case_dir/external/rules/owner.txt" "$config_dir/rules/AUTHORITY.md" ;;
+            skills-link)
+                mkdir -p "$config_dir"
+                ln -s "$case_dir/external" "$config_dir/skills" ;;
+            skilldir-link)
+                mkdir -p "$config_dir/skills"
+                ln -s "$case_dir/external" "$config_dir/skills/dev-mode" ;;
+            skill-link)
+                mkdir -p "$config_dir/skills/dev-mode"
+                ln -s "$case_dir/external/owner.txt" "$config_dir/skills/dev-mode/SKILL.md" ;;
+            skill-hardlink)
+                mkdir -p "$config_dir/skills/dev-mode"
+                ln "$case_dir/external/owner.txt" "$config_dir/skills/dev-mode/SKILL.md" ;;
             claude-hardlink)
                 mkdir -p "$config_dir"
                 ln "$case_dir/external/owner.txt" "$config_dir/CLAUDE.md" ;;

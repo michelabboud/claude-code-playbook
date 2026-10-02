@@ -38,6 +38,9 @@ a single file cannot:
    detail. `QUARANTINE` is scoped to the quarantine vault and read by path before
    a first quarantine; `HYGIENE` is scoped to worktrees and read by path before any
    cleanup — neither procedure pays for itself in a session that never cleans up.
+   `DEV_MODES` is scoped to plans and the security backlog and read by path before
+   a plan or a reviewer dispatch. `skills/dev-mode/` is the one shipped skill, set
+   to owner-invoked only so that a mode change is always the owner's word.
    `AUTHORITY.md` summarises only these files — an always-loaded
    file is never summarised, because the copy would be a second place for the law
    to drift (ADR 0011). A scope only matches files inside the session's project
