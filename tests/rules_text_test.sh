@@ -659,4 +659,13 @@ assert_eq "the dev-mode skill is owner-invoked only" 1 "$(count_in_file 'disable
 assert_eq "the dev-mode skill refuses to go below the data minimum" 1 "$(count_in_file '**Lowering below the data minimum is refused**' "$ROOT/skills/dev-mode/SKILL.md")"
 assert_eq "INSTALL.md protects a user skill named dev-mode" 1 "$(count_in_file 'same name: stop and ask before replacing it.' "$ROOT/INSTALL.md")"
 
+# Committing and pushing is a standing request (0.1.24).
+assert_eq "the front page makes committing and pushing a standing request" 1 "$(count_in_file '**Committing and pushing is my standing request.**' "$ROOT/CLAUDE.md")"
+assert_eq "the front page answers the harness commit default" 1 "$(count_in_file 'it answers any harness default that says to commit or push only when asked' "$ROOT/CLAUDE.md")"
+assert_eq "the front page says an uncommitted task is not done" 1 "$(count_in_file 'An uncommitted task is not done.' "$ROOT/CLAUDE.md")"
+assert_eq "section 0 restates the standing commit request" 1 "$(count_in_file '**This is my explicit, standing request to commit and push**' "$ROOT/rules/AUTHORITY.md")"
+assert_eq "rule 6.1 makes commit and push a standing request" 1 "$(count_in_file '**This is my explicit, standing request — given once, for every session**' "$ROOT/rules/WORKFLOW.md")"
+assert_eq "rule 6.1 never waits to be asked" 1 "$(count_in_file 'never wait to be asked, and never end a task' "$ROOT/rules/WORKFLOW.md")"
+assert_eq "rule 6.1 reports a failed commit or push" 1 "$(count_in_file 'is reported with the error, never left silent' "$ROOT/rules/WORKFLOW.md")"
+
 finish

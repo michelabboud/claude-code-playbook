@@ -4,6 +4,23 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.24 — 2026-10-04
+
+Sessions had stopped committing and pushing after each task. Cause: Claude
+Code's own instructions say never to commit or push unless the user asks, and
+the rulebook answered that only through its general precedence paragraph, while
+the full rule 6.1 loads only when source inside the project is touched.
+
+- **Front page (`CLAUDE.md`), section 0's 6.1 line and rule 6.1** now say that
+  committing, tagging and pushing at every task close-out is the owner's
+  explicit, standing request, which answers a commit-only-when-asked default.
+  Exceptions are the owner's: "local only", review-only requests, a pause. An
+  uncommitted task is not done; a failed commit or push is reported with its
+  error.
+- Tests: 315 wording assertions, 165 mutations (7 new).
+
+---
+
 ## 0.1.23 — 2026-10-02
 
 Dev modes, on the owner's word: reviews were spending most of their effort on

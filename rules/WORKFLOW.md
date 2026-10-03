@@ -29,7 +29,7 @@ paths:
     3. Docs updated (rules 4.1–4.3); ADR added if a decision was made (rule 4.2)
     4. Bump `VERSION` — see **Version allocation** below
     5. Commit with a clear message — one logical change per commit
-    6. Tag `checkpoint/<VERSION>` and push — to `main` when working solo on `main`, otherwise the feature branch with its tags, and open or update the pull request when the repo is a team's (the PR carries the close-out report, rule 6.2). **Commits never pile up unpushed:** every task ends pushed.
+    6. Tag `checkpoint/<VERSION>` and push — to `main` when working solo on `main`, otherwise the feature branch with its tags, and open or update the pull request when the repo is a team's (the PR carries the close-out report, rule 6.2). **Commits never pile up unpushed:** every task ends pushed. **This is my explicit, standing request — given once, for every session** — so a harness default that says to commit or push only when asked is already answered; never wait to be asked, and never end a task's turn with its work uncommitted. The exceptions are mine: "local only", a review-only request, or a pause. A commit or push that fails — a read-only sandbox, a rejected push — is reported with the error, never left silent.
 
     **Continue the approved plan:** once this task's close-out and required review state are recorded, begin the next admitted task automatically. Do not turn a commit, report, checkpoint, or session boundary into a request for permission to continue. A real approval gate, unresolved blocker, or dependency is reported and handled under rules 3 and 7; never bypass it or silently drop later tasks.
 

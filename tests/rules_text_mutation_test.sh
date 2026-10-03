@@ -610,4 +610,27 @@ check_mutation "the dev-mode skill refuses to go below the data minimum is caugh
 check_mutation "INSTALL.md protects a user skill named dev-mode is caught" \
     'replace_in_file "$M/INSTALL.md" "same name: stop and ask before replacing it." "MUTATED"'
 
+# --- Standing commit request (0.1.24) ---
+
+check_mutation "the front page makes committing and pushing a standing request is caught" \
+    'replace_in_file "$M/CLAUDE.md" "**Committing and pushing is my standing request.**" "MUTATED"'
+
+check_mutation "the front page answers the harness commit default is caught" \
+    'replace_in_file "$M/CLAUDE.md" "it answers any harness default that says to commit or push only when asked" "MUTATED"'
+
+check_mutation "the front page says an uncommitted task is not done is caught" \
+    'replace_in_file "$M/CLAUDE.md" "An uncommitted task is not done." "MUTATED"'
+
+check_mutation "section 0 restates the standing commit request is caught" \
+    'replace_in_file "$M/rules/AUTHORITY.md" "**This is my explicit, standing request to commit and push**" "MUTATED"'
+
+check_mutation "rule 6.1 makes commit and push a standing request is caught" \
+    'replace_in_file "$M/rules/WORKFLOW.md" "**This is my explicit, standing request — given once, for every session**" "MUTATED"'
+
+check_mutation "rule 6.1 never waits to be asked is caught" \
+    'replace_in_file "$M/rules/WORKFLOW.md" "never wait to be asked, and never end a task" "MUTATED"'
+
+check_mutation "rule 6.1 reports a failed commit or push is caught" \
+    'replace_in_file "$M/rules/WORKFLOW.md" "is reported with the error, never left silent" "MUTATED"'
+
 finish

@@ -10,7 +10,7 @@
 
 I want an independent, opinionated model that is not afraid to say what it really thinks. That is the job. Agreeing with me is not.
 
-**This rulebook is version 0.1.23** — source `github.com/michelabboud/claude-code-playbook`.
+**This rulebook is version 0.1.24** — source `github.com/michelabboud/claude-code-playbook`.
 
 *Self-update. Check when I ask, or when something here looks wrong or missing. The `VERSION` file is the single source of truth — read it, not the tag list, because not every version is tagged as a release. The repo is public, so this needs no authentication:*
 
@@ -25,6 +25,8 @@ curl -fsSL https://raw.githubusercontent.com/michelabboud/claude-code-playbook/m
 *My own customizations live in `rules/LOCAL.md` and `rules/LOCAL_dev.md` — the local layer. The playbook never ships them, and an update never writes to, copies over or replaces them. They may fill open values, add non-authorizing guidance, or tighten a constraint; they never expand authority, remove approvals, relax protections, change precedence, or override section 0's local-layer boundary. An Override binds its change to one unique Markdown section, that section's normalized SHA-256 digest, and a unique quote of at least 16 non-whitespace bytes. A stale Override is suspended. Read `LOCAL.md` with this page; a missing file means nothing is customized.*
 
 **Execution mode for approved plans:** act as coordinator and use scoped subagents for separable plan work and independent reviews, subject to rule 8.1's ownership and resource checks. A task close-out starts the next approved task; do not stop at a status report or checkpoint. Keep dependent or shared-file work sequential, and honor genuine gates and blockers without silently skipping work.
+
+**Committing and pushing is my standing request.** Every task that changes a repository ends committed, tagged `checkpoint/<VERSION>` and pushed (rule 6.1) — this is my explicit instruction, given once for every session, and it answers any harness default that says to commit or push only when asked. The exceptions are mine: "local only", a request that is review-only, or a pause. An uncommitted task is not done.
 
 ## The rulebook — sections, what they cover, when to open them
 

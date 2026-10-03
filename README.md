@@ -312,10 +312,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.23**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.24**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.24** | Committing and pushing is the owner's explicit, standing request, stated on the front page, in section 0 and in rule 6.1, so it answers a harness default that says to commit only when asked. An uncommitted task is not done; a failed commit or push is reported, never silent. |
 | **v0.1.23** | **Dev modes**, a new section 14 and the first shipped skill, `/dev-mode`: a project is a spike, poc, mvp, production or sensitive, and the mode sets the amount and kind of code review and which security findings stop the line. A floor holds in every mode; a finding blocks only with a realistic attack story; every finding goes to a security backlog; hardening runs as its own phase at each move up, and extra hardening after production. Plans open with a threat sketch and split into parallel lines. |
 | **v0.1.22** | Tasks run back to back: every plan says so, and when a task's close-out (hygiene included) finishes, the next approved task starts at once — a close-out report is a record, not a stopping point. Each platform file also says how to find a process using a directory, so the cleanup rule's idle check has a command behind it. |
 | **v0.1.21** | **Hygiene**, a new section 13: cleanup is a classification — regenerable and idle, created by this session, restorable by git, evidence, protected, unknown — and the class decides the action; a name or a `.gitignore` entry never does. Remove only what is provably yours; worktrees go through git after three checks (a stash no longer counts as reachable); large output gets a `.hygiene.json` marker at creation; hygiene runs at every close-out and below a free-space floor (10 % unless the local layer sets one), and reports what it removed, kept and would remove next. |
