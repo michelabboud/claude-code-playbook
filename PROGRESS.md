@@ -1,5 +1,7 @@
 # Progress & current standing
 
+**0.1.25, 2026-10-05 — cleanup never stalls on a spelling;** the disk floor triggers cleanup and never stops work by itself.
+
 **0.1.24, 2026-10-04 — commit and push is a standing request**, stated where every session sees it, answering the harness default that waits to be asked.
 
 **0.1.23, 2026-10-02 — dev modes:** section 14 and the `/dev-mode` skill; the mode sets review depth and the security bar, with a floor in every mode, a security backlog, and hardening phases. ADR 0015.

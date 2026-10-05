@@ -128,8 +128,8 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 | 13.2 | **Remove only what is provably yours** — created by this session, locked by your lane, or marked for your task; everything else is reported, not touched. |
 | 13.3 | **Worktrees go through git after three checks** — ignored files, commits reachable from a branch or tag, not in use; then `git worktree remove` without `--force`. |
 | 13.4 | **Make things cleanable when you create them** — known places, and a `.hygiene.json` marker on anything large or long-lived elsewhere. |
-| 13.5 | **Run it at close-out, before heavy disk use, and below the disk floor; end with a report** — removed, kept, and the next candidates for me with what each would cost. |
-| 13.6 | **A refusal ends the attempt** — reclassify, then quarantine or list it for me; never re-issue the same effect (rule 10.1). |
+| 13.5 | **Run it at close-out, before heavy disk use, and below the disk floor; end with a report** — removed, kept, and the next candidates for me with what each would cost. The floor never stops work by itself; only a step that measurably will not fit does. |
+| 13.6 | **A refusal ends the attempt** — reclassify, then quarantine or list it for me; never re-issue the same effect (rule 10.1), except build output proven regenerable and idle whose command form was refused: its toolchain clean command, once. |
 
 ### 14 · Dev modes — `rules/DEV_MODES.md`
 *Trigger: before writing a plan, before any reviewer dispatch, when a review returns a security finding, and when I change a project's mode. Read it by path; it does not load every session.*

@@ -365,8 +365,16 @@ assert_eq "check 2 covers the worktree's own HEAD log" \
     1 "$(count_in_text 'if `git -C <worktree> reflog` shows commits you moved away from' "$WT")"
 assert_eq "branches go with git branch -d, never -D on unique work" \
     1 "$(count_in_text 'Never use `git branch -D` on a branch with unique work' "$WT2")"
-assert_eq "rule 10.1 names cargo clean as a same-effect example" \
-    1 "$(count_in_text '`rm -r` or `cargo clean` for a refused `rm -rf target/`' "$R101")"
+assert_eq "rule 10.1 names a same-effect example outside build output" \
+    1 "$(count_in_text '`rm -r` for a refused `rm -rf logs/`' "$R101")"
+assert_eq "rule 10.1 makes build output the one exception" \
+    1 "$(count_in_text '**Build output is the one exception, so cleanup never stalls on a spelling.**' "$R101")"
+assert_eq "rule 10.1 routes build output through the toolchain clean command" \
+    1 "$(count_in_text 'remove it once by the toolchain'"'"'s own clean command (`cargo clean`, `go clean -cache`)' "$R101")"
+assert_eq "rule 10.1 exception covers only a refused form, not a refused target" \
+    1 "$(count_in_text 'a guard refused only the command'"'"'s form — a flag such as `-f`, not the target' "$R101")"
+assert_eq "rule 10.1 exception ends at a second refusal or a decline" \
+    1 "$(count_in_text 'If that is refused too, or the refusal named the target, or I declined, it is a stop.' "$R101")"
 assert_eq "rule 10.1 names quarantine as the one sanctioned move" \
     1 "$(count_in_text 'rule 10.3 — the one sanctioned move' "$R101")"
 assert_eq "rule 10.1 counts the owner declining as a refusal" \
@@ -667,5 +675,10 @@ assert_eq "section 0 restates the standing commit request" 1 "$(count_in_file '*
 assert_eq "rule 6.1 makes commit and push a standing request" 1 "$(count_in_file '**This is my explicit, standing request — given once, for every session**' "$ROOT/rules/WORKFLOW.md")"
 assert_eq "rule 6.1 never waits to be asked" 1 "$(count_in_file 'never wait to be asked, and never end a task' "$ROOT/rules/WORKFLOW.md")"
 assert_eq "rule 6.1 reports a failed commit or push" 1 "$(count_in_file 'is reported with the error, never left silent' "$ROOT/rules/WORKFLOW.md")"
+
+# Cleanup never stalls on a spelling; the floor is not a stop (0.1.25).
+assert_eq "13.5 the floor never stops work by itself" 1 "$(count_in_file '**The floor never stops work by itself:**' "$H")"
+assert_eq "13.5 stops only for a step that will not fit" 1 "$(count_in_file 'Stop only for a step whose measured need will not fit in the space left' "$H")"
+assert_eq "13.6 allows only the build-output route" 1 "$(count_in_file 'except rule 10.1'"'"'s route for build output proven regenerable and idle, once' "$H")"
 
 finish

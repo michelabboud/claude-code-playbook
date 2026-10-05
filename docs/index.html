@@ -287,7 +287,7 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="wrap">
 
 <header class="masthead">
-  <p class="eyebrow">Open source · MIT · v0.1.24</p>
+  <p class="eyebrow">Open source · MIT · v0.1.25</p>
   <h1>Claude Code Playbook</h1>
   <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: fifteen sections, sixty-four rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
   <dl class="facts">
@@ -544,8 +544,8 @@ const S=[
   ["13.2","<strong>Remove only what is provably yours:</strong> this session created it, your lane holds its lock, or its marker names your task. Everything else goes in the report, untouched."],
   ["13.3","<strong>Worktrees go through git, after three checks:</strong> ignored files preserved (removal deletes them silently), commits reachable from a branch or tag (a stash is not enough), nothing using it. Then <code>git worktree remove</code> without <code>--force</code>. The creating lane locks it and removes it."],
   ["13.4","<strong>Make things cleanable when you create them.</strong> Large or long-lived output outside an obvious home gets a <code>.hygiene.json</code> marker: owner, task, created, disposable, regenerate. A marker never moves an item out of the protected or evidence class, and one you did not write is evidence, not permission."],
-  ["13.5","<strong>When it runs, and what it reports.</strong> Every close-out and phase end, before disk-heavy work, and below the free-space floor (10 % unless the local layer sets one). Low space calls for this procedure, never for broader deletion. The report: removed, kept and why, next candidates largest first."],
-  ["13.6","<strong>A refusal ends the attempt.</strong> A refused removal is never re-issued in another form; reclassify, then quarantine or report it."]],
+  ["13.5","<strong>When it runs, and what it reports.</strong> Every close-out and phase end, before disk-heavy work, and below the free-space floor (10 % unless the local layer sets one). Low space calls for this procedure, never for broader deletion, and the floor never stops work by itself — only a step that measurably will not fit does. The report: removed, kept and why, next candidates largest first."],
+  ["13.6","<strong>A refusal ends the attempt.</strong> A refused removal is never re-issued in another form; reclassify, then quarantine or report it. The one exception: build output proven regenerable and idle whose command form (a flag such as <code>-f</code>) was refused goes once by its toolchain's clean command."]],
  features:[
   {t:"Two sessions that wrote this section",c:"Both targets were legitimate build output. Both workarounds were not.",
    table:{h:["Refused","What the agent did next"],r:[

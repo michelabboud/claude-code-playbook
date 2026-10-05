@@ -4,6 +4,31 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.25 — 2026-10-05
+
+A Codex session stopped a release at 31.97 GB free, under its 32.43 GB floor,
+because Codex's built-in check refused `rm -rf` on 1.5 GB of idle compiler
+cache ("rm -f style commands are not permitted. Use a safer approach"), and
+rule 10.1 forbade every other route, `cargo clean` by name. Measured the same
+day with codex-cli 0.159.1: `rm -rf` is rejected; `rm -r`, `find -delete` and
+`cargo clean` are not. The owner: "i don't want claude or codex get stuck on
+cleanup because of non destructive rules".
+
+- **Rule 10.1:** a refused command is still a stop, with one exception: build
+  output proven regenerable and idle (rule 13.1's first class), whose removal
+  is already authorized, goes once by its toolchain's clean command or the form
+  the refusal leaves open, when the guard refused only the command's form. A
+  second refusal, a refusal naming the target, or the owner's no is a stop.
+- **Rule 13.5:** the floor never stops work by itself; below it, clean up what
+  is provably yours, report, keep working. Only a step whose measured need will
+  not fit stops, with what it needs and what would free it.
+- **Rule 13.6** points to that exception; section 0's summary and the visual
+  map follow.
+- Tests: 322 wording assertions, 171 mutations (6 new; the retired `cargo
+  clean` example's test replaced).
+
+---
+
 ## 0.1.24 — 2026-10-04
 
 Sessions had stopped committing and pushing after each task. Cause: Claude

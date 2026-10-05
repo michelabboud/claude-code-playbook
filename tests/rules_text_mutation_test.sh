@@ -272,8 +272,26 @@ check_mutation "the ancestor-of-main branch check dropping is caught" \
 check_mutation "the owner declining no longer counting as a refusal is caught" \
     'replace_in_file "$M/rules/DESTRUCTIVE.md" "or I decline it, never re-issue" "never re-issue"'
 
-check_mutation "rule 10.1 losing its cargo clean example is caught" \
-    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`rm -r\` or \`cargo clean\` for" "\`rm -r\` for"'
+check_mutation "rule 10.1 losing its same-effect example is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "\`rm -r\` for a refused \`rm -rf logs/\`" "a re-spelling"'
+
+check_mutation "rule 10.1 losing the build-output exception is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "**Build output is the one exception, so cleanup never stalls on a spelling.**" ""'
+
+check_mutation "rule 10.1 exception widening to a refused target is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "a flag such as \`-f\`, not the target" "or the target"'
+
+check_mutation "rule 10.1 exception allowing retries after a second refusal is caught" \
+    'replace_in_file "$M/rules/DESTRUCTIVE.md" "If that is refused too, or the refusal named the target, or I declined, it is a stop." "Retry until it works."'
+
+check_mutation "13.5 floor stopping work by itself is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "**The floor never stops work by itself:**" "**The floor stops work:**"'
+
+check_mutation "13.5 stopping without a measured need is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "Stop only for a step whose measured need will not fit in the space left" "Stop when below the floor"'
+
+check_mutation "13.6 exception widening beyond build output is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "except rule 10.1'"'"'s route for build output proven regenerable and idle, once" "except when you are sure"'
 
 check_mutation "rule 10.1 losing quarantine as the sanctioned move is caught" \
     'replace_in_file "$M/rules/DESTRUCTIVE.md" "rule 10.3 — the one sanctioned move" "rule 10.3"'
