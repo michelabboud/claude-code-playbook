@@ -657,4 +657,37 @@ check_mutation "13.6 losing refusal-is-not-a-classification is caught" \
 check_mutation "13.6 letting a recorded refusal make a keep is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "never turns it into something to keep" "makes it something to keep"'
 
+check_mutation "3.1 losing the automated-checks task row is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "| automated checks — tests, lint, type checks (rule 2.2) |" "| mechanical |"'
+
+check_mutation "3.1 losing side-by-side batch review is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "| mechanical and deep, side by side on the same range |" "| deep |"'
+
+check_mutation "3.1 mechanical review back to per task is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "**Per batch**, side by side with the deep review on the same pinned range" "**Per task**"'
+
+check_mutation "3.1 losing the automated-check gate is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "**Per task, the automated checks are the gate:**" "MUTATED"'
+
+check_mutation "3.1 deep batch back to 3-10 is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "**Per batch** of 5–15 tasks, or about 2,000 changed lines, whichever comes first" "**Per batch** of 3–10 tasks"'
+
+check_mutation "3.2 losing the 2,000-line figure is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "(b) the diff passes about 2,000 changed lines — a starting value, not a measurement" "(b) the diff has outgrown what one reviewer can hold"'
+
+check_mutation "3.2 widening task-grain deep review is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "or unsafe code gets the deep review at task grain, always" "and concurrency, data-safety, unsafe-code and public-API tasks get the deep review at task grain, always"'
+
+check_mutation "3.2 losing batch placement for concurrency tasks is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "**Concurrency, public-API and other data-path tasks stay in the batch:**" "MUTATED"'
+
+check_mutation "14.2 production back to deep-only batches is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "| **production** | automated checks | mechanical and deep, 5–15 tasks or about 2,000 lines |" "| **production** | mechanical | deep, 3–10 tasks |"'
+
+check_mutation "14.2 sensitive losing small batches is caught" \
+    'replace_in_file "$M/rules/DEV_MODES.md" "mechanical and deep, 3–6 tasks or about 1,000 lines" "mechanical and deep, 5–15 tasks"'
+
+check_mutation "section 0 back to mechanical per task is caught" \
+    'replace_in_file "$M/rules/AUTHORITY.md" "**Automated checks per task; mechanical and deep review side by side per batch;" "**Mechanical review per task, deep per batch,"'
+
 finish

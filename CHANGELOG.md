@@ -4,6 +4,26 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.27 — 2026-10-09
+
+Reviews were slowing development even though development never waited for a
+verdict: a mechanical review ran after every task, and "risk overrides cadence"
+sent nearly every concurrency, data or API task to its own deep review.
+
+- **Rule 3.1:** each task is gated by its automated checks (tests, lint, type
+  checks). The mechanical review moves to the batch and runs side by side with
+  the deep review on the same pinned range.
+- **Rules 3.1–3.2:** a batch is 5–15 tasks or about 2,000 changed lines,
+  whichever comes first — a starting value the close-out numbers move. Deep
+  review at task grain only for the security floor and unsafe code;
+  concurrency, public-API and data-path tasks go early in the batch and are
+  named in its brief.
+- **Rule 14.2:** the dev-mode table follows; sensitive keeps 3–6 tasks or about
+  1,000 lines. Section 0, the front page, the README and the site follow.
+- ADR 0021. Tests: 337 wording assertions (13 new), 184 mutations (11 new).
+
+---
+
 ## 0.1.26 — 2026-10-09
 
 A Codex session kept a 3.3 GB idle compiler cache for days because an earlier

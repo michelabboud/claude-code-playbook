@@ -174,8 +174,8 @@ sits waiting for is a stall, so the rulebook pipelines them:
 
 | Kind | Closes | While it runs, development… |
 |---|---|---|
-| **Mechanical** | every task | never waits |
-| **Deep** | every batch of 3–10 tasks | keeps going — a line carries at most **three unruled** batches, the one being built included (*unruled*: started, and not yet settled — a review that has returned with open findings still counts); every landing belongs to the open batch — an ad-hoc one for unplanned work — except a reviewed fix for a recorded finding, so at three with none open only fixes land; counted by git ancestry as a set, against a ledger the coordinator keeps; worked cases are part of the rule |
+| **Automated checks** | every task — tests, lint, type checks | never waits |
+| **Mechanical** and **deep**, side by side | every batch of 5–15 tasks, or about 2,000 changed lines | keeps going — a line carries at most **three unruled** batches, the one being built included (*unruled*: started, and not yet settled — a review that has returned with open findings still counts); every landing belongs to the open batch — an ad-hoc one for unplanned work — except a reviewed fix for a recorded finding, so at three with none open only fixes land; counted by git ancestry as a set, against a ledger the coordinator keeps; worked cases are part of the rule |
 | **High deep** | a milestone or a release | waits — it may revise the plan, and the wait works the queue of minor findings |
 
 What makes that safe is mechanics, not optimism: **a review's input is a commit,
@@ -312,10 +312,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.26**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.27**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.27** | Reviews batch more: each task is gated by its automated checks (tests, lint, type checks), and the mechanical review runs per batch, side by side with the deep review. A batch is 5–15 tasks or about 2,000 changed lines. Only security-floor and unsafe-code tasks get a deep review on their own; concurrency, data and API tasks go early in the batch and are named in its brief. ADR 0021. |
 | **v0.1.26** | A refusal is not a classification: a refused removal stops that command, but proven build output stays removable by the build tool's clean command, and a refusal noted in a handoff never turns it into something to keep. |
 | **v0.1.25** | Cleanup no longer stalls on a spelling: when a guard refuses only the form of a command (a flag such as `-f`) on build output proven regenerable and idle, the session removes it once with the toolchain's clean command (`cargo clean`) or the form the guard allows. The disk floor triggers cleanup and never stops work by itself; only a step that measurably will not fit does. |
 | **v0.1.24** | Committing and pushing is the owner's explicit, standing request, stated on the front page, in section 0 and in rule 6.1, so it answers a harness default that says to commit only when asked. An uncommitted task is not done; a failed commit or push is reported, never silent. |
