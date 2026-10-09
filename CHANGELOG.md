@@ -4,6 +4,21 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.26 — 2026-10-09
+
+A Codex session kept a 3.3 GB idle compiler cache for days because an earlier
+refusal had been written into its notes as "refused deletion, must keep", and
+it then retried the identical refused `rm -rf` instead of the build tool's
+clean command.
+
+- **Rule 13.6:** a refusal is not a classification. It stops that command; it
+  does not make the item protected. Proven build output stays removable by rule
+  10.1's route, and a refusal recorded in a note or handoff never turns it into
+  something to keep. Section 0's summary follows.
+- Tests: 324 wording assertions, 173 mutations (2 new).
+
+---
+
 ## 0.1.25 — 2026-10-05
 
 A Codex session stopped a release at 31.97 GB free, under its 32.43 GB floor,

@@ -1,5 +1,7 @@
 # Progress & current standing
 
+**0.1.26, 2026-10-09 — a refusal is not a classification** (rule 13.6).
+
 **0.1.25, 2026-10-05 — cleanup never stalls on a spelling;** the disk floor triggers cleanup and never stops work by itself.
 
 **0.1.24, 2026-10-04 — commit and push is a standing request**, stated where every session sees it, answering the harness default that waits to be asked.

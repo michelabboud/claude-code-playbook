@@ -651,4 +651,10 @@ check_mutation "rule 6.1 never waits to be asked is caught" \
 check_mutation "rule 6.1 reports a failed commit or push is caught" \
     'replace_in_file "$M/rules/WORKFLOW.md" "is reported with the error, never left silent" "MUTATED"'
 
+check_mutation "13.6 losing refusal-is-not-a-classification is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "**A refusal is not a classification:**" "**A refusal marks it protected:**"'
+
+check_mutation "13.6 letting a recorded refusal make a keep is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "never turns it into something to keep" "makes it something to keep"'
+
 finish

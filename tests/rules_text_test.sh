@@ -681,4 +681,7 @@ assert_eq "13.5 the floor never stops work by itself" 1 "$(count_in_file '**The 
 assert_eq "13.5 stops only for a step that will not fit" 1 "$(count_in_file 'Stop only for a step whose measured need will not fit in the space left' "$H")"
 assert_eq "13.6 allows only the build-output route" 1 "$(count_in_file 'except rule 10.1'"'"'s route for build output proven regenerable and idle, once' "$H")"
 
+assert_eq "13.6 a refusal is not a classification" 1 "$(count_in_file '**A refusal is not a classification:**' "$H")"
+assert_eq "13.6 a recorded refusal never makes build output a keep" 1 "$(count_in_file 'never turns it into something to keep' "$H")"
+
 finish

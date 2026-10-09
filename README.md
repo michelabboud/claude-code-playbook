@@ -312,10 +312,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.25**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.26**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.26** | A refusal is not a classification: a refused removal stops that command, but proven build output stays removable by the build tool's clean command, and a refusal noted in a handoff never turns it into something to keep. |
 | **v0.1.25** | Cleanup no longer stalls on a spelling: when a guard refuses only the form of a command (a flag such as `-f`) on build output proven regenerable and idle, the session removes it once with the toolchain's clean command (`cargo clean`) or the form the guard allows. The disk floor triggers cleanup and never stops work by itself; only a step that measurably will not fit does. |
 | **v0.1.24** | Committing and pushing is the owner's explicit, standing request, stated on the front page, in section 0 and in rule 6.1, so it answers a harness default that says to commit only when asked. An uncommitted task is not done; a failed commit or push is reported, never silent. |
 | **v0.1.23** | **Dev modes**, a new section 14 and the first shipped skill, `/dev-mode`: a project is a spike, poc, mvp, production or sensitive, and the mode sets the amount and kind of code review and which security findings stop the line. A floor holds in every mode; a finding blocks only with a realistic attack story; every finding goes to a security backlog; hardening runs as its own phase at each move up, and extra hardening after production. Plans open with a threat sketch and split into parallel lines. |
