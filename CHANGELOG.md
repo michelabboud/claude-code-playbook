@@ -4,6 +4,20 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.28 — 2026-10-10
+
+- **Roster:** a new mechanical review seat. Qualified: the Standard tier and
+  **Claude Haiku 5.5**, on the owner's word after one first comparison (all
+  ten seeded defects found twice; on a real file, the known subtle defect
+  twice plus eight or nine further real defects per run). Not qualified:
+  earlier Haiku models, and GPT-6 Luna until it passes the nine-defect
+  comparison. A review run on Haiku 5.5 says so in its header.
+- **Rules 3.1 and 8.1, section 0:** mechanical review never runs on an
+  *unqualified* Fast model (was: never the Fast tier). README and site follow.
+- ADR 0022. Tests: 344 wording assertions (7 new), 189 mutations (5 new).
+
+---
+
 ## 0.1.27 — 2026-10-09
 
 Reviews were slowing development even though development never waited for a

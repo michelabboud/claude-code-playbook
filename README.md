@@ -156,13 +156,15 @@ Opus 5.5 is the current Strong Claude choice; Opus 5 is not the default.
 For plan execution, agent/team communication, and Herdr when it hosts the
 session, see the [capability guide](docs/guides/advanced-task-execution-and-communication.md).
 
-**Mechanical review is deliberately Sonnet and not Haiku, and that was
-measured.** Given an identical brief over a file with nine real defects, Haiku
+**Mechanical review runs on Sonnet, or on Claude Haiku 5.5, and nothing
+earlier.** Haiku 5.5 was admitted on the owner's word (2026-10-10) after one first,
+not-blind comparison in which it matched or out-found GPT-6 Luna. The exclusion of earlier Haiku models was measured: given an
+identical brief over a file with nine real defects, the earlier Haiku
 found five with no false positives; Sonnet found all nine. What Haiku missed
 included a declared-but-never-enforced input limit and a doc-says-X-code-does-Y
 mismatch — both inside the classes the brief named. Haiku is precise but not
-thorough, and thoroughness is the whole job of a safety net. If you change this,
-re-measure rather than assume.
+thorough, and thoroughness is the whole job of a safety net. Re-run that
+comparison on Haiku 5.5 before relying on it as the only mechanical reviewer.
 
 Substitute your own models freely — the tiers are the design, the names are
 configuration, and the configuration lives in one file.
@@ -312,10 +314,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.27**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.28**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.28** | Claude Haiku 5.5 is qualified for mechanical review, on the owner's word after one first comparison; earlier Haiku models stay out. The roster names the mechanical review seat, and the rules say "never an unqualified Fast model". ADR 0022. |
 | **v0.1.27** | Reviews batch more: each task is gated by its automated checks (tests, lint, type checks), and the mechanical review runs per batch, side by side with the deep review. A batch is 5–15 tasks or about 2,000 changed lines. Only security-floor and unsafe-code tasks get a deep review on their own; concurrency, data and API tasks go early in the batch and are named in its brief. ADR 0021. |
 | **v0.1.26** | A refusal is not a classification: a refused removal stops that command, but proven build output stays removable by the build tool's clean command, and a refusal noted in a handoff never turns it into something to keep. |
 | **v0.1.25** | Cleanup no longer stalls on a spelling: when a guard refuses only the form of a command (a flag such as `-f`) on build output proven regenerable and idle, the session removes it once with the toolchain's clean command (`cargo clean`) or the form the guard allows. The disk floor triggers cleanup and never stops work by itself; only a step that measurably will not fit does. |

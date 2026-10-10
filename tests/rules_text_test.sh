@@ -700,4 +700,14 @@ assert_eq "section 0 summarises the batched mechanical review" 1 "$(count_in_fil
 assert_eq "retired: deep review per task for concurrency, data and API" 0 "$(count_in_file 'concurrency, data-safety, unsafe-code and public-API tasks get the deep review at task grain' "$ROOT/rules/REVIEWS.md")"
 assert_eq "retired: mechanical review per task in section 0" 0 "$(count_in_file '**Mechanical review per task, deep per batch' "$ROOT/rules/AUTHORITY.md")"
 
+
+# Claude Haiku 5.5 is qualified for the mechanical review seat (0.1.28).
+assert_eq "roster names the mechanical review seat" 1 "$(count_in_file '## The mechanical review seat (rule 3.1)' "$ROOT/rules/ROSTER.md")"
+assert_eq "roster qualifies Claude Haiku 5.5 for mechanical review" 1 "$(count_in_file '| **Mechanical review** | the **Standard** tier (**Claude Sonnet**), and **Claude Haiku 5.5** |' "$ROOT/rules/ROSTER.md")"
+assert_eq "roster keeps earlier Haiku models unqualified" 1 "$(count_in_file '| any earlier Claude Haiku;' "$ROOT/rules/ROSTER.md")"
+assert_eq "roster says Haiku 5.5 rests on one first comparison" 1 "$(count_in_file '**Claude Haiku 5.5 is qualified on the owner'"'"'s word, 2026-10-10, after one first comparison.**' "$ROOT/rules/ROSTER.md")"
+assert_eq "3.1 mechanical review never on an unqualified Fast model" 1 "$(count_in_file 'never an unqualified Fast model (measured' "$ROOT/rules/REVIEWS.md")"
+assert_eq "8.1 mechanical review never on an unqualified Fast model" 1 "$(count_in_file 'never an unqualified Fast model, measured, see' "$ROOT/rules/SUBAGENTS.md")"
+assert_eq "retired: mechanical review never on the Fast one" 0 "$(count_in_file 'on the Standard tier and never the Fast one' "$ROOT/rules/REVIEWS.md")"
+
 finish

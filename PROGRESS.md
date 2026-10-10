@@ -1,5 +1,7 @@
 # Progress & current standing
 
+**0.1.28, 2026-10-10 — Claude Haiku 5.5 qualified for mechanical review** (roster). ADR 0022.
+
 **0.1.27, 2026-10-09 — reviews batch more:** automated checks per task, mechanical and deep review side by side per batch of 5–15 tasks or about 2,000 lines. ADR 0021.
 
 **0.1.26, 2026-10-09 — a refusal is not a classification** (rule 13.6).

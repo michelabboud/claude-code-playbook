@@ -17,7 +17,7 @@ paths:
 
 *Local layer: if `~/.claude/rules/LOCAL_dev.md` exists, read it with this file — its entries for this section win over the wording here (section 0, "The local layer").*
 
-**Last revised:** 2026-09-26. If that date is more than a few months old, check the names below against what your harness actually offers before trusting them.
+**Last revised:** 2026-10-10. If that date is more than a few months old, check the names below against what your harness actually offers before trusting them.
 
 ## Tiers — which model fills each
 
@@ -34,6 +34,14 @@ What each tier is trusted with is rule 8.1; which review each tier runs is rule 
 
 **The Claude column is the default and is sufficient on its own.** The second-family column is optional: use an entry only when that model is genuinely reachable from your setup — through another coding CLI or a dispatcher — and leave it out otherwise. Its purpose is decorrelation: it is the second reviewer of a dual-blind pair, because two instances of one model share the same blind spots (REVIEWS.md, "Dual review"). A model reached through another CLI is also a separate process by construction, which is what blind review requires (rule 3.3). With no second family, the pair is two **separate sessions** of the Claude model, and the review header says so: *same-family pair*.
 
+## The mechanical review seat (rule 3.1)
+
+| Seat | Qualified models | Not qualified |
+|---|---|---|
+| **Mechanical review** | the **Standard** tier (**Claude Sonnet**), and **Claude Haiku 5.5** | any earlier Claude Haiku; GPT-6 Luna until it passes the nine-defect comparison |
+
+**Claude Haiku 5.5 is qualified on the owner's word, 2026-10-10, after one first comparison.** On a 175-line file with ten seeded defects and three decoys it found all ten in both runs and reported no decoy; on a real 446-line file it found the one known subtle defect in both runs, plus eight or nine further real defects per run against two or three for GPT-6 Luna. That comparison is two runs, one hard file, and not blind — its author wrote the fixtures and judged the answers. The September measurement below was taken on an earlier Haiku, so it neither qualifies nor rules out 5.5. Until a broader comparison is recorded here, a mechanical review run on Haiku 5.5 says so in its header, so its findings are read with that in mind. Haiku 5.5 does not move up a tier by this: it fills the mechanical review seat and the Fast tier's mechanical *work*, nothing else.
+
 ## Economy mode — code review only (rule 3.1)
 
 When the owner switches economy mode on, the Top tier's **review** seats are filled like this; its planning seat is not affected.
@@ -47,7 +55,7 @@ A configuration is a model **and** an effort: Opus 5.5 or Sol at its default eff
 
 ## Measurements behind this roster
 
-**Why mechanical review is Standard and not Fast — measured September 2026, not assumed.** Claude Haiku and Claude Sonnet were given an identical mechanical-review brief over one file containing nine real defects. Haiku found five, with zero false positives; Sonnet found all nine, a strict superset. What Haiku missed was not exotic: a declared-but-never-enforced input limit, and a doc-says-X-code-does-Y mismatch — both squarely inside the classes the brief named. Haiku is precise but not thorough, and thoroughness is the entire job of the review that is supposed to be the safety net. It keeps mechanical *work*; it does not get mechanical *review*.
+**Why mechanical review was Standard and not Fast — measured September 2026 on an earlier Claude Haiku, not assumed.** Claude Haiku and Claude Sonnet were given an identical mechanical-review brief over one file containing nine real defects. Haiku found five, with zero false positives; Sonnet found all nine, a strict superset. What Haiku missed was not exotic: a declared-but-never-enforced input limit, and a doc-says-X-code-does-Y mismatch — both squarely inside the classes the brief named. Haiku is precise but not thorough, and thoroughness is the entire job of the review that is supposed to be the safety net. It keeps mechanical *work*; it does not get mechanical *review*.
 
 **GPT-6 options, checked 2026-09-23.** OpenAI lists GPT-6 Sol for complex coding and agentic work at $2 input / $10 output per million Standard text tokens; GPT-6 Luna for focused high-volume work at $0.10 / $0.50. That is a 20× token-price difference, not a 20× end-to-end saving: retries, reasoning tokens, orchestration, and review failures matter. Sol has produced useful deep-review findings in this playbook's local-layer batch; Luna has not yet passed the nine-defect mechanical-review comparison. Keep the Standard mechanical-review floor and treat Luna as a Fast implementation candidate only until measured on the exact work. The model pages are [Sol](https://developers.openai.com/api/docs/models/gpt-6-sol) and [Luna](https://developers.openai.com/api/docs/models/gpt-6-luna); recheck price and availability before dispatch.
 

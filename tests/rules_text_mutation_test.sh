@@ -690,4 +690,19 @@ check_mutation "14.2 sensitive losing small batches is caught" \
 check_mutation "section 0 back to mechanical per task is caught" \
     'replace_in_file "$M/rules/AUTHORITY.md" "**Automated checks per task; mechanical and deep review side by side per batch;" "**Mechanical review per task, deep per batch,"'
 
+check_mutation "roster losing Haiku 5.5 is caught" \
+    'replace_in_file "$M/rules/ROSTER.md" "(**Claude Sonnet**), and **Claude Haiku 5.5** |" "(**Claude Sonnet**) |"'
+
+check_mutation "roster admitting every Haiku is caught" \
+    'replace_in_file "$M/rules/ROSTER.md" "| any earlier Claude Haiku;" "| nothing;"'
+
+check_mutation "roster dropping the first-comparison caveat is caught" \
+    'replace_in_file "$M/rules/ROSTER.md" "after one first comparison.**" "and is fully measured.**"'
+
+check_mutation "3.1 letting any Fast model review is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "never an unqualified Fast model (measured" "or the Fast tier (measured"'
+
+check_mutation "8.1 letting any Fast model review is caught" \
+    'replace_in_file "$M/rules/SUBAGENTS.md" "never an unqualified Fast model, measured, see" "or the Fast tier, see"'
+
 finish
