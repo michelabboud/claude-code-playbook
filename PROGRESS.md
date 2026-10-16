@@ -1,5 +1,7 @@
 # Progress & current standing
 
+**0.1.30, 2026-10-16 — rule 9.7 reworded: a green host starts at once.** A lane read "heavy work waits for a quiet host" as "wait" and refused a gate at load 2.5.
+
 **0.1.29, 2026-10-16 — build output never lives in memory; heavy work waits for a quiet host** (rules 13.1, 13.4, 13.5; new rule 9.7; every platform file). ADR 0023.
 
 **0.1.28, 2026-10-10 — Claude Haiku 5.5 qualified for mechanical review** (roster). ADR 0022.

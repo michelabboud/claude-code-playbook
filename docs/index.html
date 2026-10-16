@@ -287,7 +287,7 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="wrap">
 
 <header class="masthead">
-  <p class="eyebrow">Open source · MIT · v0.1.29</p>
+  <p class="eyebrow">Open source · MIT · v0.1.30</p>
   <h1>Claude Code Playbook</h1>
   <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: fifteen sections, sixty-four rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
   <dl class="facts">
@@ -493,7 +493,7 @@ const S=[
   ["9.4","<strong>Logs:</strong> never delete without my word. Compress rotated or inactive logs only — never one being written to."],
   ["9.5","<strong>Secrets:</strong> never commit, print, log or echo a secret or PII — <strong>not even “just to look”</strong>; transcripts are archived. Inspect by name and presence; a hash is a last resort and never for a guessable value."],
   ["9.6","<strong>Nothing keeps running silently.</strong> Anything outliving the task is stopped at close-out or reported as running, with the reason and the exact teardown command."],
-  ["9.7","<strong>Heavy work waits for a quiet host.</strong> Before a build, a full test suite or a fan-out, measure load, available memory and what memory-backed filesystems hold. Read load as a factor, load ÷ cores: green below 0.9 starts; orange, 0.9 to 1.8, starts nothing new and heavy; red, 1.8 and above or memory below the floor, pauses running lanes before their next heavy step too. The step waits and re-measures — it does not start and hope. Load 130 on 28 cores with swap full is the reason to stop the third compile, not start the fourth."]]},
+  ["9.7","<strong>Heavy work measures the host first, and a green host starts at once.</strong> Before a build, a full test suite or a fan-out, measure load, available memory and what memory-backed filesystems hold; a green host is never a reason to wait. Read load as a factor, load ÷ cores: green below 0.9 starts; orange, 0.9 to 1.8, starts nothing new and heavy; red, 1.8 and above or memory below the floor, pauses running lanes before their next heavy step too. The step waits and re-measures — it does not start and hope. Load 130 on 28 cores with swap full is the reason to stop the third compile, not start the fourth."]]},
 
 {n:10,name:"Destructive actions & quarantine",file:"rules/DESTRUCTIVE.md · rules/QUARANTINE.md",auto:false,
  trigger:"Before any delete, overwrite, truncation, purge, migration or history rewrite — including anything called “cleanup”. The quarantine procedure (10.3) is scoped to the vault: read it by path before a first quarantine.",

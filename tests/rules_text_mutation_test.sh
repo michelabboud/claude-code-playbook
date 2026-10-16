@@ -255,7 +255,13 @@ check_mutation "the memory floor dropping from 13.5 is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "or a memory-backed filesystem holds more than a quarter of its size" "or when convenient"'
 
 check_mutation "rule 9.7 starting heavy work on a heavy host is caught" \
-    'replace_in_file "$M/rules/ENVIRONMENT.md" "**In the heavy band the step waits and re-measures; it does not start and hope:**" "**In the heavy band the step may still start:**"'
+    'replace_in_file "$M/rules/ENVIRONMENT.md" "**Waiting is only for orange and red, and it is a wait, not a stop:**" "**Waiting is for every band:**"'
+
+check_mutation "rule 9.7 deciding from a remembered number is caught" \
+    'replace_in_file "$M/rules/ENVIRONMENT.md" "**The number that decides is the one you read now:**" "**The last number you saw decides:**"'
+
+check_mutation "rule 9.7 making a green host wait is caught" \
+    'replace_in_file "$M/rules/ENVIRONMENT.md" "a green host is never a reason to wait, and this rule never asks anyone'"'"'s permission" "wait for the owner'"'"'s word"'
 
 check_mutation "rule 9.7 losing the red band is caught" \
     'replace_in_file "$M/rules/ENVIRONMENT.md" "**Red, 1.8 and above, or available memory below rule 13.5'"'"'s floor:**" "**Red, 4.0 and above:**"'

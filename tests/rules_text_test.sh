@@ -720,19 +720,22 @@ assert_eq "13.4: a full disk never makes memory the next disk" 1 "$(count_in_fil
 assert_eq "13.1: a lane's private build target is its own to remove at close-out" 1 "$(count_in_file 'a lane removes its own build target at its close-out and never leaves it for a later sweep' "$H")"
 assert_eq "13.5: hygiene runs below the memory floor" 1 "$(count_in_file 'the one your local layer sets, or 10 % of the machine'"'"'s memory when it sets none' "$H")"
 assert_eq "13.5: hygiene runs when a memory-backed filesystem is a quarter full" 1 "$(count_in_file 'or a memory-backed filesystem holds more than a quarter of its size' "$H")"
-assert_eq "9.7: heavy work waits for a quiet host" 1 "$(count_in_file '9.7 **Heavy work waits for a quiet host.**' "$E")"
-assert_eq "9.7: in the heavy band the step waits, never starts and hopes" 1 "$(count_in_file '**In the heavy band the step waits and re-measures; it does not start and hope:**' "$E")"
+assert_eq "9.7: heavy work measures first and green starts" 1 "$(count_in_file '9.7 **Heavy work measures the host first, and a green host starts at once.**' "$E")"
+assert_eq "9.7: the deciding number is read now, not remembered" 1 "$(count_in_file '**The number that decides is the one you read now:**' "$E")"
+assert_eq "9.7: the 1-minute average decides" 1 "$(count_in_file 'and read the 1-minute average' "$E")"
+assert_eq "9.7: a green host is never a reason to wait" 1 "$(count_in_file 'a green host is never a reason to wait, and this rule never asks anyone'"'"'s permission' "$E")"
+assert_eq "9.7: waiting is only for orange and red, a wait not a stop" 1 "$(count_in_file '**Waiting is only for orange and red, and it is a wait, not a stop:**' "$E")"
 assert_eq "9.7: load is read as a factor of the core count" 1 "$(count_in_file 'Read the load as a factor, load ÷ cores, so the bands hold on any machine' "$E")"
 assert_eq "9.7: red pauses a running lane before its next heavy step" 1 "$(count_in_file '**Red, 1.8 and above, or available memory below rule 13.5'"'"'s floor:**' "$E")"
 assert_eq "9.7: a running lane measures again before each heavy step" 1 "$(count_in_file 'measures again before each heavy step and pauses when the host has gone heavy under it' "$E")"
 assert_eq "section 9 header counts to 9.7" 1 "$(count_in_file '# 9 · Environment & operations — rules 9.1–9.7' "$E")"
-assert_eq "8.1 sends a lane's own heavy steps to rule 9.7" 1 "$(count_in_file 'a build or a full test suite waits for a quiet host (rule 9.7)' "$ROOT/rules/SUBAGENTS.md")"
+assert_eq "8.1 sends a lane's own heavy steps to rule 9.7" 1 "$(count_in_file 'a build or a full test suite measures the host first and starts when it is green (rule 9.7)' "$ROOT/rules/SUBAGENTS.md")"
 for f in $PLATFORM; do
     assert_eq "rules/platform/$f.md says how to tell a memory-backed path" \
         1 "$(grep -c '^| Is a path memory-backed? |' "$ROOT/rules/platform/$f.md")"
 done
 assert_eq "LINUX.md: findmnt gives the filesystem type" 1 "$(count_in_file '`findmnt -T <path> -o FSTYPE`' "$ROOT/rules/platform/LINUX.md")"
 assert_eq "LINUX.md: tmpfs usage is measured" 1 "$(grep -c '^| Memory-backed filesystems |' "$ROOT/rules/platform/LINUX.md")"
-assert_eq "CLAUDE.md row 9 names the quiet-host rule" 1 "$(count_in_file 'heavy work waits for a quiet host' "$ROOT/CLAUDE.md")"
+assert_eq "CLAUDE.md row 9 names the quiet-host rule" 1 "$(count_in_file 'heavy work measures the host first, and green starts' "$ROOT/CLAUDE.md")"
 
 finish

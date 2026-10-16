@@ -4,6 +4,30 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.30 — 2026-10-16
+
+Within the hour of installing 0.1.29, a Codex lane classified `cargo xtask
+gate` as heavy work — correctly — and then declined to run it on a host at
+load 2.5 on 28 cores. Asked how it checks load, it gave the right commands
+and the right reading; it had decided from the 134 it had read before the
+owner's pause, still sitting in its conversation. The heading, "heavy work
+waits for a quiet host", was a second trap in the same rule.
+
+- **Rule 9.7** now opens with the outcome: "heavy work measures the host
+  first, and a green host starts at once." A green host is never a reason to
+  wait, the rule never asks anyone's permission, and waiting is only for
+  orange and red — a wait, not a stop.
+- **The number that decides is the one you read now** (the owner: "just take
+  the current state"): run the command at the moment of the decision, before
+  each heavy step and again on resuming after a pause, and read the 1-minute
+  average; a figure already in the conversation is a record of an earlier
+  machine, and the 5- and 15-minute averages are history after a spike.
+  Periodic watching is a daemon's job, not a session's.
+- Rule 8.1's clause, the section table, the site and the guide's example
+  Override follow. Tests: three new wording assertions, two new mutations.
+
+---
+
 ## 0.1.29 — 2026-10-16
 
 A lane building a Rust project had set its cargo target to `/dev/shm` — the
