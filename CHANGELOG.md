@@ -4,6 +4,36 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.29 — 2026-10-16
+
+A lane building a Rust project had set its cargo target to `/dev/shm` — the
+only filesystem with room on a disk at 96 % — and left 44 GB resident in RAM
+for 26 hours after it ended. The next day four Rust builds started at once on
+the same machine with 2.8 GB available and swap full; the load reached 145 on
+28 cores, and none of the four had measured the host.
+
+- **Rule 13.4:** build output and large scratch never live on a memory-backed
+  filesystem (`/dev/shm`, any tmpfs, a RAM disk). Check a target path's
+  filesystem type first; no room on disk never makes memory the next disk.
+- **Rule 13.1:** a build target a lane created for itself outside the repo's
+  own output folder is the lane's to remove at its close-out.
+- **Rule 13.5:** hygiene also runs below a memory floor (the local layer's
+  value, 10 % of the machine's memory otherwise) and when a memory-backed
+  filesystem is more than a quarter full; memory-backed items go first.
+- **Rule 9.7, new, always loaded:** heavy work — a build, a full test suite, a
+  fan-out — waits for a quiet host. Load is a factor of the core count: green
+  below 0.9 starts; orange, 0.9 to 1.8, starts nothing new and heavy; red, 1.8
+  and above or memory below the floor, pauses a running lane before its next
+  heavy step too. Rule 8.1 points at it. Section 9's header reads 9.1–9.7.
+- **Platform files:** every one says how to tell a memory-backed path; Linux
+  adds the tmpfs measurement and the `shared`-column tell; Windows says how to
+  read the bands on a counter that has no load average.
+- README, site and the section table follow; the local-layer guide's example
+  Override is re-anchored to the new section 9 digest. ADR 0023. Tests: 363
+  wording assertions (19 new), 197 mutations (8 new).
+
+---
+
 ## 0.1.28 — 2026-10-10
 
 - **Roster:** a new mechanical review seat. Qualified: the Standard tier and

@@ -314,10 +314,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.28**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.29**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.29** | Build output never lives in RAM: a memory-backed filesystem (`/dev/shm`, tmpfs, a RAM disk) is the host's memory, and a lane removes the build target it created at its close-out. Hygiene also runs on a memory floor and when a memory-backed filesystem is more than a quarter full. New rule 9.7: heavy work — a build, a full test suite, a fan-out — waits for a quiet host, and a running lane measures again before each heavy step. Born of a 44 GB cargo target left in `/dev/shm` that took a 94 GB machine to load 130. ADR 0023. |
 | **v0.1.28** | Claude Haiku 5.5 is qualified for mechanical review, on the owner's word after one first comparison; earlier Haiku models stay out. The roster names the mechanical review seat, and the rules say "never an unqualified Fast model". ADR 0022. |
 | **v0.1.27** | Reviews batch more: each task is gated by its automated checks (tests, lint, type checks), and the mechanical review runs per batch, side by side with the deep review. A batch is 5–15 tasks or about 2,000 changed lines. Only security-floor and unsafe-code tasks get a deep review on their own; concurrency, data and API tasks go early in the batch and are named in its brief. ADR 0021. |
 | **v0.1.26** | A refusal is not a classification: a refused removal stops that command, but proven build output stays removable by the build tool's clean command, and a refusal noted in a handoff never turns it into something to keep. |

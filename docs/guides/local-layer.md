@@ -134,8 +134,8 @@ obligation. It must:
 - **Override — rule 9.1, recheck before binding.** In addition to checking
   availability before assigning a port, repeat the machine and registry checks
   immediately before binding it. Written against 0.1.16.
-  **Anchor:** `# 9 · Environment & operations — rules 9.1–9.6` (in `ENVIRONMENT.md`)
-  **Rule digest:** `sha256:0232a6206b272940e7e214a977c0f53b156fafce29ced313d626c69464f508da`
+  **Anchor:** `# 9 · Environment & operations — rules 9.1–9.7` (in `ENVIRONMENT.md`)
+  **Rule digest:** `sha256:3593f84e0951419f81a2fbf3c9b2f2fdd58a5d57761b9e22a4ac667b1be51d4a`
   **Dead words:** `before assigning a port, verify it's free` (in `ENVIRONMENT.md`)
 ```
 
