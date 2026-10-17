@@ -4,6 +4,32 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.31 — 2026-10-18
+
+Two lessons from one evening on the owner's machine.
+
+- **On WSL, `/mnt/wsl` is a `tmpfs` too.** A Codex lane had left a 45 GB
+  cargo target there two days earlier; the swap sat full for a day, builds
+  stalled the box to a load near 170 on 28 cores, and the AI service on the
+  same host looked guilty on the process monitor because it was the largest
+  process left, retrying against a stalled database. The processes' own
+  `VmSwap` added up to under 2 GB: the swapped pages were the folder's.
+  Removing it took swap from 32.7 to 9.4 GB and available memory from 24 to
+  46 GB. Rule 13.4 already forbade build output on any memory-backed
+  filesystem; the Linux platform file gains a row that tells tmpfs pages
+  from process swap and names `/mnt/wsl`.
+- **Rule 9.5: reading a log is a secret surface.** A scan for a crash masked
+  `key=` assignments and runs of 40 characters; a 35-character bot token
+  inside a `/bot<id>:<token>/` URL path passed the mask and reached a
+  transcript. Before a log line is printed: strip colour codes, mask every
+  URL to its host and every run of 30 or more token-like characters; prefer
+  counts and timestamps to message bodies.
+- The local-layer guide's example Override is re-anchored to section 9's
+  new digest (the change to rule 9.5 rewrote the section, so any Override
+  bound to section 9 goes stale, as designed, and is re-anchored at install).
+
+---
+
 ## 0.1.30 — 2026-10-16
 
 Within the hour of installing 0.1.29, a Codex lane classified `cargo xtask

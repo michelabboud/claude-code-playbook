@@ -314,10 +314,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.30**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.31**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.31** | Two lessons from one evening: on WSL `/mnt/wsl` is RAM too (a 45 GB cargo target there kept the swap full; the Linux platform file now shows how to tell tmpfs pages from process swap), and reading a log is a secret surface (rule 9.5: strip colour codes, mask URLs to their host and long token runs before printing). |
 | **v0.1.30** | Rule 9.7 reworded after a lane refused a `cargo xtask gate` on a host at load 2.5: "heavy work measures the host first, and a green host starts at once" — waiting is only for orange and red, and it is a wait, not a stop. |
 | **v0.1.29** | Build output never lives in RAM: a memory-backed filesystem (`/dev/shm`, tmpfs, a RAM disk) is the host's memory, and a lane removes the build target it created at its close-out. Hygiene also runs on a memory floor and when a memory-backed filesystem is more than a quarter full. New rule 9.7: heavy work — a build, a full test suite, a fan-out — waits for a quiet host, and a running lane measures again before each heavy step. Born of a 44 GB cargo target left in `/dev/shm` that took a 94 GB machine to load 130. ADR 0023. |
 | **v0.1.28** | Claude Haiku 5.5 is qualified for mechanical review, on the owner's word after one first comparison; earlier Haiku models stay out. The roster names the mechanical review seat, and the rules say "never an unqualified Fast model". ADR 0022. |

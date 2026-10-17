@@ -23,6 +23,7 @@ No output for that port = free.
 | Free disk | `df -h <path>` | read `Avail` and `Use%` for the filesystem holding `<path>` — the working filesystem, not `/` by habit |
 | Memory-backed filesystems | `df -h /dev/shm` and `findmnt -t tmpfs -o TARGET,SIZE,USED` | what a `tmpfs` holds is RAM, not disk: it is the `shared` column of `free -m`, and a large `shared` beside a small `available` is a RAM-backed folder eating the machine. Rule 13.5 runs hygiene when one is more than a quarter full. |
 | Is a path memory-backed? | `findmnt -T <path> -o FSTYPE` | `tmpfs` or `ramfs` means yes: never a build target or large scratch there (rule 13.4) |
+| Is the swap a RAM-backed folder? | `grep -E 'Shmem\|SwapTotal\|SwapFree' /proc/meminfo`, then `grep VmSwap /proc/*/status` summed | swap full while processes' own `VmSwap` adds up to little means the swapped pages are `tmpfs` contents, not process memory: find the folder with `findmnt -t tmpfs` and `du`, and the swap drains only when it goes. **On WSL, `/mnt/wsl` is a `tmpfs` too**, as large as `/dev/shm`, and easy to miss (2026-10-17: a 45 GB cargo target there kept a 32 GB swap full for a day; removing it took swap from 32.7 to 9.4 GB). |
 | Free memory | `free -m` | read the `available` column, not `free` — it already accounts for reclaimable cache/buffers |
 
 ## 3. Hash a file

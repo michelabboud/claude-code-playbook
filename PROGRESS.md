@@ -1,5 +1,7 @@
 # Progress & current standing
 
+**0.1.31, 2026-10-18 — `/mnt/wsl` is RAM on WSL; reading a log is a secret surface.** The Linux platform file tells tmpfs pages from process swap and names `/mnt/wsl` (a 45 GB cargo target there kept the swap full for a day); rule 9.5 now says to strip colour codes and mask URLs and long token runs before printing a log line.
+
 **0.1.30, 2026-10-16 — rule 9.7 reworded: a green host starts at once.** A lane read "heavy work waits for a quiet host" as "wait" and refused a gate at load 2.5.
 
 **0.1.29, 2026-10-16 — build output never lives in memory; heavy work waits for a quiet host** (rules 13.1, 13.4, 13.5; new rule 9.7; every platform file). ADR 0023.
