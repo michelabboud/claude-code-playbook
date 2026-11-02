@@ -63,8 +63,26 @@ made a close-out account for one (ADR 0024).
   snapshot. Rule 6.1's hygiene checkpoint names the worktree line.
 - Any local-layer Override bound to section 13 goes stale, as designed, and is
   re-anchored at install.
+- **Review amendments (2026-11-02), before merge.**
+  - The creator claims a worktree **in the command that creates it**:
+    `git worktree add --lock --reason "…" <repo>_lanes/<name> <branch>`
+    (git 2.35+), so no lane can die between creating and claiming.
+  - **Archiving and adoption check uncommitted work for secrets first**
+    (rule 9.5): a possible credential is quarantined, never committed and
+    pushed to a `rescue/` branch.
+  - **A tool-managed worktree stays where its tool put it** (a dispatcher's
+    run checkout, a harness's own worktree): it is listed, never moved or
+    removed by anyone else, and a tool that leaks them is reported.
+  - **Rule 3.3: a review snapshot lives in the worktree home**
+    (`<repo>_lanes/review-<task>-<short sha>`), never a temporary directory,
+    so it no longer contradicts rule 13.7.
+  - `scripts/worktree-inventory.sh` is executable; the 0.1.31 changelog
+    heading is restored.
+  - Tests: 403 wording assertions (8 new), 216 mutations (7 new).
 
- — 2026-10-18
+---
+
+## 0.1.31 — 2026-10-18
 
 Two lessons from one evening on the owner's machine.
 

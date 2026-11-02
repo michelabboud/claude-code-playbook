@@ -133,3 +133,22 @@ the project folder.
   never broken.
 - Any local-layer Override bound to section 13 goes stale, because the section's
   digest changed; it is re-anchored at install, as designed.
+
+## Review amendments (2026-11-02, before merge)
+
+The owner asked for a review and a merge "if it's OK". Three problems and one gap were fixed on the
+branch before merging:
+
+- **Secrets.** Archiving a paused worktree and adopting a dead lane's committed and pushed "any
+  uncommitted work", unasked. A stray file holding a token would have reached the remote, and this
+  repository is public. Both now check for secrets first (rule 9.5) and quarantine anything that
+  may hold one.
+- **Rule 3.3 disagreed.** It still put a reviewer's snapshot "in its own scratch directory", which
+  in Claude Code is under `/tmp` — the place rule 13.7 forbids, and the one the machine crash of
+  2026-10-10 emptied. It now names `<repo>_lanes/review-<task>-<short sha>`.
+- **Tool-managed worktrees.** Step 1 told the coordinator to move any worktree outside the home,
+  which would break a dispatcher that records its own run checkouts' paths. Those stay where the
+  tool put it, are listed, and are never moved or removed by anyone else.
+- **Claiming in two steps** left a window in which a dying lane leaves an unclaimed worktree. The
+  creation command now claims it: `git worktree add --lock --reason`.
+

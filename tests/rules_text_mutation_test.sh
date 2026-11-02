@@ -765,4 +765,25 @@ check_mutation "3.1 letting any Fast model review is caught" \
 check_mutation "8.1 letting any Fast model review is caught" \
     'replace_in_file "$M/rules/SUBAGENTS.md" "never an unqualified Fast model, measured, see" "or the Fast tier, see"'
 
+check_mutation "13.7 claiming later without a gap warning is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "A worktree created and claimed later is unclaimed for as long as the gap lasts" "MUTATED"'
+
+check_mutation "13.7 moving tool-managed worktrees is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "**except a worktree a tool creates and manages for itself**" "**including a worktree a tool creates**"'
+
+check_mutation "13.7 removing tool-managed worktrees is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "so it stays where the tool put it, and nobody else moves or removes it" "so anyone may move it"'
+
+check_mutation "13.7 archiving without a secret check is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "**it checks the uncommitted work for secrets first (rule 9.5)**" "MUTATED"'
+
+check_mutation "13.7 committing a possible secret is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "is quarantined (rule 10.3), never committed" "is committed"'
+
+check_mutation "13.7 adoption without a secret check is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "First it preserves, after the same secret check as step 5 (rule 9.5)" "First it preserves"'
+
+check_mutation "3.3 review snapshot back in a scratch directory is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "in the repository'"'"'s worktree home (" "in its own scratch directory ("'
+
 finish

@@ -428,8 +428,8 @@ assert_eq "13.7: never a temporary directory" \
     1 "$(count_in_file 'Never a temporary directory, which the system may empty on its own' "$H")"
 assert_eq "13.7: a stray worktree is moved through git, never re-created by deleting" \
     1 "$(count_in_file 'is moved there with `git worktree move <old> <new>` once nothing runs in it, never re-created by deleting it' "$H")"
-assert_eq "13.7: the creator claims a worktree with a key=value lock reason" \
-    1 "$(count_in_file '`git worktree lock --reason "owner=<lane>; task=<task>; created=<YYYY-MM-DD>; state=running"`' "$H")"
+assert_eq "13.7: the creator claims a worktree in the command that creates it" \
+    1 "$(count_in_file '`git worktree add --lock --reason "owner=<lane>; task=<task>; created=<YYYY-MM-DD>; state=running" <repo>_lanes/<name> <branch>`' "$H")"
 assert_eq "13.7: a finished lane declares ready to merge, and does not remove yet" \
     1 "$(count_in_file '3. **When the task is done, the lane declares it; it does not remove it yet.**' "$H")"
 assert_eq "13.7: a coordinator refuses a close-out without the worktree line" \
@@ -447,7 +447,7 @@ assert_eq "13.7: paused, not-ready or uncommitted worktrees stay" \
 assert_eq "13.7: a paused worktree's build output goes after the grace period" \
     1 "$(count_in_file 'or 7 days from `since=` — removes its build output' "$H")"
 assert_eq "13.7: a stale paused worktree is archived, preserving first" \
-    1 "$(count_in_file 'it commits and pushes any uncommitted work to `rescue/<branch>-<YYYY-MM-DD>`, quarantines (rule 10.3)' "$H")"
+    1 "$(count_in_file 'then commits and pushes the rest to `rescue/<branch>-<YYYY-MM-DD>`, quarantines (rule 10.3)' "$H")"
 assert_eq "13.7: deleting what is in neither git nor quarantine needs consent" \
     1 "$(count_in_file 'Deleting anything that is in neither git nor the quarantine — code above all — needs my consent' "$H")"
 assert_eq "13.7: a dead lane's worktree is adopted and handled by the coordinator" \
@@ -796,5 +796,16 @@ done
 assert_eq "LINUX.md: findmnt gives the filesystem type" 1 "$(count_in_file '`findmnt -T <path> -o FSTYPE`' "$ROOT/rules/platform/LINUX.md")"
 assert_eq "LINUX.md: tmpfs usage is measured" 1 "$(grep -c '^| Memory-backed filesystems |' "$ROOT/rules/platform/LINUX.md")"
 assert_eq "CLAUDE.md row 9 names the quiet-host rule" 1 "$(count_in_file 'heavy work measures the host first, and green starts' "$ROOT/CLAUDE.md")"
+
+
+# PR 2 review fixes: claim at creation, tool-managed worktrees, secret check, review snapshot home.
+assert_eq "13.7: a claim made later leaves an unclaimed gap" 1 "$(count_in_file 'A worktree created and claimed later is unclaimed for as long as the gap lasts' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: a tool-managed worktree stays where the tool put it" 1 "$(count_in_file '**except a worktree a tool creates and manages for itself**' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: nobody else moves or removes a tool-managed worktree" 1 "$(count_in_file 'so it stays where the tool put it, and nobody else moves or removes it' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: archiving checks uncommitted work for secrets first" 1 "$(count_in_file '**it checks the uncommitted work for secrets first (rule 9.5)**' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: a possible secret is quarantined, never committed" 1 "$(count_in_file 'is quarantined (rule 10.3), never committed' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: adoption runs the same secret check" 1 "$(count_in_file 'First it preserves, after the same secret check as step 5 (rule 9.5)' "$ROOT/rules/HYGIENE.md")"
+assert_eq "3.3: a review snapshot lives in the worktree home" 1 "$(count_in_file 'in the repository'"'"'s worktree home (`<repo>_lanes/review-<task>-<short sha>`, rule 13.7)' "$ROOT/rules/REVIEWS.md")"
+assert_eq "retired: a review snapshot in its own scratch directory" 0 "$(count_in_file 'detached worktree of that sha, in its own scratch directory' "$ROOT/rules/REVIEWS.md")"
 
 finish
