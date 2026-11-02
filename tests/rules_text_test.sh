@@ -336,7 +336,7 @@ assert_eq "deleting a worktree folder with rm is a destructive act" \
 assert_eq "the creating lane owns worktrees, a reviewer's detached one included" \
     1 "$(count_in_text 'including a detached one made for a reviewer' "$WT2")"
 assert_eq "the owning lane locks its worktree" \
-    1 "$(count_in_text 'it locks it with `git worktree lock` while it is in use, and unlocks and removes it at close-out' "$WT2")"
+    1 "$(count_in_text 'it locks it with `git worktree lock` while it is in use, and its worktree is removed once its work is merged' "$WT2")"
 assert_eq "branch -d is described as no proof on its own" \
     1 "$(count_in_text 'deletes a pushed branch that the default branch never merged' "$WT2")"
 assert_eq "branch deletion needs another ref holding its commits" \
@@ -420,6 +420,65 @@ assert_eq "13.2: build output follows rule 10.2's carve-out" \
     1 "$(count_in_file 'rule 10.2'"'"'s build-output carve-out lets it go without an owner' "$H")"
 assert_eq "13.6: never re-issue the same effect" \
     1 "$(count_in_file 'do not re-issue the same effect in another form' "$H")"
+# Rule 13.7, every worktree claimed, declared, and removed once empty (0.1.32, ADR 0024).
+H137=$(paragraph_with '13.7 **Every worktree is claimed, declared, and removed once it holds nothing git cannot give back.**' "$H")
+assert_eq "13.7: every worktree lives in <repo>_lanes, beside the repository" \
+    1 "$(count_in_file '1. **Every worktree lives in one home: `<repo>_lanes/<name>`, beside the repository and never inside it.**' "$H")"
+assert_eq "13.7: never a temporary directory" \
+    1 "$(count_in_file 'Never a temporary directory, which the system may empty on its own' "$H")"
+assert_eq "13.7: a stray worktree is moved through git, never re-created by deleting" \
+    1 "$(count_in_file 'is moved there with `git worktree move <old> <new>` once nothing runs in it, never re-created by deleting it' "$H")"
+assert_eq "13.7: the creator claims a worktree in the command that creates it" \
+    1 "$(count_in_file '`git worktree add --lock --reason "owner=<lane>; task=<task>; created=<YYYY-MM-DD>; state=running" <repo>_lanes/<name> <branch>`' "$H")"
+assert_eq "13.7: a finished lane declares ready to merge, and does not remove yet" \
+    1 "$(count_in_file '3. **When the task is done, the lane declares it; it does not remove it yet.**' "$H")"
+assert_eq "13.7: a coordinator refuses a close-out without the worktree line" \
+    1 "$(count_in_file 'a coordinator does not accept a close-out without that line' "$H")"
+assert_eq "13.7: an empty worktree may be removed" \
+    1 "$(count_in_file '4. **An empty worktree may be removed by the coordinator at any time.**' "$H")"
+assert_eq "13.7: empty requires only build output in the status" \
+    1 "$(count_in_file 'shows nothing but regenerable build output; no stash entry was made from it; and no process works in it' "$H")"
+assert_eq "13.7: the merge validation is by ancestry" \
+    1 "$(count_in_file '`git merge-base --is-ancestor <worktree HEAD> <target>`' "$H")"
+assert_eq "13.7: a merged worktree is never left behind" \
+    1 "$(count_in_file '**a merged worktree is never left behind**' "$H")"
+assert_eq "13.7: paused, not-ready or uncommitted worktrees stay" \
+    1 "$(count_in_file 'Nobody removes a worktree that is paused, not ready, or holds uncommitted work.' "$H")"
+assert_eq "13.7: a paused worktree's build output goes after the grace period" \
+    1 "$(count_in_file 'or 7 days from `since=` — removes its build output' "$H")"
+assert_eq "13.7: a stale paused worktree is archived, preserving first" \
+    1 "$(count_in_file 'then commits and pushes the rest to `rescue/<branch>-<YYYY-MM-DD>`, quarantines (rule 10.3)' "$H")"
+assert_eq "13.7: deleting what is in neither git nor quarantine needs consent" \
+    1 "$(count_in_file 'Deleting anything that is in neither git nor the quarantine — code above all — needs my consent' "$H")"
+assert_eq "13.7: a dead lane's worktree is adopted and handled by the coordinator" \
+    1 "$(count_in_file '6. **A worktree whose lane died is adopted and handled by the coordinator, not swept and not parked for me.**' "$H")"
+assert_eq "13.7: adoption preserves first, never discards" \
+    1 "$(count_in_file 'and pushed — never stashed, reset or deleted' "$H")"
+assert_eq "13.7: not merging is never deleting" \
+    1 "$(count_in_file 'Not merging is never deleting: an unmerged branch stays on the remote.' "$H")"
+assert_eq "13.7: the owner hears only of the hard cases" \
+    1 "$(count_in_file 'It comes to me only for a conflict it cannot resolve, provenance or ownership it cannot establish, or a decision outside the plan.' "$H")"
+assert_eq "13.7: the inventory has five groups" \
+    1 "$(count_in_file 'at every pass: **running**; **ready to merge**; **paused or not ready**' "$H")"
+assert_eq "13.7: the inventory script and its status page are named" \
+    1 "$(count_in_file 'the playbook'"'"'s `scripts/worktree-inventory.sh` does the mechanical part read-only, and with `--write` keeps the list as the status page `<repo>_lanes/README.md`' "$H")"
+assert_eq "13.7: another lane's live lock still stops removal" \
+    1 "$(count_in_file 'Another lane'"'"'s live lock still stops you (rule 13.3): you list it, you do not remove it.' "$H")"
+assert_eq "13.4: a worktree's marker is its lock reason, never a file inside it" \
+    1 "$(count_in_file 'A worktree'"'"'s marker is its lock reason (rule 13.7), never a file inside it' "$H")"
+assert_eq "13.5: the report carries the worktree inventory" \
+    1 "$(count_in_file 'Every pass ends with a report: the worktree inventory (rule 13.7);' "$H")"
+assert_eq "section 13 is read before creating a worktree" \
+    1 "$(count_in_file 'and before you create a worktree, pause a lane, or answer which worktrees are stale' "$H")"
+assert_eq "section 0's trigger names creating a worktree" \
+    1 "$(count_in_file 'and before you create a worktree or pause a lane. Read it by path' "$A")"
+assert_eq "section 0 summarises rule 13.7" \
+    1 "$(count_in_file '| 13.7 | **Every worktree is claimed, declared, and removed once it holds nothing git cannot give back**' "$A")"
+assert_eq "rule 10.2's cleanup trigger names creating a worktree" \
+    1 "$(count_in_file 'or a disk warning — and before creating a worktree or pausing a lane. It does not load every session.' "$ROOT/rules/DESTRUCTIVE.md")"
+assert_eq "the close-out's hygiene checkpoint names the worktree line" \
+    1 "$(count_in_file 'with every worktree the task created and its declared state, *ready to merge* or why not (rule 13.7)' "$ROOT/rules/WORKFLOW.md")"
+assert_contains "rule 13.7 paragraph is found" "$H137" 'cheap to make again'
 H135=$(paragraph_with '13.5 **When hygiene runs, and what it reports.**' "$H")
 assert_eq "13.5: the disk floor is the local layer's, else 10 % free" \
     1 "$(count_in_text 'the one your local layer sets, or 10 % free when it sets none' "$H135")"
@@ -737,5 +796,16 @@ done
 assert_eq "LINUX.md: findmnt gives the filesystem type" 1 "$(count_in_file '`findmnt -T <path> -o FSTYPE`' "$ROOT/rules/platform/LINUX.md")"
 assert_eq "LINUX.md: tmpfs usage is measured" 1 "$(grep -c '^| Memory-backed filesystems |' "$ROOT/rules/platform/LINUX.md")"
 assert_eq "CLAUDE.md row 9 names the quiet-host rule" 1 "$(count_in_file 'heavy work measures the host first, and green starts' "$ROOT/CLAUDE.md")"
+
+
+# PR 2 review fixes: claim at creation, tool-managed worktrees, secret check, review snapshot home.
+assert_eq "13.7: a claim made later leaves an unclaimed gap" 1 "$(count_in_file 'A worktree created and claimed later is unclaimed for as long as the gap lasts' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: a tool-managed worktree stays where the tool put it" 1 "$(count_in_file '**except a worktree a tool creates and manages for itself**' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: nobody else moves or removes a tool-managed worktree" 1 "$(count_in_file 'so it stays where the tool put it, and nobody else moves or removes it' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: archiving checks uncommitted work for secrets first" 1 "$(count_in_file '**it checks the uncommitted work for secrets first (rule 9.5)**' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: a possible secret is quarantined, never committed" 1 "$(count_in_file 'is quarantined (rule 10.3), never committed' "$ROOT/rules/HYGIENE.md")"
+assert_eq "13.7: adoption runs the same secret check" 1 "$(count_in_file 'First it preserves, after the same secret check as step 5 (rule 9.5)' "$ROOT/rules/HYGIENE.md")"
+assert_eq "3.3: a review snapshot lives in the worktree home" 1 "$(count_in_file 'in the repository'"'"'s worktree home (`<repo>_lanes/review-<task>-<short sha>`, rule 13.7)' "$ROOT/rules/REVIEWS.md")"
+assert_eq "retired: a review snapshot in its own scratch directory" 0 "$(count_in_file 'detached worktree of that sha, in its own scratch directory' "$ROOT/rules/REVIEWS.md")"
 
 finish

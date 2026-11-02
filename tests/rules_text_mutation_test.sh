@@ -278,6 +278,36 @@ check_mutation "worktree folder deletion stops being destructive is caught" \
 check_mutation "the worktree lock duty dropping is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "it locks it with \`git worktree lock\` while it is in use" "it may lock it"'
 
+check_mutation "the close-out worktree line of 13.7 dropping is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "a coordinator does not accept a close-out without that line" "a coordinator may accept it"'
+
+check_mutation "a paused or uncommitted worktree becoming removable is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "Nobody removes a worktree that is paused, not ready, or holds uncommitted work." "A paused worktree may be removed."'
+
+check_mutation "adoption no longer preserving the dead lane's work is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "and pushed — never stashed, reset or deleted" "or discarded if it looks unimportant"'
+
+check_mutation "not merging becoming deleting is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "Not merging is never deleting: an unmerged branch stays on the remote." "An unmerged branch may be deleted."'
+
+check_mutation "the merge validation by ancestry dropping is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "\`git merge-base --is-ancestor <worktree HEAD> <target>\`" "the branch looks merged"'
+
+check_mutation "empty no longer requiring a clean status is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "shows nothing but regenerable build output; no stash entry was made from it; and no process works in it" "looks tidy"'
+
+check_mutation "the consent for deleting unpreserved code dropping is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "Deleting anything that is in neither git nor the quarantine — code above all — needs my consent" "Deleting it is fine"'
+
+check_mutation "worktrees moving back to a temporary directory is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "Never a temporary directory, which the system may empty on its own" "A temporary directory is fine"'
+
+check_mutation "a marker file inside a worktree becoming allowed is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "A worktree'"'"'s marker is its lock reason (rule 13.7), never a file inside it" "A worktree may carry a marker file"'
+
+check_mutation "the worktree inventory dropping from 13.5 is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "Every pass ends with a report: the worktree inventory (rule 13.7);" "Every pass ends with a report:"'
+
 check_mutation "branch -D becoming allowed is caught" \
     'replace_in_file "$M/rules/HYGIENE.md" "Never use \`git branch -D\` on a branch with unique work" "Use \`git branch -D\` when convenient"'
 
@@ -734,5 +764,26 @@ check_mutation "3.1 letting any Fast model review is caught" \
 
 check_mutation "8.1 letting any Fast model review is caught" \
     'replace_in_file "$M/rules/SUBAGENTS.md" "never an unqualified Fast model, measured, see" "or the Fast tier, see"'
+
+check_mutation "13.7 claiming later without a gap warning is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "A worktree created and claimed later is unclaimed for as long as the gap lasts" "MUTATED"'
+
+check_mutation "13.7 moving tool-managed worktrees is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "**except a worktree a tool creates and manages for itself**" "**including a worktree a tool creates**"'
+
+check_mutation "13.7 removing tool-managed worktrees is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "so it stays where the tool put it, and nobody else moves or removes it" "so anyone may move it"'
+
+check_mutation "13.7 archiving without a secret check is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "**it checks the uncommitted work for secrets first (rule 9.5)**" "MUTATED"'
+
+check_mutation "13.7 committing a possible secret is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "is quarantined (rule 10.3), never committed" "is committed"'
+
+check_mutation "13.7 adoption without a secret check is caught" \
+    'replace_in_file "$M/rules/HYGIENE.md" "First it preserves, after the same secret check as step 5 (rule 9.5)" "First it preserves"'
+
+check_mutation "3.3 review snapshot back in a scratch directory is caught" \
+    'replace_in_file "$M/rules/REVIEWS.md" "in the repository'"'"'s worktree home (" "in its own scratch directory ("'
 
 finish

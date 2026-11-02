@@ -56,7 +56,7 @@ it agrees with it.
 
 **[Open the visual map →](https://michelabboud.github.io/claude-code-playbook/)**
 
-An explorable page covering all fifteen sections and sixty-four rules: click a
+An explorable page covering all fifteen sections and sixty-five rules: click a
 section to see its trigger and its rules, plus the tables that carry the real
 structure — the approval table, the review ladder, the model roster, the close-out
 chain, and the three-way platform matrix.
@@ -314,10 +314,11 @@ their own copy; it is not a shared voice speaking for the team.
 
 ## Versions
 
-Current: **v0.1.31**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
+Current: **v0.1.32**. Full detail in [`CHANGELOG.md`](CHANGELOG.md).
 
 | Version | What changed |
 |---|---|
+| **v0.1.32** | Rule 13.7, every worktree is claimed, declared, and removed once it holds nothing git cannot give back: the creator locks it with owner, task, date and state; a finished lane declares *ready to merge*; whoever merges removes it after validating it is all merged; an empty worktree may go and a merged one always does; a paused one stays while it holds work, loses its build cache after 7 days and is archived after 30; a dead lane's are adopted and handled by the coordinator, its work pushed first; every hygiene report lists all worktrees by state (ADR 0024). One project had reached 100 worktrees, almost all stale. |
 | **v0.1.31** | Two lessons from one evening: on WSL `/mnt/wsl` is RAM too (a 45 GB cargo target there kept the swap full; the Linux platform file now shows how to tell tmpfs pages from process swap), and reading a log is a secret surface (rule 9.5: strip colour codes, mask URLs to their host and long token runs before printing). |
 | **v0.1.30** | Rule 9.7 reworded after a lane refused a `cargo xtask gate` on a host at load 2.5: "heavy work measures the host first, and a green host starts at once" — waiting is only for orange and red, and it is a wait, not a stop. |
 | **v0.1.29** | Build output never lives in RAM: a memory-backed filesystem (`/dev/shm`, tmpfs, a RAM disk) is the host's memory, and a lane removes the build target it created at its close-out. Hygiene also runs on a memory floor and when a memory-backed filesystem is more than a quarter full. New rule 9.7: heavy work — a build, a full test suite, a fan-out — waits for a quiet host, and a running lane measures again before each heavy step. Born of a 44 GB cargo target left in `/dev/shm` that took a 94 GB machine to load 130. ADR 0023. |

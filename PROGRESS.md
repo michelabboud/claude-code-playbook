@@ -1,5 +1,7 @@
 # Progress & current standing
 
+**0.1.32, 2026-10-26 — every worktree is claimed, declared, and removed once it holds nothing git cannot give back.** New rule 13.7 (ADR 0024): the creator locks a worktree with owner, task, date and state; a finished lane declares *ready to merge*; whoever merges removes it after validation; an empty worktree may go and a merged one always does; a paused one stays while it holds work, loses its build cache after 7 days and is archived after 30; a dead lane's are adopted and handled by the coordinator, its work pushed first; every hygiene report lists all worktrees by state. Section 13's trigger now names creating a worktree and pausing a lane.
+
 **0.1.31, 2026-10-18 — `/mnt/wsl` is RAM on WSL; reading a log is a secret surface.** The Linux platform file tells tmpfs pages from process swap and names `/mnt/wsl` (a 45 GB cargo target there kept the swap full for a day); rule 9.5 now says to strip colour codes and mask URLs and long token runs before printing a log line.
 
 **0.1.30, 2026-10-16 — rule 9.7 reworded: a green host starts at once.** A lane read "heavy work waits for a quiet host" as "wait" and refused a gate at load 2.5.

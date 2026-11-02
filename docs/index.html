@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="An explorable map of all fifteen sections and sixty-four rules of the Claude Code Playbook - the Mantra, the approval table, the review ladder, and the model roster.">
+<meta name="description" content="An explorable map of all fifteen sections and sixty-five rules of the Claude Code Playbook - the Mantra, the approval table, the review ladder, and the model roster.">
 <style>
 html{color-scheme:light dark}
 body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;background:#fafaf9}
@@ -287,9 +287,9 @@ footer .fmono{font-family:var(--mono);font-size:.8125rem}
 <div class="wrap">
 
 <header class="masthead">
-  <p class="eyebrow">Open source · MIT · v0.1.31</p>
+  <p class="eyebrow">Open source · MIT · v0.1.32</p>
   <h1>Claude Code Playbook</h1>
-  <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: fifteen sections, sixty-four rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
+  <p class="standfirst">A rulebook for working with AI coding agents, written as a numbered code: fifteen sections, sixty-five rules, one table that is the complete list of things needing your approval. Written in the first person on purpose — <em>you install the files and you are the “I”.</em></p>
   <dl class="facts">
     <div class="fact"><dt>Sections</dt><dd>15 &nbsp;<span style="color:var(--ink-3);font-weight:400">(0–14)</span></dd></div>
     <div class="fact"><dt>Rules</dt><dd>64</dd></div>
@@ -546,7 +546,8 @@ const S=[
   ["13.3","<strong>Worktrees go through git, after three checks:</strong> ignored files preserved (removal deletes them silently), commits reachable from a branch or tag (a stash is not enough), nothing using it. Then <code>git worktree remove</code> without <code>--force</code>. The creating lane locks it and removes it."],
   ["13.4","<strong>Make things cleanable when you create them.</strong> Large or long-lived output outside an obvious home gets a <code>.hygiene.json</code> marker: owner, task, created, disposable, regenerate. A marker never moves an item out of the protected or evidence class, and one you did not write is evidence, not permission. <strong>Build output and large scratch never live on a memory-backed filesystem</strong> (<code>/dev/shm</code>, any tmpfs, a RAM disk): that is the host's memory, and a target left there outlives the lane — check the filesystem type before pointing a build at a path."],
   ["13.5","<strong>When it runs, and what it reports.</strong> Every close-out and phase end, before disk-heavy work, below the free-space floor (10 % unless the local layer sets one), and below the memory floor (10 % of the machine's memory unless the local layer sets one) or when a memory-backed filesystem is more than a quarter full — memory-backed items are the first candidates. Low space calls for this procedure, never for broader deletion, and the floor never stops work by itself — only a step that measurably will not fit does. The report: removed, kept and why, next candidates largest first."],
-  ["13.6","<strong>A refusal ends the attempt.</strong> A refused removal is never re-issued in another form; reclassify, then quarantine or report it. The one exception: build output proven regenerable and idle whose command form (a flag such as <code>-f</code>) was refused goes once by its toolchain's clean command."]],
+  ["13.6","<strong>A refusal ends the attempt.</strong> A refused removal is never re-issued in another form; reclassify, then quarantine or report it. The one exception: build output proven regenerable and idle whose command form (a flag such as <code>-f</code>) was refused goes once by its toolchain's clean command."],
+  ["13.7","<strong>Every worktree is claimed, declared, and removed once it holds nothing git cannot give back.</strong> The creator locks it with owner, task, date and state. A finished lane commits, pushes and declares <em>ready to merge</em>. An empty worktree may go at any time, and a merged one always does. A paused one stays while it holds work: its build cache goes after 7 days, and after 30 it is archived (work pushed to a rescue branch, other files quarantined) and removed. A dead lane's worktree is adopted by the coordinator, which pushes its work first and then acts for it. Every hygiene report lists all worktrees by state."]],
  features:[
   {t:"Two sessions that wrote this section",c:"Both targets were legitimate build output. Both workarounds were not.",
    table:{h:["Refused","What the agent did next"],r:[

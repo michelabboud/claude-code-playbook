@@ -120,7 +120,7 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 | 10.3 | **Quarantine is the answer to doubt** — recoverable, keeps work moving, reported at close-out, and it needs no approval. Move, never copy-then-delete; validate first, alone; a manifest travels with every item; final deletion out of quarantine still needs my specific approval. **Read the file for the procedure for files and databases, and the duty to tell me.** |
 
 ### 13 · Hygiene — `rules/HYGIENE.md`
-*Trigger: before any cleanup — a request to clean up, free space or remove stale builds, a close-out checkpoint, or a disk warning. Read it by path; it does not load every session.*
+*Trigger: before any cleanup — a request to clean up, free space or remove stale builds, a close-out checkpoint, or a disk warning — and before you create a worktree or pause a lane. Read it by path; it does not load every session.*
 
 | # | The law in one line |
 |---|---|
@@ -130,6 +130,7 @@ When the ask is genuinely mixed ("review this and fix what you find"), it's an i
 | 13.4 | **Make things cleanable when you create them** — known places, and a `.hygiene.json` marker on anything large or long-lived elsewhere. |
 | 13.5 | **Run it at close-out, before heavy disk use, and below the disk floor; end with a report** — removed, kept, and the next candidates for me with what each would cost. The floor never stops work by itself; only a step that measurably will not fit does. |
 | 13.6 | **A refusal ends the attempt** — reclassify, then quarantine or list it for me; never re-issue the same effect (rule 10.1), except build output proven regenerable and idle whose command form was refused: its toolchain clean command, once. A refusal is not a classification. |
+| 13.7 | **Every worktree is claimed, declared, and removed once it holds nothing git cannot give back** — every worktree lives in `<repo>_lanes/<name>`, beside the repository, never in a temporary directory; the creator locks it with `key=value` owner, task, date and state; a finished lane commits, pushes and declares *ready to merge*; an empty worktree (pushed, only build output, no stash, idle) may be removed, and a merged one always is; a paused one stays while it holds work, losing its build cache after 7 days and archived after 30; a dead lane's worktree is adopted and handled by the coordinator, its work pushed first; deleting what is in neither git nor quarantine needs my consent; every report lists all worktrees by state. |
 
 ### 14 · Dev modes — `rules/DEV_MODES.md`
 *Trigger: before writing a plan, before any reviewer dispatch, when a review returns a security finding, and when I change a project's mode. Read it by path; it does not load every session.*

@@ -4,6 +4,84 @@ All notable changes to this rulebook. Newest first. Dates are absolute.
 
 ---
 
+## 0.1.32 — 2026-10-26
+
+On 2026-10-25 the owner's largest project held 100 git worktrees: 22 finished
+lanes already merged into their integration branch, 33 detached review
+snapshots in `/tmp`, and a dozen lanes paused for weeks, each with its build
+cache. The disk was below its floor. Section 13 already said the creating lane
+removes its worktree at close-out, but the sentence sat inside the removal
+procedure, the section never loaded when a worktree was *created*, and nothing
+made a close-out account for one (ADR 0024).
+
+- **New rule 13.7, every worktree is claimed, declared, and removed once it
+  holds nothing git cannot give back.** The creator claims it with `git
+  worktree lock --reason "owner=<lane>; task=<task>; created=<date>;
+  state=running"` (key=value, so a script can read it) and re-locks it when
+  the state changes. A finished lane commits, pushes, runs its checks and
+  declares to the coordinator *ready to merge* (branch, head, evidence) or *not
+  ready* and why; its close-out lists every worktree it made and its state.
+- **One home for worktrees: `<repo>_lanes/<name>`**, beside the repository,
+  never inside it and never in a temporary directory (which the system may
+  empty, taking review evidence with it); review snapshots too, as
+  `review-<task>-<short sha>`. A stray one is moved with `git worktree move`.
+- **`scripts/worktree-inventory.sh`, the inventory done mechanically.**
+  Read-only toward every worktree: it reads the key=value lock reasons, checks
+  pushed, merged, modified, untracked, ignored and stash, flags a pause past
+  its `until=` date and any worktree outside `<repo>_lanes/`, and prints the
+  five groups. `--write` keeps them as the status page `<repo>_lanes/README.md`.
+  A coordinator runs it when its session starts and at every hygiene pass.
+  New suite `tests/worktree_inventory_test.sh` (22 assertions on fixture
+  repositories; two mutations of the script turned it red).
+- **Empty means removable.** A worktree is empty when its HEAD is on a pushed
+  branch, its status shows only build output, no stash came from it and
+  nothing runs in it. The coordinator may remove an empty worktree at any time,
+  and a merged one is always removed, after an ancestry check against the line
+  it was made for.
+- **A paused worktree stays while it holds work, on a schedule.** It is
+  reported in every inventory; after 7 days (or the local layer's grace period)
+  its build output goes, unless the project marks it as evidence; after 30 days
+  or its `until=` date (or the local layer's stale period) it is archived: work
+  pushed to `rescue/<branch>-<date>`, other non-build files quarantined and
+  compressed, and the now-empty worktree removed. Deleting anything in neither
+  git nor quarantine needs the owner's consent.
+- **A dead lane's worktree is adopted by the coordinator, which acts for it:**
+  it commits and pushes any uncommitted work first (the lane's branch, or a
+  `rescue/` branch when unsure), then removes, declares, pauses or finishes it
+  as the lane would. The owner hears only of an unresolvable conflict, unclear
+  provenance or a decision outside the plan.
+- **The inventory.** Every hygiene report lists all worktrees with their lock
+  reasons and build-output size: running, ready to merge, paused or not ready,
+  merged or empty, unclaimed or orphaned — the standing answer to "which worktrees are stale, and why keep
+  them".
+- **A worktree's marker is its lock reason, never a file inside it** (rule
+  13.4): an untracked `.hygiene.json` in a worktree makes `git worktree remove`
+  refuse.
+- **Section 13's trigger** now names creating a worktree and pausing a lane, in
+  the file's header, section 0's summary, rule 10.2 and the section table; the
+  header says its `paths:` scope cannot fire for a sibling worktree or a `/tmp`
+  snapshot. Rule 6.1's hygiene checkpoint names the worktree line.
+- Any local-layer Override bound to section 13 goes stale, as designed, and is
+  re-anchored at install.
+- **Review amendments (2026-11-02), before merge.**
+  - The creator claims a worktree **in the command that creates it**:
+    `git worktree add --lock --reason "…" <repo>_lanes/<name> <branch>`
+    (git 2.35+), so no lane can die between creating and claiming.
+  - **Archiving and adoption check uncommitted work for secrets first**
+    (rule 9.5): a possible credential is quarantined, never committed and
+    pushed to a `rescue/` branch.
+  - **A tool-managed worktree stays where its tool put it** (a dispatcher's
+    run checkout, a harness's own worktree): it is listed, never moved or
+    removed by anyone else, and a tool that leaks them is reported.
+  - **Rule 3.3: a review snapshot lives in the worktree home**
+    (`<repo>_lanes/review-<task>-<short sha>`), never a temporary directory,
+    so it no longer contradicts rule 13.7.
+  - `scripts/worktree-inventory.sh` is executable; the 0.1.31 changelog
+    heading is restored.
+  - Tests: 403 wording assertions (8 new), 216 mutations (7 new).
+
+---
+
 ## 0.1.31 — 2026-10-18
 
 Two lessons from one evening on the owner's machine.
